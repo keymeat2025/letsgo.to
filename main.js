@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const doc = parser.parseFromString(text, 'text/html');
       const imgs = Array.from(doc.querySelectorAll('a'))
         .map(link => link.href)
-        .filter(href => href.match(/\.(jpe?g|png|gif|pdf)$/i));
+        .filter(href => href.match(/\.(jpe?g|png|gif)$/i));
       
       if (imgs.length > 0) {
         const imgUrl = imgs[0]; // Use the first image found
