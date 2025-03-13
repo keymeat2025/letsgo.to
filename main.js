@@ -2,22 +2,23 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const folderPath = `https://raw.githubusercontent.com/keymeat2025/letsgo.to/main/${year}/${month}/`;
+  const repo = 'keymeat2025/letsgo.to';
+  const folderPath = `${year}/${month}/`;
 
-  fetch(folderPath)
+  const apiURL = `https://api.github.com/repos/${repo}/contents/${folderPath}`;
+
+  fetch(apiURL)
     .then(response => {
       if (response.ok) {
-        return response.text();
+        return response.json();
       } else {
         throw new Error('Folder not found');
       }
     })
-    .then(text => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, 'text/html');
-      const images = Array.from(doc.querySelectorAll('a'))
-        .map(link => link.href)
-        .filter(href => href.match(/\.(jpe?g|png|gif|pdf)$/i));
+    .then(files => {
+      const images = files
+        .filter(file => file.type === 'file' && /\.(jpe?g|png|gif|pdf)$/i.test(file.name))
+        .map(file => file.download_url);
 
       if (images.length > 0) {
         const swiperWrapper = document.getElementById('swiper-wrapper');
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
             prevEl: '.swiper-button-prev',
           },
           autoplay: {
-            delay: 5000, // Delay between slides in milliseconds
+            delay: 5000,
             disableOnInteraction: false,
           },
         });
