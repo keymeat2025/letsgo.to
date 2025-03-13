@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(files => {
       const images = files
-        .filter(file => file.type === 'file' && /\.(jpe?g|png|gif|pdf)$/i.test(file.name))
+        .filter(file => file.type === 'file' && /\.(jpeg|png|gif|pdf)$/i.test(file.name))
         .map(file => file.download_url);
 
       if (images.length > 0) {
