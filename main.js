@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const imageUrls = imageElements.map(el => folderPath + el.getAttribute('href'));
 
       console.log(`Number of images found: ${imageUrls.length}`);
-      //imageUrls.forEach(url => console.log(`Image URL: ${url}`));
+      imageUrls.forEach(url => console.log(`Image URL: ${url}`));
 
       const swiperWrapper = document.getElementById('swiper-wrapper');
       imageUrls.forEach(imgUrl => {
