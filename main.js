@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const folderPath = `${year}/${month}/`;
+  const folderPath = `https://keymeat2025.github.io/letsgo.to/${year}/${month}/`;
 
   console.log(`Current Date: ${currentDate}`);
   console.log(`Year: ${year}, Month: ${month}`);
