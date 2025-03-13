@@ -1,12 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
-  fetch('competitions.json')
-    .then(response => response.json())
-    .then(data => {
-      const currentUrl = window.location.pathname;
-      const competition = data.find(comp => currentUrl.includes(comp.url));
-      if (competition) {
-        document.getElementById('banner').src = competition.bannerUrl;
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+  fetch(`/${year}/${month}/banner.jpg`)
+    .then(response => {
+      if (response.ok) {
+        return response.blob();
+      } else {
+        throw new Error('Banner not found');
       }
     })
-    .catch(error => console.error('Error loading competition data:', error));
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      document.getElementById('banner').src = url;
+    })
+    .catch(error => console.error('Error loading banner:', error));
 });
