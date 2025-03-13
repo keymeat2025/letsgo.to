@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const imageElements = Array.from(doc.querySelectorAll('a[href$=".jpeg"], a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]'));
       const imageUrls = imageElements.map(el => folderPath + el.getAttribute('href'));
 
-      console.log(`Number of images found: ${imageUrls.length}`);
-      imageUrls.forEach(url => console.log(`Image URL: ${url}`));
-
       const swiperWrapper = document.getElementById('swiper-wrapper');
       imageUrls.forEach(imgUrl => {
         const slide = document.createElement('div');
