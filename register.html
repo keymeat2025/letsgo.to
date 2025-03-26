@@ -7,18 +7,41 @@
     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
 </head>
 <body>
+    <div id="banner-container"></div> <!-- Placeholder for the banner -->
     <div class="container">
         <h2>Register</h2>
-        <form action="register" method="post"> <!-- Change the action to your register endpoint -->
+        <form id="registerForm" action="register" method="post"> <!-- Change the action to your register endpoint -->
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <label for="pin">PIN:</label>
+            <input type="password" id="pin" name="pin" required>
+            <label for="confirmPin">Confirm PIN:</label>
+            <input type="password" id="confirmPin" name="confirmPin" required>
             <button type="submit">Register</button>
         </form>
         <p>Already have an account? <a href="login.html">Login here</a></p>
     </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            const pin = document.getElementById('pin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+
+            if (pin !== confirmPin) {
+                event.preventDefault();
+                alert('PINs do not match. Please re-enter.');
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('banner.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('banner-container').innerHTML = data;
+                });
+        });
+    </script>
 </body>
 </html>
