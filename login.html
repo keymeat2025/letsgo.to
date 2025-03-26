@@ -5,18 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <script defer src="includeBanner.js"></script> <!-- Link to your JavaScript file -->
 </head>
 <body>
+    <div id="banner-container"></div> <!-- Placeholder for the banner -->
     <div class="container">
         <h2>Login</h2>
         <form action="login" method="post"> <!-- Change the action to your login endpoint -->
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <label for="pin">PIN:</label>
+            <input type="password" id="pin" name="pin" required>
+            <input type="hidden" id="category" name="category" value="">
             <button type="submit">Login</button>
         </form>
         <p>Don't have an account? <a href="register.html">Register here</a></p>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            if (category) {
+                document.getElementById('category').value = category;
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('banner.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('banner-container').innerHTML = data;
+                });
+        });
+    </script>
 </body>
 </html>
