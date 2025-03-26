@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Competitions</title>
-  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-  <script src="https://unpkg.com/swiper/swiper-bundle.min.js" defer></script>
-  <script src="main.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -124,19 +121,29 @@
       padding: 40px;
       background-color: #fdfdfd;
       border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: center;
     }
-    .organizers-section h2 {
+    .instruction-window {
+      max-width: 800px;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .instruction-window h2 {
+      text-align: center;
       margin-top: 0;
       color: #333;
       font-size: 28px;
     }
     .step {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       padding: 20px;
-      background-color: #fff;
+      background-color: #f9f9f9;
       border: 1px solid #ddd;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     .step h3 {
       color: #555;
@@ -164,6 +171,23 @@
       margin-right: 10px;
       font-size: 18px;
     }
+    .proceed-button {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .proceed-button a {
+      text-decoration: none;
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 18px;
+      transition: background-color 0.3s ease;
+    }
+    .proceed-button a:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -190,73 +214,43 @@
     </div>
   </div>
   
-  <div class="swiper-container">
-    <div class="swiper-wrapper" id="swiper-wrapper"></div>
-    <!-- Add Pagination -->
-    <div class="swiper-pagination"></div>
-    <!-- Add Navigation -->
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-  </div>
-
   <!-- Competitions Section -->
-  <section id="competitions">
-    <h2>Upcoming Competitions</h2>
-    <div id="competitions-list"></div>
-  </section>
+
 
   <!-- For Organizers Section -->
   <section id="organizers" class="organizers-section">
-    <h2>For Organizers: How to Upload Your Competition Details</h2>
-    <div class="step">
-      <div class="icon">1</div>
-      <h3>Step 1: Sign Up or Log In</h3>
-      <p>If you don't have an account, sign up. If you already have an account, log in.</p>
-      <img src="https://via.placeholder.com/600x200.png?text=Sign+Up+or+Log+In" alt="Sign Up or Log In">
-    </div>
-    <div class="step">
-      <div class="icon">2</div>
-      <h3>Step 2: Go to 'Create Competition'</h3>
-      <p>Navigate to the 'Create Competition' section from the dashboard.</p>
-      <img src="https://via.placeholder.com/600x200.png?text=Create+Competition" alt="Create Competition">
-    </div>
-    <div class="step">
-      <div class="icon">3</div>
-      <h3>Step 3: Fill in Competition Details</h3>
-      <p>Provide all the necessary details about your competition, including title, description, dates, and any relevant rules.</p>
-      <img src="https://via.placeholder.com/600x200.png?text=Competition+Details" alt="Competition Details">
-    </div>
-    <div class="step">
-      <div class="icon">4</div>
-      <h3>Step 4: Upload Media</h3>
-      <p>Upload any images, videos, or other media related to your competition.</p>
-      <img src="https://via.placeholder.com/600x200.png?text=Upload+Media" alt="Upload Media">
-    </div>
-    <div class="step">
-      <div class="icon">5</div>
-      <h3>Step 5: Submit for Review</h3>
-      <p>Once you've filled in all the details, submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
-      <img src="https://via.placeholder.com/600x200.png?text=Submit+for+Review" alt="Submit for Review">
+    <div class="instruction-window">
+      <h2>For Organizers: How to Upload Your Competition Details</h2>
+      <div class="step">
+        <div class="icon">1</div>
+        <h3>Step 1: Sign Up or Log In</h3>
+        <p>If you don't have an account, sign up. If you already have an account, log in.</p>
+    
+    
+        <div class="icon">2</div>
+        <h3>Step 2: Go to 'Create Competition'</h3>
+        <p>Navigate to the 'Create Competition' section from the dashboard.</p>
+
+        <div class="icon">3</div>
+        <h3>Step 3: Fill in Competition Details</h3>
+        <p>Provide all the necessary details about your competition, including title, description, dates, and any relevant rules.</p>
+
+        <div class="icon">4</div>
+        <h3>Step 4: Upload Media</h3>
+        <p>Upload any images, videos, or other media related to your competition.</p>
+      
+        <div class="icon">5</div>
+        <h3>Step 5: Submit for Review</h3>
+        <p>Once you've filled in all the details, submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
+        
+      </div>
+      <div class="proceed-button">
+        <a href="#signup">Proceed to Sign Up or Log In</a>
+      </div>
     </div>
   </section>
 
-  <!-- For Students Section -->
-  <section id="students">
-    <h2>For Students</h2>
-    <!-- Content for students -->
-  </section>
 
-  <!-- Summer Courses Section -->
-  <section id="classes">
-    <h2>Summer Courses</h2>
-    <div id="classes-list"></div>
-  </section>
-
-  <!-- Winners Section -->
-  <section id="winners">
-    <h2>Winners</h2>
-    <!-- Content for winners -->
-  </section>
 
   <script>
     function clearSearch() {
