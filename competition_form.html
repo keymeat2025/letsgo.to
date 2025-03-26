@@ -38,6 +38,7 @@
             color: #555;
         }
         .form-container input,
+        .form-container select,
         .form-container textarea {
             padding: 10px;
             margin-top: 5px;
@@ -59,29 +60,110 @@
         .form-container button:hover {
             background-color: #0056b3;
         }
+        .preview-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .preview-banner {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h2>Competition Details</h2>
         <form id="competitionForm">
-            <label for="title">Title:</label>
+            <label for="title">Competition Title:</label>
             <input type="text" id="title" name="title" required>
             
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" required></textarea>
-            
-            <label for="date">Date:</label>
-            <input type="date" id="date" name="date" required>
-            
-            <label for="rules">Rules:</label>
+            <label for="organizer">Organized By:</label>
+            <input type="text" id="organizer" name="organizer" required>
+
+            <label for="rules">Rules and Regulations:</label>
             <textarea id="rules" name="rules" required></textarea>
             
-            <label for="media">Upload Media:</label>
-            <input type="file" id="media" name="media">
+            <label for="specifics">Specifics (e.g., first 500 entries only, no pets allowed):</label>
+            <textarea id="specifics" name="specifics"></textarea>
             
-            <button type="submit">Submit</button>
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="music">Music</option>
+                <option value="dance">Dance</option>
+                <option value="art">Art</option>
+                <option value="sports">Sports</option>
+                <option value="technology">Technology</option>
+            </select>
+            
+            <label for="startDateTime">Start Date and Time:</label>
+            <input type="datetime-local" id="startDateTime" name="startDateTime" required>
+            
+            <label for="endDateTime">End Date and Time:</label>
+            <input type="datetime-local" id="endDateTime" name="endDateTime" required>
+            
+            <label for="registrationDeadline">Deadline for Registration:</label>
+            <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" required>
+            
+            <label for="venue">Venue:</label>
+            <input type="text" id="venue" name="venue" required>
+            <small>Use Google Maps to select the location.</small>
+            
+            <label for="eligibility">Eligibility:</label>
+            <select id="eligibility" name="eligibility" required>
+                <option value="open">Open (minimum age: 18)</option>
+                <option value="kids">Kids (6-12)</option>
+                <option value="teens">Teens (13-17)</option>
+            </select>
+            
+            <label for="prizeDetails">Prize Details:</label>
+            <textarea id="prizeDetails" name="prizeDetails" required></textarea>
+            
+            <label for="contactName">Primary Contact Name:</label>
+            <input type="text" id="contactName" name="contactName" required>
+            
+            <label for="contactPhone">Primary Contact Phone Number:</label>
+            <input type="tel" id="contactPhone" name="contactPhone" required>
+            
+            <label for="brochure">Upload Competition Brochure/Image:</label>
+            <input type="file" id="brochure" name="brochure" accept="image/*,application/pdf" required>
+            
+            <button type="button" onclick="showPreview()">Proceed</button>
         </form>
     </div>
+
+    <div class="preview-container" id="previewContainer">
+        <h3>Competition Banner Preview</h3>
+        <img id="previewBanner" class="preview-banner" src="" alt="Competition Banner">
+        <button onclick="confirmPayment()">Confirm and Pay</button>
+    </div>
+
+    <script>
+        function showPreview() {
+            const form = document.getElementById('competitionForm');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewBanner = document.getElementById('previewBanner');
+            
+            const fileInput = document.getElementById('brochure');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewBanner.src = e.target.result;
+                    previewContainer.style.display = 'flex';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function confirmPayment() {
+            alert('Proceeding to payment...');
+            // Add payment processing logic here
+        }
+    </script>
 </body>
 </html>
