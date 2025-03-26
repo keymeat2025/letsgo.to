@@ -6,7 +6,7 @@
     <title>Add Competition Details</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -21,6 +21,9 @@
             color: #fff;
             padding: 10px;
             text-align: center;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
         }
         .header a {
             color: #fff;
@@ -34,9 +37,9 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
+            max-width: 600px;
             border: 2px solid #007bff;
+            margin-top: 60px;
         }
         .form-container h2 {
             text-align: center;
@@ -61,6 +64,7 @@
             font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
         .form-container button {
             margin-top: 20px;
@@ -72,6 +76,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
         .form-container button:hover {
             background-color: #0056b3;
@@ -81,12 +86,18 @@
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
         }
         .preview-banner {
             width: 100%;
-            max-height: 200px;
             object-fit: contain;
             margin-top: 10px;
+            background-color: #e9ecef;
+            border: 1px solid #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
         }
         .home-button {
             margin-bottom: 20px;
@@ -98,9 +109,21 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
         .home-button:hover {
             background-color: #218838;
+        }
+        .download-link {
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        .download-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -171,23 +194,45 @@
 
     <div class="preview-container" id="previewContainer">
         <h3>Competition Banner Preview</h3>
-        <img id="previewBanner" class="preview-banner" src="" alt="Competition Banner">
+        <div class="preview-banner">
+            <h4 id="previewTitle"></h4>
+            <p id="previewOrganizer"></p>
+            <p id="previewCategory"></p>
+            <p id="previewStartDateTime"></p>
+            <p id="previewEndDateTime"></p>
+            <p id="previewVenue"></p>
+            <a id="downloadLink" class="download-link" href="#" download>Download Brochure/Image</a>
+        </div>
         <button onclick="confirmPayment()">Confirm and Pay</button>
     </div>
 
     <script>
         function showPreview() {
-            const form = document.getElementById('competitionForm');
-            const previewContainer = document.getElementById('previewContainer');
-            const previewBanner = document.getElementById('previewBanner');
+            const title = document.getElementById('title').value;
+            const organizer = document.getElementById('organizer').value;
+            const category = document.getElementById('category').value;
+            const startDateTime = document.getElementById('startDateTime').value;
+            const endDateTime = document.getElementById('endDateTime').value;
+            const venue = document.getElementById('venue').value;
             
+            document.getElementById('previewTitle').textContent = `Title: ${title}`;
+            document.getElementById('previewOrganizer').textContent = `Organized By: ${organizer}`;
+            document.getElementById('previewCategory').textContent = `Category: ${category}`;
+            document.getElementById('previewStartDateTime').textContent = `Start Date and Time: ${startDateTime}`;
+            document.getElementById('previewEndDateTime').textContent = `End Date and Time: ${endDateTime}`;
+            document.getElementById('previewVenue').textContent = `Venue: ${venue}`;
+
             const fileInput = document.getElementById('brochure');
             const file = fileInput.files[0];
             
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewBanner.src = e.target.result;
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = e.target.result;
+                    downloadLink.download = file.name;
+
+                    const previewContainer = document.getElementById('previewContainer');
                     previewContainer.style.display = 'flex';
                     previewContainer.style.flexDirection = 'column';
                     previewContainer.style.alignItems = 'center';
