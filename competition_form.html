@@ -238,6 +238,11 @@
                     previewContainer.style.alignItems = 'center';
                 }
                 reader.readAsDataURL(file);
+            } else {
+                const previewContainer = document.getElementById('previewContainer');
+                previewContainer.style.display = 'flex';
+                previewContainer.style.flexDirection = 'column';
+                previewContainer.style.alignItems = 'center';
             }
         }
 
