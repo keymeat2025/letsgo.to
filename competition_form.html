@@ -152,6 +152,20 @@
         .download-link:hover {
             text-decoration: underline;
         }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 5px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .stamp {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .stamp img {
+            width: 50px;
+            height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -163,54 +177,57 @@
         <h2>Competition Details</h2>
         <form id="competitionForm">
             <label for="title">Competition Title:</label>
-            <input type="text" id="title" name="title" required>
+            <input type="text" id="title" name="title" value="Annual Coding Challenge" required>
             
             <label for="organizer">Organized By:</label>
-            <input type="text" id="organizer" name="organizer" required>
+            <input type="text" id="organizer" name="organizer" value="Tech Innovators" required>
 
             <label for="rules">Rules and Regulations:</label>
-            <textarea id="rules" name="rules" required></textarea>
+            <textarea id="rules" name="rules" required>Follow all coding standards and submit your code before the deadline.</textarea>
             
             <label for="specifics">Specific Information (e.g., first 500 entries only, no pets allowed):</label>
-            <textarea id="specifics" name="specifics"></textarea>
+            <textarea id="specifics" name="specifics">First 500 entries only</textarea>
+            
+            <label for="entriesLimit">Limit Entries To (e.g., first 500 entries):</label>
+            <input type="number" id="entriesLimit" name="entriesLimit" value="500" min="1">
             
             <label for="category">Category:</label>
             <select id="category" name="category" required>
+                <option value="technology" selected>Technology</option>
                 <option value="music">Music</option>
                 <option value="dance">Dance</option>
                 <option value="art">Art</option>
                 <option value="sports">Sports</option>
-                <option value="technology">Technology</option>
             </select>
             
             <label for="startDateTime">Competition Start Date and Time:</label>
-            <input type="datetime-local" id="startDateTime" name="startDateTime" required>
+            <input type="datetime-local" id="startDateTime" name="startDateTime" value="2025-04-01T10:00" required>
             
             <label for="endDateTime">Competition End Date and Time:</label>
-            <input type="datetime-local" id="endDateTime" name="endDateTime" required>
+            <input type="datetime-local" id="endDateTime" name="endDateTime" value="2025-04-10T18:00" required>
             
             <label for="registrationDeadline">Registration Deadline:</label>
-            <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" required>
+            <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" value="2025-03-31T23:59" required>
             
             <label for="venue">Venue:</label>
-            <input type="text" id="venue" name="venue" required>
+            <input type="text" id="venue" name="venue" value="Tech Park, Silicon Valley" required>
             <small>Use Google Maps to select the location.</small>
             
             <label for="eligibility">Eligibility (Age Category):</label>
             <select id="eligibility" name="eligibility" required>
-                <option value="open">Open (minimum age: 18)</option>
+                <option value="open" selected>Open (minimum age: 18)</option>
                 <option value="kids">Kids (6-12)</option>
                 <option value="teens">Teens (13-17)</option>
             </select>
             
             <label for="prizeDetails">Prize Details:</label>
-            <textarea id="prizeDetails" name="prizeDetails" required></textarea>
+            <textarea id="prizeDetails" name="prizeDetails" required>Cash prize of $5000</textarea>
             
             <label for="contactName">Primary Contact Name:</label>
-            <input type="text" id="contactName" name="contactName" required>
+            <input type="text" id="contactName" name="contactName" value="John Doe" required>
             
             <label for="contactPhone">Primary Contact Phone Number:</label>
-            <input type="tel" id="contactPhone" name="contactPhone" pattern="[0-9]{10}" required>
+            <input type="tel" id="contactPhone" name="contactPhone" pattern="[0-9]{10}" value="1234567890" required>
             
             <label for="brochure">Upload Competition Brochure/Image:</label>
             <input type="file" id="brochure" name="brochure" accept="image/*,application/pdf" required>
@@ -230,7 +247,9 @@
             <p id="previewVenue"></p>
             <a id="gmapLink" href="#" target="_blank">Click here for directions</a>
             <p id="previewEligibility"></p>
+            <p id="previewEntriesLimit" class="highlight"></p>
             <p id="previewPrize"></p>
+            <div class="stamp" id="prizeStamp"></div>
             <p id="previewContact"></p>
             <a id="downloadLink" class="download-link" href="#" download>Download Brochure/Image</a>
         </div>
@@ -252,6 +271,7 @@
             const prizeDetails = document.getElementById('prizeDetails').value;
             const contactName = document.getElementById('contactName').value;
             const contactPhone = document.getElementById('contactPhone').value;
+            const entriesLimit = document.getElementById('entriesLimit').value;
 
             document.getElementById('previewTitle').textContent = `Title: ${title}`;
             document.getElementById('previewOrganizer').textContent = `Organized By: ${organizer}`;
@@ -262,6 +282,20 @@
             document.getElementById('previewEligibility').textContent = `Eligibility: ${eligibility}`;
             document.getElementById('previewPrize').textContent = `Prize: ${prizeDetails}`;
             document.getElementById('previewContact').textContent = `Contact: ${contactName}, ${contactPhone}`;
+
+            if (entriesLimit) {
+                document.getElementById('previewEntriesLimit').textContent = `Entries Limit: First ${entriesLimit} entries`;
+            } else {
+                document.getElementById('previewEntriesLimit').textContent = '';
+            }
+
+            const prizeStamp = document.getElementById('prizeStamp');
+            prizeStamp.innerHTML = '';
+            if (prizeDetails.toLowerCase().includes('cash')) {
+                prizeStamp.innerHTML = '<img src="cash_icon.png" alt="Cash Prize">';
+            } else if (prizeDetails.toLowerCase().includes('trophy')) {
+                prizeStamp.innerHTML = '<img src="trophy_icon.png" alt="Trophy">';
+            }
 
             const gmapLink = document.getElementById('gmapLink');
             gmapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
