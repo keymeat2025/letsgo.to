@@ -12,8 +12,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .header {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .header a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            margin-right: 20px;
         }
         .form-container {
             background-color: #fff;
@@ -22,6 +35,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 500px;
+            margin-top: 20px;
+            border: 2px solid #007bff;
         }
         .form-container h2 {
             text-align: center;
@@ -36,6 +51,7 @@
         .form-container label {
             margin-top: 10px;
             color: #555;
+            font-weight: bold;
         }
         .form-container input,
         .form-container select,
@@ -72,9 +88,27 @@
             object-fit: contain;
             margin-top: 10px;
         }
+        .home-button {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .home-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <a href="index.html">Home</a>
+        <span>Add Competition Details</span>
+    </div>
     <div class="form-container">
         <h2>Competition Details</h2>
         <form id="competitionForm">
@@ -87,7 +121,7 @@
             <label for="rules">Rules and Regulations:</label>
             <textarea id="rules" name="rules" required></textarea>
             
-            <label for="specifics">Specifics (e.g., first 500 entries only, no pets allowed):</label>
+            <label for="specifics">Specific Information (e.g., first 500 entries only, no pets allowed):</label>
             <textarea id="specifics" name="specifics"></textarea>
             
             <label for="category">Category:</label>
@@ -105,7 +139,7 @@
             <label for="endDateTime">End Date and Time:</label>
             <input type="datetime-local" id="endDateTime" name="endDateTime" required>
             
-            <label for="registrationDeadline">Deadline for Registration:</label>
+            <label for="registrationDeadline">Registration Deadline:</label>
             <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" required>
             
             <label for="venue">Venue:</label>
@@ -126,7 +160,7 @@
             <input type="text" id="contactName" name="contactName" required>
             
             <label for="contactPhone">Primary Contact Phone Number:</label>
-            <input type="tel" id="contactPhone" name="contactPhone" required>
+            <input type="tel" id="contactPhone" name="contactPhone" pattern="[0-9]{10}" required>
             
             <label for="brochure">Upload Competition Brochure/Image:</label>
             <input type="file" id="brochure" name="brochure" accept="image/*,application/pdf" required>
@@ -155,6 +189,8 @@
                 reader.onload = function(e) {
                     previewBanner.src = e.target.result;
                     previewContainer.style.display = 'flex';
+                    previewContainer.style.flexDirection = 'column';
+                    previewContainer.style.alignItems = 'center';
                 }
                 reader.readAsDataURL(file);
             }
