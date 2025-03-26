@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <script defer src="includeBanner.js"></script> <!-- Link to your JavaScript file -->
 </head>
 <body>
     <div id="banner-container"></div> <!-- Placeholder for the banner -->
@@ -19,6 +20,14 @@
             <input type="password" id="pin" name="pin" required>
             <label for="confirmPin">Confirm PIN:</label>
             <input type="password" id="confirmPin" name="confirmPin" required>
+            <div id="category-select" style="display: none;">
+                <label for="category">I am a:</label>
+                <select id="category" name="category" required>
+                    <option value="">Select...</option>
+                    <option value="student">Student</option>
+                    <option value="organizer">Organizer</option>
+                </select>
+            </div>
             <button type="submit">Register</button>
         </form>
         <p>Already have an account? <a href="login.html">Login here</a></p>
@@ -33,8 +42,18 @@
                 alert('PINs do not match. Please re-enter.');
             }
         });
-    </script>
-    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            if (category) {
+                document.getElementById('category').value = category;
+                document.getElementById('category-select').style.display = 'none';
+            } else {
+                document.getElementById('category-select').style.display = 'block';
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             fetch('banner.html')
                 .then(response => response.text())
