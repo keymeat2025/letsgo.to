@@ -88,16 +88,43 @@
             margin-top: 20px;
             width: 100%;
             max-width: 600px;
+            border: 2px solid #007bff;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+            position: relative;
         }
         .preview-banner {
             width: 100%;
             object-fit: contain;
             margin-top: 10px;
             background-color: #e9ecef;
-            border: 1px solid #007bff;
             padding: 20px;
             border-radius: 8px;
             text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            position: relative;
+        }
+        .ribbon {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+        }
+        .ribbon span {
+            position: absolute;
+            display: block;
+            width: 200px;
+            padding: 10px 0;
+            background-color: #ff0000;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            transform: rotate(45deg);
+            right: -50px;
+            top: 30px;
         }
         .home-button {
             margin-bottom: 20px;
@@ -156,10 +183,10 @@
                 <option value="technology">Technology</option>
             </select>
             
-            <label for="startDateTime">Start Date and Time:</label>
+            <label for="startDateTime">Competition Start Date and Time:</label>
             <input type="datetime-local" id="startDateTime" name="startDateTime" required>
             
-            <label for="endDateTime">End Date and Time:</label>
+            <label for="endDateTime">Competition End Date and Time:</label>
             <input type="datetime-local" id="endDateTime" name="endDateTime" required>
             
             <label for="registrationDeadline">Registration Deadline:</label>
@@ -169,7 +196,7 @@
             <input type="text" id="venue" name="venue" required>
             <small>Use Google Maps to select the location.</small>
             
-            <label for="eligibility">Eligibility:</label>
+            <label for="eligibility">Eligibility (Age Category):</label>
             <select id="eligibility" name="eligibility" required>
                 <option value="open">Open (minimum age: 18)</option>
                 <option value="kids">Kids (6-12)</option>
@@ -201,7 +228,14 @@
             <p id="previewStartDateTime"></p>
             <p id="previewEndDateTime"></p>
             <p id="previewVenue"></p>
+            <a id="gmapLink" href="#" target="_blank">Click here for directions</a>
+            <p id="previewEligibility"></p>
+            <p id="previewPrize"></p>
+            <p id="previewContact"></p>
             <a id="downloadLink" class="download-link" href="#" download>Download Brochure/Image</a>
+        </div>
+        <div class="ribbon">
+            <span id="daysLeft"></span>
         </div>
         <button onclick="confirmPayment()">Confirm and Pay</button>
     </div>
@@ -214,13 +248,23 @@
             const startDateTime = document.getElementById('startDateTime').value;
             const endDateTime = document.getElementById('endDateTime').value;
             const venue = document.getElementById('venue').value;
-            
+            const eligibility = document.getElementById('eligibility').value;
+            const prizeDetails = document.getElementById('prizeDetails').value;
+            const contactName = document.getElementById('contactName').value;
+            const contactPhone = document.getElementById('contactPhone').value;
+
             document.getElementById('previewTitle').textContent = `Title: ${title}`;
             document.getElementById('previewOrganizer').textContent = `Organized By: ${organizer}`;
             document.getElementById('previewCategory').textContent = `Category: ${category}`;
-            document.getElementById('previewStartDateTime').textContent = `Start Date and Time: ${startDateTime}`;
-            document.getElementById('previewEndDateTime').textContent = `End Date and Time: ${endDateTime}`;
+            document.getElementById('previewStartDateTime').textContent = `Start: ${startDateTime}`;
+            document.getElementById('previewEndDateTime').textContent = `End: ${endDateTime}`;
             document.getElementById('previewVenue').textContent = `Venue: ${venue}`;
+            document.getElementById('previewEligibility').textContent = `Eligibility: ${eligibility}`;
+            document.getElementById('previewPrize').textContent = `Prize: ${prizeDetails}`;
+            document.getElementById('previewContact').textContent = `Contact: ${contactName}, ${contactPhone}`;
+
+            const gmapLink = document.getElementById('gmapLink');
+            gmapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
 
             const fileInput = document.getElementById('brochure');
             const file = fileInput.files[0];
@@ -244,6 +288,12 @@
                 previewContainer.style.flexDirection = 'column';
                 previewContainer.style.alignItems = 'center';
             }
+
+            const endDate = new Date(endDateTime);
+            const currentDate = new Date();
+            const timeDiff = endDate.getTime() - currentDate.getTime();
+            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            document.getElementById('daysLeft').textContent = `${daysLeft} days left`;
         }
 
         function confirmPayment() {
