@@ -1,333 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Competition Details</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-        .header {
-            width: 100%;
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-        }
-        .header a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
-            margin-right: 20px;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            border: 2px solid #007bff;
-            margin-top: 60px;
-        }
-        .form-container h2 {
-            text-align: center;
-            margin-top: 0;
-            color: #333;
-            font-size: 28px;
-        }
-        .form-container form {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-container label {
-            margin-top: 10px;
-            color: #555;
-            font-weight: bold;
-        }
-        .form-container input,
-        .form-container select,
-        .form-container textarea {
-            padding: 10px;
-            margin-top: 5px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .form-container button {
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 18px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .form-container button:hover {
-            background-color: #0056b3;
-        }
-        .preview-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            border: 2px solid #007bff;
-            padding: 20px;
-            background-color: #f1f1f1;
-            border-radius: 8px;
-            position: relative;
-        }
-        .preview-banner {
-            width: 100%;
-            object-fit: contain;
-            margin-top: 10px;
-            background-color: #e9ecef;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            position: relative;
-        }
-        .ribbon {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 150px;
-            height: 150px;
-            overflow: hidden;
-        }
-        .ribbon span {
-            position: absolute;
-            display: block;
-            width: 200px;
-            padding: 10px 0;
-            background-color: #ff0000;
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-            transform: rotate(45deg);
-            right: -50px;
-            top: 30px;
-        }
-        .home-button {
-            margin-bottom: 20px;
-            padding: 10px;
-            font-size: 18px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .home-button:hover {
-            background-color: #218838;
-        }
-        .download-link {
-            display: block;
-            margin-top: 10px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .download-link:hover {
-            text-decoration: underline;
-        }
-        .highlight {
-            background-color: #ffeb3b;
-            padding: 5px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .stamp {
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .stamp img {
-            width: 50px;
-            height: 50px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Registration</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.125);
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .form-container:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .form-header h2 {
+      font-size: 3.5rem;  /* Increased title size */
+      font-weight: 900;   /* More bold */
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);  /* Added subtle shadow */
+      letter-spacing: -1px;  /* Tighter letter spacing */
+    }
+
+    .form-content {
+      padding: 2rem;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input, 
+    .input-group textarea, 
+    .input-group select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus, 
+    .input-group textarea:focus, 
+    .input-group select:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      transition: color 0.3s ease;
+    }
+
+    .input-group:focus-within .input-icon {
+      color: #3b82f6;
+    }
+
+    .file-upload {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 2px dashed #e2e8f0;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload:hover {
+      border-color: #3b82f6;
+    }
+
+    .submit-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .preview-container {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.125);
+      padding: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .prize-badge {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: black;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(255, 170, 0, 0.3);
+    }
+
+    .days-left-badge {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    }
+
+    .venue-link {
+      color: #3b82f6;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+    }
+
+    .venue-link:hover {
+      color: #2563eb;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <a href="index.html">Home</a>
-        <span>Add Competition Details</span>
+  <div class="form-container" id="formContainer">
+    <div class="form-header">
+      <h2>Competition Registration</h2>
     </div>
-    <div class="form-container">
-        <h2>Competition Details</h2>
-        <form id="competitionForm">
-            <label for="title">Competition Title:</label>
-            <input type="text" id="title" name="title" value="Annual Coding Challenge" required>
-            
-            <label for="organizer">Organized By:</label>
-            <input type="text" id="organizer" name="organizer" value="Tech Innovators" required>
-                
-            <label for="entriesLimit">Limit Entries To (e.g., first 500 entries):</label>
-            <input type="number" id="entriesLimit" name="entriesLimit" value="500" min="1">
-            
-            <label for="category">Category:</label>
-            <select id="category" name="category" required>
-                <option value="technology" selected>Technology</option>
-                <option value="music">Music</option>
-                <option value="dance">Dance</option>
-                <option value="art">Art</option>
-                <option value="sports">Sports</option>
-            </select>
-            
-            <label for="startDateTime">Competition Start Date and Time:</label>
-            <input type="datetime-local" id="startDateTime" name="startDateTime" value="2025-04-01T10:00" required>
-            
-            <label for="endDateTime">Competition End Date and Time:</label>
-            <input type="datetime-local" id="endDateTime" name="endDateTime" value="2025-04-10T18:00" required>
-            
-            <label for="registrationDeadline">Registration Deadline:</label>
-            <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" value="2025-03-31T23:59" required>
-            
-            <label for="venue">Venue:</label>
-            <input type="text" id="venue" name="venue" value="Tech Park, Silicon Valley" required>
-            <small>Copy & paste the Google map location details.</small>
-            
-            <label for="eligibility">Eligibility (Age Category):</label>
-            <select id="eligibility" name="eligibility" required>
-                <option value="open" selected>Open ( No Age limit) </option>
-                <option value="kids">Kids (6-12)</option>
-                <option value="teens">Teens (13-17)</option>
-            </select>
-            
-            <label for="prizeDetails">Prize Details:</label>
-            <textarea id="prizeDetails" name="prizeDetails" required>Cash prize of $5000</textarea>
-            
-            <label for="contactName">Primary Contact Name:</label>
-            <input type="text" id="contactName" name="contactName" value="John Doe" required>
-            
-            <label for="contactPhone">Primary Contact Phone Number:</label>
-            <input type="tel" id="contactPhone" name="contactPhone" pattern="[0-9]{10}" value="1234567890" required>
-            
-            <label for="brochure">Upload Competition Brochure/Image:</label>
-            <input type="file" id="brochure" name="brochure" accept="image/*,application/pdf" required>
-            
-            <button type="button" onclick="showPreview()">Proceed</button>
-        </form>
-    </div>
-
-    <div class="preview-container" id="previewContainer">
-        <h3>Competition Banner Preview</h3>
-        <div class="preview-banner">
-            <h4 id="previewTitle"></h4>
-            <p id="previewOrganizer"></p>
-            <p id="previewCategory"></p>
-            <p id="previewStartDateTime"></p>
-            <p id="previewEndDateTime"></p>
-            <p id="previewVenue"></p>
-            <a id="gmapLink" href="#" target="_blank">Click here for directions</a>
-            <p id="previewEligibility"></p>
-            <p id="previewEntriesLimit" class="highlight"></p>
-            <p id="previewPrize"></p>
-            <div class="stamp" id="prizeStamp"></div>
-            <p id="previewContact"></p>
-            <a id="downloadLink" class="download-link" href="#" download>Download Brochure/Image</a>
+    <div class="form-content">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="input-group">
+          <i class="lucide-tag input-icon absolute"></i>
+          <input type="text" name="title" id="title" placeholder="Competition Title" required>
         </div>
-        <div class="ribbon">
-            <span id="daysLeft"></span>
+        <div class="input-group">
+          <i class="lucide-user input-icon absolute"></i>
+          <input type="text" name="organizer" id="organizer" placeholder="Organized By" required>
         </div>
-        <button onclick="confirmPayment()">Confirm and Pay</button>
+      </div>
+      
+      <div class="input-group mt-4">
+        <i class="lucide-file-text input-icon absolute"></i>
+        <textarea name="rules" id="rules" rows="3" placeholder="Rules and Regulations" required></textarea>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-award input-icon absolute"></i>
+          <select name="category" id="category" required>
+            <option value="">Select Category</option>
+            <option value="technology">Technology</option>
+            <option value="music">Music</option>
+            <option value="dance">Dance</option>
+            <option value="art">Art</option>
+            <option value="sports">Sports</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <i class="lucide-trophy input-icon absolute"></i>
+          <input type="text" name="prizeDetails" id="prizeDetails" placeholder="Prize Details" required>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-calendar input-icon absolute"></i>
+          <input type="datetime-local" name="startDateTime" id="startDateTime" required>
+        </div>
+        <div class="input-group">
+          <i class="lucide-calendar input-icon absolute"></i>
+          <input type="datetime-local" name="endDateTime" id="endDateTime" required>
+        </div>
+      </div>
+      
+      <div class="input-group mt-4">
+        <i class="lucide-map-pin input-icon absolute"></i>
+        <input type="text" name="venue" id="venue" placeholder="Venue" required>
+        <input type="text" name="venueGmapsLink" id="venueGmapsLink" placeholder="Google Maps Link (Optional)" class="mt-2">
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-phone input-icon absolute"></i>
+          <input type="text" name="contactName" id="contactName" placeholder="Contact Name" required>
+        </div>
+        <div class="input-group">
+          <i class="lucide-phone input-icon absolute"></i>
+          <input type="tel" name="contactPhone" id="contactPhone" placeholder="Contact Phone" required>
+        </div>
+      </div>
+      
+      <div class="input-group mt-4">
+        <div class="file-upload">
+          <input type="file" id="brochureFile" class="hidden" accept="image/*,application/pdf">
+          <button type="button" onclick="document.getElementById('brochureFile').click()" class="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+            <i class="lucide-upload"></i>
+            Upload Brochure/Image
+          </button>
+          <span id="fileName" class="text-gray-500">No file selected</span>
+        </div>
+      </div>
+      
+      <div class="mt-6 text-center">
+        <button onclick="showPreview()" class="submit-btn">Generate Preview</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        function showPreview() {
-            const title = document.getElementById('title').value;
-            const organizer = document.getElementById('organizer').value;
-            const category = document.getElementById('category').value;
-            const startDateTime = document.getElementById('startDateTime').value;
-            const endDateTime = document.getElementById('endDateTime').value;
-            const venue = document.getElementById('venue').value;
-            const eligibility = document.getElementById('eligibility').value;
-            const prizeDetails = document.getElementById('prizeDetails').value;
-            const contactName = document.getElementById('contactName').value;
-            const contactPhone = document.getElementById('contactPhone').value;
-            const entriesLimit = document.getElementById('entriesLimit').value;
+  <div id="preview" class="preview-container hidden max-w-2xl mx-auto">
+    <div class="text-center mb-6">
+      <h3 class="text-2xl font-bold text-blue-600">Competition Preview</h3>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+      <div class="prize-badge">
+        Prize: <span id="previewPrizeDetails"></span>
+      </div>
+      <div class="days-left-badge" id="daysLeft"></div>
+    </div>
+    
+    <div class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Title:</strong> 
+          <span id="previewTitle" class="text-lg font-semibold"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Organized By:</strong> 
+          <span id="previewOrganizer" class="text-lg"></span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Category:</strong> 
+          <span id="previewCategory"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Start:</strong> 
+          <span id="previewStartDate"></span>
+        </div>
+      </div>
+      
+      <div>
+        <strong class="text-gray-600">Venue:</strong> 
+        <span id="previewVenue"></span>
+        <a href="#" id="previewVenueLink" class="venue-link ml-2" target="_blank" rel="noopener noreferrer"></a>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Contact:</strong> 
+          <span id="previewContactName"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Phone:</strong> 
+          <span id="previewContactPhone"></span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">End Date:</strong> 
+          <span id="previewEndDate"></span>
+        </div>
+        <div id="brochureLink" class="hidden">
+          <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
+        </div>
+      </div>
+      
+      <div class="flex justify-between mt-6">
+        <button onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit</button>
+        <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm and Pay</button>
+      </div>
+    </div>
+  </div>
 
-            document.getElementById('previewTitle').textContent = `Title: ${title}`;
-            document.getElementById('previewOrganizer').textContent = `Organized By: ${organizer}`;
-            document.getElementById('previewCategory').textContent = `Category: ${category}`;
-            document.getElementById('previewStartDateTime').textContent = `Start: ${startDateTime}`;
-            document.getElementById('previewEndDateTime').textContent = `End: ${endDateTime}`;
-            document.getElementById('previewVenue').textContent = `Venue: ${venue}`;
-            document.getElementById('previewEligibility').textContent = `Eligibility: ${eligibility}`;
-            document.getElementById('previewPrize').textContent = `Prize: ${prizeDetails}`;
-            document.getElementById('previewContact').textContent = `Contact: ${contactName}, ${contactPhone}`;
+  <script>
+    const fileInput = document.getElementById('brochureFile');
+    const fileNameSpan = document.getElementById('fileName');
+    const previewDiv = document.getElementById('preview');
+    const daysLeftSpan = document.getElementById('daysLeft');
+    const formContainer = document.getElementById('formContainer');
+    const brochureDownloadLink = document.getElementById('brochureDownload');
 
-            if (entriesLimit) {
-                document.getElementById('previewEntriesLimit').textContent = `Entries Limit: First ${entriesLimit} entries`;
-            } else {
-                document.getElementById('previewEntriesLimit').textContent = '';
-            }
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        fileNameSpan.textContent = file.name;
+        const fileUrl = URL.createObjectURL(file);
+        brochureDownloadLink.href = fileUrl;
+        document.getElementById('brochureLink').classList.remove('hidden');
+      }
+    });
 
-            const prizeStamp = document.getElementById('prizeStamp');
-            prizeStamp.innerHTML = '';
-            if (prizeDetails.toLowerCase().includes('cash')) {
-                prizeStamp.innerHTML = '<img src="cash_icon.png" alt="Cash Prize">';
-            } else if (prizeDetails.toLowerCase().includes('trophy')) {
-                prizeStamp.innerHTML = '<img src="trophy_icon.png" alt="Trophy">';
-            }
-
-            const gmapLink = document.getElementById('gmapLink');
-            gmapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
-
-            const fileInput = document.getElementById('brochure');
-            const file = fileInput.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const downloadLink = document.getElementById('downloadLink');
-                    downloadLink.href = e.target.result;
-                    downloadLink.download = file.name;
-
-                    const previewContainer = document.getElementById('previewContainer');
-                    previewContainer.style.display = 'flex';
-                    previewContainer.style.flexDirection = 'column';
-                    previewContainer.style.alignItems = 'center';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                const previewContainer = document.getElementById('previewContainer');
-                previewContainer.style.display = 'flex';
-                previewContainer.style.flexDirection = 'column';
-                previewContainer.style.alignItems = 'center';
-            }
-
-            const endDate = new Date(endDateTime);
-            const currentDate = new Date();
-            const timeDiff = endDate.getTime() - currentDate.getTime();
-            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            document.getElementById('daysLeft').textContent = `${daysLeft} days left`;
+    function validateForm() {
+      const requiredFields = ['title', 'organizer', 'rules', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'venue', 'contactName', 'contactPhone'];
+      let valid = true;
+      requiredFields.forEach(field => {
+        const input = document.getElementById(field);
+        if (!input.value) {
+          input.style.borderColor = '#ef4444';
+          valid = false;
+        } else {
+          input.style.borderColor = '#e2e8f0';
         }
+      });
+      return valid;
+    }
 
-        function confirmPayment() {
-            alert('Proceeding to payment...');
-            // Add payment processing logic here
-        }
-    </script>
+    function showPreview() {
+      if (!validateForm()) {
+        alert('Please fill all required fields.');
+        return;
+      }
+
+      document.getElementById('previewTitle').textContent = document.getElementById('title').value;
+      document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
+      document.getElementById('previewCategory').textContent = document.getElementById('category').value;
+      
+      const prizeDetails = document.getElementById('prizeDetails').value;
+      document.getElementById('previewPrizeDetails').textContent = prizeDetails;
+      
+      const startDate = new Date(document.getElementById('startDateTime').value);
+      const endDate = new Date(document.getElementById('endDateTime').value);
+      
+      document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
+      document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
+      
+      const venue = document.getElementById('venue').value;
+      document.getElementById('previewVenue').textContent = venue;
+      
+      const venueGmapsLink = document.getElementById('venueGmapsLink').value;
+      const previewVenueLink = document.getElementById('previewVenueLink');
+      if (venueGmapsLink) {
+        previewVenueLink.href = venueGmapsLink;
+        previewVenueLink.textContent = 'View on Google Maps';
+      } else {
+        previewVenueLink.href = '#';
+        previewVenueLink.textContent = '';
+      }
+      
+      document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
+      document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
+
+      const currentDate = new Date();
+      const timeDiff = endDate.getTime() - currentDate.getTime();
+      const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+      daysLeftSpan.textContent = `${daysLeft} Days Left!`;
+
+      previewDiv.classList.remove('hidden');
+      formContainer.classList.add('hidden');
+    }
+
+    function editForm() {
+      previewDiv.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+    }
+
+    function confirmPayment() {
+      alert('Proceeding to payment...');
+    }
+  </script>
 </body>
 </html>
