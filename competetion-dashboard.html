@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Competition Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e6e9f0 100%);
+      font-family: 'Inter', sans-serif;
+    }
+    .competition-card {
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      perspective: 1000px;
+    }
+    .competition-card:hover {
+      transform: rotateY(10deg) translateZ(50px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .category-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .glitch-text {
+      position: relative;
+      text-shadow: 
+        0.05em 0 0 #00fffc,
+        -0.03em -0.04em 0 #fc00ff,
+        0.025em 0.04em 0 #fffc00;
+      animation: glitch 725ms infinite;
+    }
+    @keyframes glitch {
+      0% {
+        text-shadow: 
+          0.05em 0 0 #00fffc,
+          -0.03em -0.04em 0 #fc00ff,
+          0.025em 0.04em 0 #fffc00;
+      }
+      15% {
+        text-shadow: 
+          0.05em 0 0 #00fffc,
+          -0.03em -0.04em 0 #fc00ff,
+          0.025em 0.04em 0 #fffc00;
+      }
+      16% {
+        text-shadow: 
+          -0.05em -0.025em 0 #00fffc,
+          0.025em 0.035em 0 #fc00ff,
+          -0.05em -0.05em 0 #fffc00;
+      }
+      49% {
+        text-shadow: 
+          -0.05em -0.025em 0 #00fffc,
+          0.025em 0.035em 0 #fc00ff,
+          -0.05em -0.05em 0 #fffc00;
+      }
+      50% {
+        text-shadow: 
+          0.05em 0.035em 0 #00fffc,
+          0.03em 0 0 #fc00ff,
+          0 -0.04em 0 #fffc00;
+      }
+      99% {
+        text-shadow: 
+          0.05em 0.035em 0 #00fffc,
+          0.03em 0 0 #fc00ff,
+          0 -0.04em 0 #fffc00;
+      }
+      100% {
+        text-shadow: 
+          -0.05em 0 0 #00fffc,
+          -0.025em -0.04em 0 #fc00ff,
+          -0.04em -0.025em 0 #fffc00;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16 text-center">
+    <h1 class="text-5xl font-extrabold mb-4 glitch-text">Competition Dashboard</h1>
+    <p class="text-xl max-w-2xl mx-auto opacity-80">Discover, Compete, Excel: Your Gateway to Extraordinary Challenges</p>
+  </header>
+
+  <main class="container mx-auto px-4 py-12 flex-grow">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-bold text-gray-800">Upcoming Competetions</h2>
+      <div class="flex space-x-2">
+        <button id="gridView" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <i data-lucide="grid" class="inline-block mr-2"></i>Grid View
+        </button>
+        <button id="listView" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+          <i data-lucide="list" class="inline-block mr-2"></i>List View
+        </button>
+      </div>
+    </div>
+
+    <div id="competitionsList" class="grid md:grid-cols-3 gap-6">
+      <!-- Competitions will be dynamically populated here -->
+    </div>
+  </main>
+
+  <footer class="bg-gray-900 text-white py-8 text-center">
+    <p>&copy; 2024 Competition Horizon. All rights reserved.</p>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    const competitions = [
+      {
+        id: 1,
+        title: 'Tech Innovation Challenge',
+        category: 'Technology',
+        organizer: 'TechHub Innovations',
+        startDate: '2024-08-15',
+        endDate: '2024-09-15',
+        prizeDetails: '$5000 Grand Prize',
+        registrationFee: 25.00,
+        color: 'bg-blue-200',
+        icon: 'computer'
+      },
+      {
+        id: 2,
+        title: 'Global Music Composition Contest',
+        category: 'Music',
+        organizer: 'Harmony Productions',
+        startDate: '2024-09-01',
+        endDate: '2024-10-01',
+        prizeDetails: 'Recording Contract',
+        registrationFee: 30.00,
+        color: 'bg-purple-200',
+        icon: 'music'
+      },
+      {
+        id: 3,
+        title: 'Urban Photography Showcase',
+        category: 'Art',
+        organizer: 'Visual Narratives',
+        startDate: '2024-07-20',
+        endDate: '2024-08-20',
+        prizeDetails: 'Professional Camera & Exhibition',
+        registrationFee: 20.00,
+        color: 'bg-green-200',
+        icon: 'camera'
+      }
+    ];
+
+    function renderCompetitions(view = 'grid') {
+      const competitionsList = document.getElementById('competitionsList');
+      
+      competitionsList.innerHTML = competitions.map(comp => `
+        <div class="competition-card bg-white rounded-lg shadow-lg overflow-hidden relative 
+                    ${view === 'list' ? 'flex items-center' : ''}">
+          <div class="category-badge ${comp.color} text-gray-800">
+            ${comp.category}
+          </div>
+          <div class="p-6 w-full">
+            <div class="flex items-center mb-4">
+              <i data-lucide="${comp.icon}" class="mr-4 text-blue-600"></i>
+              <h2 class="text-2xl font-bold text-blue-600">${comp.title}</h2>
+            </div>
+            <div class="space-y-3 ${view === 'list' ? 'flex justify-between items-center' : ''}">
+              <div>
+                <p><strong>Organized By:</strong> ${comp.organizer}</p>
+                <p><strong>Dates:</strong> ${comp.startDate} to ${comp.endDate}</p>
+              </div>
+              <div class="flex justify-between items-center mt-4">
+                <span class="text-green-600 font-bold">
+                  Registration: $${comp.registrationFee}
+                </span>
+                <button 
+                  onclick="registerForCompetition(${comp.id})" 
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 pulse-animation"
+                >
+                  Register Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Reinitialize Lucide icons after dynamic rendering
+      lucide.createIcons();
+    }
+
+    // View toggle functionality
+    document.getElementById('gridView').addEventListener('click', () => {
+      document.getElementById('gridView').classList.replace('bg-gray-200', 'bg-blue-500');
+      document.getElementById('listView').classList.replace('bg-blue-500', 'bg-gray-200');
+      renderCompetitions('grid');
+    });
+
+    document.getElementById('listView').addEventListener('click', () => {
+      document.getElementById('gridView').classList.replace('bg-blue-500', 'bg-gray-200');
+      document.getElementById('listView').classList.replace('bg-gray-200', 'bg-blue-500');
+      renderCompetitions('list');
+    });
+
+    function registerForCompetition(competitionId) {
+      const competition = competitions.find(c => c.id === competitionId);
+      if (competition) {
+        // Your existing registration logic
+        alert(`Registering for ${competition.title}`);
+      }
+    }
+
+    // Initial render
+    renderCompetitions();
+
+    // Optional: Add GSAP animations
+    window.addEventListener('load', () => {
+      gsap.from(".competition-card", {
+        duration: 0.8, 
+        opacity: 0, 
+        y: 50, 
+        stagger: 0.2,
+        ease: "power3.out"
+      });
+    });
+  </script>
+</body>
+</html>
