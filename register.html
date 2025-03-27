@@ -8,7 +8,7 @@
     <script defer src="includeBanner.js"></script> <!-- Link to your JavaScript file -->
 </head>
 <body>
-    <div id="banner-container"></div> <!-- Placeholder for the banner -->
+    <div id="banner-container" w3-include-html="banner.html"></div> <!-- Placeholder for the banner -->
     <div class="container">
         <h2>Register</h2>
         <form id="registerForm" action="register" method="post"> <!-- Change the action to your register endpoint -->
@@ -55,11 +55,61 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('banner.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('banner-container').innerHTML = data;
-                });
+            includeHTML();
+            updateLoginStatus();
+        });
+
+        function includeHTML() {
+            const z = document.getElementsByTagName("*");
+            for (let i = 0; i < z.length; i++) {
+                const elmnt = z[i];
+                const file = elmnt.getAttribute("w3-include-html");
+                if (file) {
+                    const xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4) {
+                            if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+                            if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                            elmnt.removeAttribute("w3-include-html");
+                            includeHTML();
+                        }
+                    };
+                    xhttp.open("GET", file, true);
+                    xhttp.send();
+                    return;
+                }
+            }
+        }
+
+        function updateLoginStatus() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            if (isLoggedIn === 'true') {
+                document.getElementById('signup-link').style.display = 'none';
+                document.getElementById('login-link').style.display = 'none';
+                document.getElementById('logout-link').style.display = 'block';
+            } else {
+                document.getElementById('signup-link').style.display = 'block';
+                document.getElementById('login-link').style.display = 'block';
+                document.getElementById('logout-link').style.display = 'none';
+            }
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchHint = document.getElementById('search-hint');
+            searchInput.value = '';
+            searchHint.innerHTML = '';
+            searchHint.style.display = 'none';
+        }
+
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const hints = ['Competitions', 'For Organizers', 'For Students', 'Summer Courses', 'Winners'];
+            let filteredHints = hints.filter(hint => hint.toLowerCase().includes(searchTerm));
+            let hintHtml = filteredHints.map(hint => `<div>${hint}</div>`).join('');
+            const searchHint = document.getElementById('search-hint');
+            searchHint.innerHTML = hintHtml;
+            searchHint.style.display = filteredHints.length ? 'block' : 'none';
         });
     </script>
 </body>
