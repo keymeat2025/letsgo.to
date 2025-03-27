@@ -3,331 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Competition Details</title>
+    <title>Competition Details Submission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide-icons/0.321.0/font/lucide.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui']
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-        .header {
-            width: 100%;
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-        }
-        .header a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
-            margin-right: 20px;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            border: 2px solid #007bff;
-            margin-top: 60px;
-        }
-        .form-container h2 {
-            text-align: center;
-            margin-top: 0;
-            color: #333;
-            font-size: 28px;
-        }
-        .form-container form {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-container label {
-            margin-top: 10px;
-            color: #555;
-            font-weight: bold;
-        }
-        .form-container input,
-        .form-container select,
-        .form-container textarea {
-            padding: 10px;
-            margin-top: 5px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .form-container button {
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 18px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .form-container button:hover {
-            background-color: #0056b3;
-        }
-        .preview-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            border: 2px solid #007bff;
-            padding: 20px;
-            background-color: #f1f1f1;
-            border-radius: 8px;
+        .icon-input {
             position: relative;
         }
-        .preview-banner {
-            width: 100%;
-            object-fit: contain;
-            margin-top: 10px;
-            background-color: #e9ecef;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            position: relative;
-        }
-        .ribbon {
+        .icon-input i {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 150px;
-            height: 150px;
-            overflow: hidden;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4299e1;
         }
-        .ribbon span {
-            position: absolute;
-            display: block;
-            width: 200px;
-            padding: 10px 0;
-            background-color: #ff0000;
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-            transform: rotate(45deg);
-            right: -50px;
-            top: 30px;
-        }
-        .home-button {
-            margin-bottom: 20px;
-            padding: 10px;
-            font-size: 18px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .home-button:hover {
-            background-color: #218838;
-        }
-        .download-link {
-            display: block;
-            margin-top: 10px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .download-link:hover {
-            text-decoration: underline;
-        }
-        .highlight {
-            background-color: #ffeb3b;
-            padding: 5px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .stamp {
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .stamp img {
-            width: 50px;
-            height: 50px;
+        .icon-input input, 
+        .icon-input select, 
+        .icon-input textarea {
+            padding-left: 40px;
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <a href="index.html">Home</a>
-        <span>Add Competition Details</span>
-    </div>
-    <div class="form-container">
-        <h2>Competition Details</h2>
-        <form id="competitionForm">
-            <label for="title">Competition Title:</label>
-            <input type="text" id="title" name="title" value="Annual Coding Challenge" required>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-4xl">
+        <div class="bg-white shadow-2xl rounded-2xl overflow-hidden">
+            <div class="bg-blue-600 text-white p-6">
+                <h1 class="text-3xl font-bold text-center">Competition Details Submission</h1>
+            </div>
             
-            <label for="organizer">Organized By:</label>
-            <input type="text" id="organizer" name="organizer" value="Tech Innovators" required>
+            <form id="competitionForm" class="p-8 space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-tag mr-2"></i>
+                            Competition Title
+                        </label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="Annual Coding Challenge"
+                        >
+                    </div>
+                    
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-user mr-2"></i>
+                            Organized By
+                        </label>
+                        <input 
+                            type="text" 
+                            id="organizer" 
+                            name="organizer" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="Tech Innovators"
+                        >
+                    </div>
+                </div>
 
-            <label for="rules">Rules and Regulations:</label>
-            <textarea id="rules" name="rules" required>Follow all coding standards and submit your code before the deadline.</textarea>
-            
-            <label for="specifics">Specific Information (e.g., first 500 entries only, no pets allowed):</label>
-            <textarea id="specifics" name="specifics">First 500 entries only</textarea>
-            
-            <label for="entriesLimit">Limit Entries To (e.g., first 500 entries):</label>
-            <input type="number" id="entriesLimit" name="entriesLimit" value="500" min="1">
-            
-            <label for="category">Category:</label>
-            <select id="category" name="category" required>
-                <option value="technology" selected>Technology</option>
-                <option value="music">Music</option>
-                <option value="dance">Dance</option>
-                <option value="art">Art</option>
-                <option value="sports">Sports</option>
-            </select>
-            
-            <label for="startDateTime">Competition Start Date and Time:</label>
-            <input type="datetime-local" id="startDateTime" name="startDateTime" value="2025-04-01T10:00" required>
-            
-            <label for="endDateTime">Competition End Date and Time:</label>
-            <input type="datetime-local" id="endDateTime" name="endDateTime" value="2025-04-10T18:00" required>
-            
-            <label for="registrationDeadline">Registration Deadline:</label>
-            <input type="datetime-local" id="registrationDeadline" name="registrationDeadline" value="2025-03-31T23:59" required>
-            
-            <label for="venue">Venue:</label>
-            <input type="text" id="venue" name="venue" value="Tech Park, Silicon Valley" required>
-            <small>Use Google Maps to select the location.</small>
-            
-            <label for="eligibility">Eligibility (Age Category):</label>
-            <select id="eligibility" name="eligibility" required>
-                <option value="open" selected>Open (minimum age: 18)</option>
-                <option value="kids">Kids (6-12)</option>
-                <option value="teens">Teens (13-17)</option>
-            </select>
-            
-            <label for="prizeDetails">Prize Details:</label>
-            <textarea id="prizeDetails" name="prizeDetails" required>Cash prize of $5000</textarea>
-            
-            <label for="contactName">Primary Contact Name:</label>
-            <input type="text" id="contactName" name="contactName" value="John Doe" required>
-            
-            <label for="contactPhone">Primary Contact Phone Number:</label>
-            <input type="tel" id="contactPhone" name="contactPhone" pattern="[0-9]{10}" value="1234567890" required>
-            
-            <label for="brochure">Upload Competition Brochure/Image:</label>
-            <input type="file" id="brochure" name="brochure" accept="image/*,application/pdf" required>
-            
-            <button type="button" onclick="showPreview()">Proceed</button>
-        </form>
-    </div>
+                <div class="icon-input">
+                    <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                        <i class="lucide lucide-file-text mr-2"></i>
+                        Rules and Regulations
+                    </label>
+                    <textarea 
+                        id="rules" 
+                        name="rules" 
+                        required 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows="3"
+                    >Follow all coding standards and submit your code before the deadline.</textarea>
+                </div>
 
-    <div class="preview-container" id="previewContainer">
-        <h3>Competition Banner Preview</h3>
-        <div class="preview-banner">
-            <h4 id="previewTitle"></h4>
-            <p id="previewOrganizer"></p>
-            <p id="previewCategory"></p>
-            <p id="previewStartDateTime"></p>
-            <p id="previewEndDateTime"></p>
-            <p id="previewVenue"></p>
-            <a id="gmapLink" href="#" target="_blank">Click here for directions</a>
-            <p id="previewEligibility"></p>
-            <p id="previewEntriesLimit" class="highlight"></p>
-            <p id="previewPrize"></p>
-            <div class="stamp" id="prizeStamp"></div>
-            <p id="previewContact"></p>
-            <a id="downloadLink" class="download-link" href="#" download>Download Brochure/Image</a>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-award mr-2"></i>
+                            Category
+                        </label>
+                        <select 
+                            id="category" 
+                            name="category" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="technology" selected>Technology</option>
+                            <option value="music">Music</option>
+                            <option value="dance">Dance</option>
+                            <option value="art">Art</option>
+                            <option value="sports">Sports</option>
+                        </select>
+                    </div>
+                    
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-calendar mr-2"></i>
+                            Start Date/Time
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            id="startDateTime" 
+                            name="startDateTime" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="2025-04-01T10:00"
+                        >
+                    </div>
+                    
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-calendar mr-2"></i>
+                            End Date/Time
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            id="endDateTime" 
+                            name="endDateTime" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="2025-04-10T18:00"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-map-pin mr-2"></i>
+                            Venue
+                        </label>
+                        <input 
+                            type="text" 
+                            id="venue" 
+                            name="venue" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="Tech Park, Silicon Valley"
+                        >
+                    </div>
+                    
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-trophy mr-2"></i>
+                            Prize Details
+                        </label>
+                        <input 
+                            type="text" 
+                            id="prizeDetails" 
+                            name="prizeDetails" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="Cash prize of $5000"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-user mr-2"></i>
+                            Contact Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="contactName" 
+                            name="contactName" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="John Doe"
+                        >
+                    </div>
+                    
+                    <div class="icon-input">
+                        <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                            <i class="lucide lucide-phone mr-2"></i>
+                            Contact Phone
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="contactPhone" 
+                            name="contactPhone" 
+                            required 
+                            pattern="[0-9]{10}" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="1234567890"
+                        >
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-gray-700 flex items-center">
+                        <i class="lucide lucide-upload mr-2"></i>
+                        Upload Competition Brochure/Image
+                    </label>
+                    <div class="flex items-center space-x-4">
+                        <input 
+                            type="file" 
+                            id="brochure" 
+                            name="brochure" 
+                            accept="image/*,application/pdf" 
+                            required 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-8">
+                    <button 
+                        type="button" 
+                        onclick="showPreview()" 
+                        class="bg-blue-600 text-white px-10 py-3 rounded-lg hover:bg-blue-700 transition duration-300 text-lg font-bold"
+                    >
+                        Generate Preview
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="ribbon">
-            <span id="daysLeft"></span>
+
+        <div 
+            id="previewContainer" 
+            class="mt-8 bg-white shadow-2xl rounded-2xl hidden"
+        >
+            <div class="bg-blue-600 text-white p-6 relative">
+                <h2 class="text-2xl font-bold text-center">Competition Preview</h2>
+                <div 
+                    id="daysLeftBadge" 
+                    class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full"
+                >
+                    11 days left
+                </div>
+            </div>
+
+            <div id="previewContent" class="p-8 space-y-4">
+                <!-- Preview content will be dynamically inserted here -->
+            </div>
+
+            <div class="flex justify-center space-x-4 p-6">
+                <button 
+                    onclick="editForm()" 
+                    class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition"
+                >
+                    Edit Details
+                </button>
+                <button 
+                    onclick="confirmPayment()" 
+                    class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                    Confirm and Pay
+                </button>
+            </div>
         </div>
-        <button onclick="confirmPayment()">Confirm and Pay</button>
     </div>
 
     <script>
         function showPreview() {
-            const title = document.getElementById('title').value;
-            const organizer = document.getElementById('organizer').value;
-            const category = document.getElementById('category').value;
-            const startDateTime = document.getElementById('startDateTime').value;
-            const endDateTime = document.getElementById('endDateTime').value;
-            const venue = document.getElementById('venue').value;
-            const eligibility = document.getElementById('eligibility').value;
-            const prizeDetails = document.getElementById('prizeDetails').value;
-            const contactName = document.getElementById('contactName').value;
-            const contactPhone = document.getElementById('contactPhone').value;
-            const entriesLimit = document.getElementById('entriesLimit').value;
-
-            document.getElementById('previewTitle').textContent = `Title: ${title}`;
-            document.getElementById('previewOrganizer').textContent = `Organized By: ${organizer}`;
-            document.getElementById('previewCategory').textContent = `Category: ${category}`;
-            document.getElementById('previewStartDateTime').textContent = `Start: ${startDateTime}`;
-            document.getElementById('previewEndDateTime').textContent = `End: ${endDateTime}`;
-            document.getElementById('previewVenue').textContent = `Venue: ${venue}`;
-            document.getElementById('previewEligibility').textContent = `Eligibility: ${eligibility}`;
-            document.getElementById('previewPrize').textContent = `Prize: ${prizeDetails}`;
-            document.getElementById('previewContact').textContent = `Contact: ${contactName}, ${contactPhone}`;
-
-            if (entriesLimit) {
-                document.getElementById('previewEntriesLimit').textContent = `Entries Limit: First ${entriesLimit} entries`;
-            } else {
-                document.getElementById('previewEntriesLimit').textContent = '';
-            }
-
-            const prizeStamp = document.getElementById('prizeStamp');
-            prizeStamp.innerHTML = '';
-            if (prizeDetails.toLowerCase().includes('cash')) {
-                prizeStamp.innerHTML = '<img src="cash_icon.png" alt="Cash Prize">';
-            } else if (prizeDetails.toLowerCase().includes('trophy')) {
-                prizeStamp.innerHTML = '<img src="trophy_icon.png" alt="Trophy">';
-            }
-
-            const gmapLink = document.getElementById('gmapLink');
-            gmapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
-
-            const fileInput = document.getElementById('brochure');
-            const file = fileInput.files[0];
+            const previewContainer = document.getElementById('previewContainer');
+            const previewContent = document.getElementById('previewContent');
             
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const downloadLink = document.getElementById('downloadLink');
-                    downloadLink.href = e.target.result;
-                    downloadLink.download = file.name;
+            // Collect form data
+            const formData = new FormData(document.getElementById('competitionForm'));
+            
+            // Generate preview HTML
+            let previewHTML = `
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <strong class="text-gray-600">Competition Title:</strong>
+                        <p>${formData.get('title')}</p>
+                    </div>
+                    <div>
+                        <strong class="text-gray-600">Organized By:</strong>
+                        <p>${formData.get('organizer')}</p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <strong class="text-gray-600">Category:</strong>
+                        <p>${formData.get('category')}</p>
+                    </div>
+                    <div>
+                        <strong class="text-gray-600">Prize Details:</strong>
+                        <p>${formData.get('prizeDetails')}</p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <strong class="text-gray-600">Start Date/Time:</strong>
+                        <p>${formData.get('startDateTime')}</p>
+                    </div>
+                    <div>
+                        <strong class="text-gray-600">End Date/Time:</strong>
+                        <p>${formData.get('endDateTime')}</p>
+                    </div>
+                </div>
+                <div>
+                    <strong class="text-gray-600">Venue:</strong>
+                    <p>${formData.get('venue')}</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <strong class="text-gray-600">Contact Name:</strong>
+                        <p>${formData.get('contactName')}</p>
+                    </div>
+                    <div>
+                        <strong class="text-gray-600">Contact Phone:</strong>
+                        <p>${formData.get('contactPhone')}</p>
+                    </div>
+                </div>
+                <div>
+                    <strong class="text-gray-600">Rules:</strong>
+                    <p>${formData.get('rules')}</p>
+                </div>
+            `;
 
-                    const previewContainer = document.getElementById('previewContainer');
-                    previewContainer.style.display = 'flex';
-                    previewContainer.style.flexDirection = 'column';
-                    previewContainer.style.alignItems = 'center';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                const previewContainer = document.getElementById('previewContainer');
-                previewContainer.style.display = 'flex';
-                previewContainer.style.flexDirection = 'column';
-                previewContainer.style.alignItems = 'center';
-            }
+            previewContent.innerHTML = previewHTML;
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('block');
+        }
 
-            const endDate = new Date(endDateTime);
-            const currentDate = new Date();
-            const timeDiff = endDate.getTime() - currentDate.getTime();
-            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            document.getElementById('daysLeft').textContent = `${daysLeft} days left`;
+        function editForm() {
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.classList.remove('block');
+            previewContainer.classList.add('hidden');
         }
 
         function confirmPayment() {
