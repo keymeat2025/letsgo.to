@@ -309,6 +309,7 @@
         <button onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit</button>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm and Pay</button>
         <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
+            
       </div>
     </div>
   </div>
@@ -320,7 +321,8 @@
     const daysLeftSpan = document.getElementById('daysLeft');
     const formContainer = document.getElementById('formContainer');
     const brochureDownloadLink = document.getElementById('brochureDownload');
-
+    const dashboardContent = document.getElementById('dashboardContent');
+  
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -330,7 +332,7 @@
         document.getElementById('brochureLink').classList.remove('hidden');
       }
     });
-
+  
     function validateForm() {
       const requiredFields = ['title', 'organizer', 'rules', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'venue', 'contactName', 'contactPhone'];
       let valid = true;
@@ -345,13 +347,13 @@
       });
       return valid;
     }
-
+  
     function showPreview() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-
+  
       document.getElementById('previewTitle').textContent = document.getElementById('title').value;
       document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
       document.getElementById('previewCategory').textContent = document.getElementById('category').value;
@@ -380,27 +382,32 @@
       
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
       document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
-
+  
       const currentDate = new Date();
       const timeDiff = endDate.getTime() - currentDate.getTime();
       const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
+  
       daysLeftSpan.textContent = `${daysLeft} Days Left!`;
-
+  
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
     }
-
+  
     function editForm() {
       previewDiv.classList.add('hidden');
       formContainer.classList.remove('hidden');
     }
-
+  
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
-
-    function addToDashboard() {
+  
+  
+  
+  
+  <!--------------->
+  
+    function getPreviewContent() {
       const title = document.getElementById('title').value;
       const organizer = document.getElementById('organizer').value;
       const rules = document.getElementById('rules').value;
@@ -411,9 +418,129 @@
       const venue = document.getElementById('venue').value;
       const contactName = document.getElementById('contactName').value;
       const contactPhone = document.getElementById('contactPhone').value;
-      // Add here the logic to add the competition details to the competition dashboard
-      alert('Competition details added to the dashboard!');
+    
+      return `
+        Title: ${title}
+        Organizer: ${organizer}
+        Rules: ${rules}
+        Category: ${category}
+        Prize Details: ${prizeDetails}
+        Start DateTime: ${startDateTime}
+        End DateTime: ${endDateTime}
+        Venue: ${venue}
+        Contact Name: ${contactName}
+        Contact Phone: ${contactPhone}
+      `;
     }
+    
+    
+  
+    <!-------------------->
+    function getFilePath() {
+      const startDateTime = document.getElementById('startDateTime').value;
+      const date = new Date(startDateTime);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+      return `competitions/${year}/${month}/competition_${timestamp}.md`;
+    }
+    
+    async function uploadAttachment(file) {
+      const token = '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'; // Replace with your GitHub token
+      const repo = 'keymeat2025/letsgo.to';
+      
+      // Generate a unique file path for the attachment
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filePath = `attachments/${timestamp}_${file.name}`;
+      
+      // Read the file content
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      return new Promise((resolve, reject) => {
+        reader.onload = async () => {
+          const base64Content = reader.result.split(',')[1]; // Remove the data URL prefix
+    
+          const body = {
+            message: 'Upload attachment',
+            content: base64Content,
+          };
+    
+          const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+          });
+    
+          if (response.ok) {
+            const data = await response.json();
+            resolve(data.content.download_url); // Return the download URL of the uploaded file
+          } else {
+            const errorData = await response.json();
+            reject(new Error(errorData.message));
+          }
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read the file'));
+        };
+      });
+    }
+    
+    async function createCompetitionFileWithAttachment(content, attachmentUrl) {
+      const token = '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'; // Replace with your GitHub token
+      const repo = 'keymeat2025/letsgo.to';
+      const message = 'Add new competition details with attachment';
+    
+      // Include the attachment URL in the content
+      const contentWithAttachment = `${content}\n\nAttachment: [${attachmentUrl}](${attachmentUrl})`;
+    
+      // Generate a unique file path for the competition details
+      const path = getFilePath();
+    
+      const body = {
+        message: message,
+        content: btoa(unescape(encodeURIComponent(contentWithAttachment))) // Ensure content is base64 encoded
+      };
+    
+      const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+    
+      if (response.ok) {
+        console.log('Competition file created successfully!');
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to create competition file:', errorData.message);
+      }
+    }
+    
+    async function addToDashboard() {
+      const content = getPreviewContent();
+      const file = document.getElementById('brochureFile').files[0];
+    
+      if (file) {
+        try {
+          const attachmentUrl = await uploadAttachment(file);
+          await createCompetitionFileWithAttachment(content, attachmentUrl);
+        } catch (error) {
+          console.error('Failed to upload attachment and create competition file:', error.message);
+        }
+      } else {
+        await createCompetitionFileWithAttachment(content, '');
+      }
+    }
+
   </script>
 </body>
 </html>
