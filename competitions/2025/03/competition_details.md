@@ -1,12 +1,12 @@
 
-        Title: test
-        Organizer: test
-        Rules: test
-        Category: technology
-        Prize Details: test
-        Start DateTime: 2025-03-28T11:53
-        End DateTime: 2025-03-28T11:53
-        Venue: test
-        Contact Name: John Doe
-        Contact Phone: 123456789012
+        Title: balaji trust
+        Organizer: chess comp
+        Rules: rules
+        Category: sports
+        Prize Details: 8000
+        Start DateTime: 2025-03-28T13:14
+        End DateTime: 2025-03-28T13:14
+        Venue: erode govt college
+        Contact Name: somu
+        Contact Phone: 9999999999
       
