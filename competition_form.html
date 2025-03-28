@@ -308,6 +308,7 @@
       <div class="flex justify-between mt-6">
         <button onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit</button>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm and Pay</button>
+        <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
       </div>
     </div>
   </div>
@@ -397,6 +398,21 @@
 
     function confirmPayment() {
       alert('Proceeding to payment...');
+    }
+
+    function addToDashboard() {
+      const title = document.getElementById('title').value;
+      const organizer = document.getElementById('organizer').value;
+      const rules = document.getElementById('rules').value;
+      const category = document.getElementById('category').value;
+      const prizeDetails = document.getElementById('prizeDetails').value;
+      const startDateTime = document.getElementById('startDateTime').value;
+      const endDateTime = document.getElementById('endDateTime').value;
+      const venue = document.getElementById('venue').value;
+      const contactName = document.getElementById('contactName').value;
+      const contactPhone = document.getElementById('contactPhone').value;
+      // Add here the logic to add the competition details to the competition dashboard
+      alert('Competition details added to the dashboard!');
     }
   </script>
 </body>
