@@ -1,5 +1,5 @@
 
-        Title: balaji trust
+        Title: kumaran trust
         Organizer: chess comp
         Rules: rules
         Category: sports
