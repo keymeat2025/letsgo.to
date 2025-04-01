@@ -312,13 +312,14 @@
       </div>
     </div>
   </div>
-
-  <!-- Add Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-
-  <script>
-  // Your web app's Firebase configuration
+  
+  <!-- Firebase SDK (updated to use v9 with CDN modular imports) -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
       authDomain: "letsgoto-a630e.firebaseapp.com",
@@ -329,9 +330,13 @@
       measurementId: "G-N8CN6LM82S"
     };
 
-  // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    // Make Firebase functions available globally
+    window.db = db;
+    window.firestore = { collection, addDoc };
   </script>
 
   <script>
@@ -341,7 +346,6 @@
     const daysLeftSpan = document.getElementById('daysLeft');
     const formContainer = document.getElementById('formContainer');
     const brochureDownloadLink = document.getElementById('brochureDownload');
-    const dashboardContent = document.getElementById('dashboardContent');
   
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -421,32 +425,6 @@
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
-  
-    function getPreviewContent() {
-      const title = document.getElementById('title').value;
-      const organizer = document.getElementById('organizer').value;
-      const rules = document.getElementById('rules').value;
-      const category = document.getElementById('category').value;
-      const prizeDetails = document.getElementById('prizeDetails').value;
-      const startDateTime = document.getElementById('startDateTime').value;
-      const endDateTime = document.getElementById('endDateTime').value;
-      const venue = document.getElementById('venue').value;
-      const contactName = document.getElementById('contactName').value;
-      const contactPhone = document.getElementById('contactPhone').value;
-    
-      return `
-        Title: ${title}
-        Organizer: ${organizer}
-        Rules: ${rules}
-        Category: ${category}
-        Prize Details: ${prizeDetails}
-        Start DateTime: ${startDateTime}
-        End DateTime: ${endDateTime}
-        Venue: ${venue}
-        Contact Name: ${contactName}
-        Contact Phone: ${contactPhone}
-      `;
-    }
     
     async function addToDashboard() {
       const competitionData = {
@@ -461,14 +439,17 @@
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
-        brochureUrl: ''
+        brochureUrl: '',
+        createdAt: new Date()
       };
-  
+      
       try {
-        await db.collection('competitions').add(competitionData);
-        alert('Competition details added to dashboard successfully!');
+        const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'competitions'), competitionData);
+        console.log('Document written with ID: ', docRef.id);
+        alert('Competition added to dashboard successfully!');
       } catch (error) {
-        console.error('Failed to add competition details:', error.message);
+        console.error('Error adding document: ', error);
+        alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
   </script>  
