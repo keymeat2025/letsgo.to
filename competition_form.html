@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Registration</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.125);
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .form-container:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .form-header h2 {
+      font-size: 3.5rem;  /* Increased title size */
+      font-weight: 900;   /* More bold */
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);  /* Added subtle shadow */
+      letter-spacing: -1px;  /* Tighter letter spacing */
+    }
+
+    .form-content {
+      padding: 2rem;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input, 
+    .input-group textarea, 
+    .input-group select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus, 
+    .input-group textarea:focus, 
+    .input-group select:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      transition: color 0.3s ease;
+    }
+
+    .input-group:focus-within .input-icon {
+      color: #3b82f6;
+    }
+
+    .file-upload {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 2px dashed #e2e8f0;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload:hover {
+      border-color: #3b82f6;
+    }
+
+    .submit-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .preview-container {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.125);
+      padding: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .prize-badge {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: black;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(255, 170, 0, 0.3);
+    }
+
+    .days-left-badge {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    }
+
+    .venue-link {
+      color: #3b82f6;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+    }
+
+    .venue-link:hover {
+      color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container" id="formContainer">
+    <div class="form-header">
+      <h2>Competition Registration</h2>
+    </div>
+    <div class="form-content">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="input-group">
+          <i class="lucide-tag input-icon absolute"></i>
+          <input type="text" name="title" id="title" placeholder="Competition Title" required>
+        </div>
+        <div class="input-group">
+          <i class="lucide-user input-icon absolute"></i>
+          <input type="text" name="organizer" id="organizer" placeholder="Organized By" required>
+        </div>
+      </div>
+      
+      <div class="input-group mt-4">
+        <i class="lucide-file-text input-icon absolute"></i>
+        <textarea name="rules" id="rules" rows="3" placeholder="Rules and Regulations" required></textarea>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-award input-icon absolute"></i>
+          <select name="category" id="category" required>
+            <option value="">Select Category</option>
+            <option value="technology">Technology</option>
+            <option value="music">Music</option>
+            <option value="dance">Dance</option>
+            <option value="art">Art</option>
+            <option value="sports">Sports</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <i class="lucide-trophy input-icon absolute"></i>
+          <input type="text" name="prizeDetails" id="prizeDetails" placeholder="Prize Details" required>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-calendar input-icon absolute"></i>
+          <input type="datetime-local" name="startDateTime" id="startDateTime" required>
+        </div>
+        <div class="input-group">
+          <i class="lucide-calendar input-icon absolute"></i>
+          <input type="datetime-local" name="endDateTime" id="endDateTime" required>
+        </div>
+      </div>
+      
+      <div class="input-group mt-4">
+        <i class="lucide-map-pin input-icon absolute"></i>
+        <input type="text" name="venue" id="venue" placeholder="Venue" required>
+        <input type="text" name="venueGmapsLink" id="venueGmapsLink" placeholder="Google Maps Link (Optional)" class="mt-2">
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="input-group">
+          <i class="lucide-phone input-icon absolute"></i>
+          <input type="text" name="contactName" id="contactName" placeholder="Contact Name" required>
+        </div>
+        <div class="input-group">
+          <i class="lucide-phone input-icon absolute"></i>
+          <input type="tel" name="contactPhone" id="contactPhone" placeholder="Contact Phone" required>
+        </div>
+      </div>
+      
+      <div class="input-group mt-4">
+        <div class="file-upload">
+          <input type="file" id="brochureFile" class="hidden" accept="image/*,application/pdf">
+          <button type="button" onclick="document.getElementById('brochureFile').click()" class="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+            <i class="lucide-upload"></i>
+            Upload Brochure/Image
+          </button>
+          <span id="fileName" class="text-gray-500">No file selected</span>
+        </div>
+      </div>
+      
+      <div class="mt-6 text-center">
+        <button onclick="showPreview()" class="submit-btn">Generate Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview" class="preview-container hidden max-w-2xl mx-auto">
+    <div class="text-center mb-6">
+      <h3 class="text-2xl font-bold text-blue-600">Competition Preview</h3>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+      <div class="prize-badge">
+        Prize: <span id="previewPrizeDetails"></span>
+      </div>
+      <div class="days-left-badge" id="daysLeft"></div>
+    </div>
+    
+    <div class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Title:</strong> 
+          <span id="previewTitle" class="text-lg font-semibold"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Organized By:</strong> 
+          <span id="previewOrganizer" class="text-lg"></span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Category:</strong> 
+          <span id="previewCategory"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Start:</strong> 
+          <span id="previewStartDate"></span>
+        </div>
+      </div>
+      
+      <div>
+        <strong class="text-gray-600">Venue:</strong> 
+        <span id="previewVenue"></span>
+        <a href="#" id="previewVenueLink" class="venue-link ml-2" target="_blank" rel="noopener noreferrer"></a>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">Contact:</strong> 
+          <span id="previewContactName"></span>
+        </div>
+        <div>
+          <strong class="text-gray-600">Phone:</strong> 
+          <span id="previewContactPhone"></span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <strong class="text-gray-600">End Date:</strong> 
+          <span id="previewEndDate"></span>
+        </div>
+        <div id="brochureLink" class="hidden">
+          <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
+        </div>
+      </div>
+      
+      <div class="flex justify-between mt-6">
+        <button onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit</button>
+        <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm and Pay</button>
+        <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+  <script>
+  // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+
+  // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <script>
+    const fileInput = document.getElementById('brochureFile');
+    const fileNameSpan = document.getElementById('fileName');
+    const previewDiv = document.getElementById('preview');
+    const daysLeftSpan = document.getElementById('daysLeft');
+    const formContainer = document.getElementById('formContainer');
+    const brochureDownloadLink = document.getElementById('brochureDownload');
+    const dashboardContent = document.getElementById('dashboardContent');
+  
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        fileNameSpan.textContent = file.name;
+        const fileUrl = URL.createObjectURL(file);
+        brochureDownloadLink.href = fileUrl;
+        document.getElementById('brochureLink').classList.remove('hidden');
+      }
+    });
+  
+    function validateForm() {
+      const requiredFields = ['title', 'organizer', 'rules', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'venue', 'contactName', 'contactPhone'];
+      let valid = true;
+      requiredFields.forEach(field => {
+        const input = document.getElementById(field);
+        if (!input.value) {
+          input.style.borderColor = '#ef4444';
+          valid = false;
+        } else {
+          input.style.borderColor = '#e2e8f0';
+        }
+      });
+      return valid;
+    }
+  
+    function showPreview() {
+      if (!validateForm()) {
+        alert('Please fill all required fields.');
+        return;
+      }
+  
+      document.getElementById('previewTitle').textContent = document.getElementById('title').value;
+      document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
+      document.getElementById('previewCategory').textContent = document.getElementById('category').value;
+      
+      const prizeDetails = document.getElementById('prizeDetails').value;
+      document.getElementById('previewPrizeDetails').textContent = prizeDetails;
+      
+      const startDate = new Date(document.getElementById('startDateTime').value);
+      const endDate = new Date(document.getElementById('endDateTime').value);
+      
+      document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
+      document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
+      
+      const venue = document.getElementById('venue').value;
+      document.getElementById('previewVenue').textContent = venue;
+      
+      const venueGmapsLink = document.getElementById('venueGmapsLink').value;
+      const previewVenueLink = document.getElementById('previewVenueLink');
+      if (venueGmapsLink) {
+        previewVenueLink.href = venueGmapsLink;
+        previewVenueLink.textContent = 'View on Google Maps';
+      } else {
+        previewVenueLink.href = '#';
+        previewVenueLink.textContent = '';
+      }
+      
+      document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
+      document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
+  
+      const currentDate = new Date();
+      const timeDiff = endDate.getTime() - currentDate.getTime();
+      const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  
+      daysLeftSpan.textContent = `${daysLeft} Days Left!`;
+  
+      previewDiv.classList.remove('hidden');
+      formContainer.classList.add('hidden');
+    }
+  
+    function editForm() {
+      previewDiv.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+    }
+  
+    function confirmPayment() {
+      alert('Proceeding to payment...');
+    }
+  
+    function getPreviewContent() {
+      const title = document.getElementById('title').value;
+      const organizer = document.getElementById('organizer').value;
+      const rules = document.getElementById('rules').value;
+      const category = document.getElementById('category').value;
+      const prizeDetails = document.getElementById('prizeDetails').value;
+      const startDateTime = document.getElementById('startDateTime').value;
+      const endDateTime = document.getElementById('endDateTime').value;
+      const venue = document.getElementById('venue').value;
+      const contactName = document.getElementById('contactName').value;
+      const contactPhone = document.getElementById('contactPhone').value;
+    
+      return `
+        Title: ${title}
+        Organizer: ${organizer}
+        Rules: ${rules}
+        Category: ${category}
+        Prize Details: ${prizeDetails}
+        Start DateTime: ${startDateTime}
+        End DateTime: ${endDateTime}
+        Venue: ${venue}
+        Contact Name: ${contactName}
+        Contact Phone: ${contactPhone}
+      `;
+    }
+    
+    async function addToDashboard() {
+      const competitionData = {
+        title: document.getElementById('title').value,
+        organizer: document.getElementById('organizer').value,
+        rules: document.getElementById('rules').value,
+        category: document.getElementById('category').value,
+        prizeDetails: document.getElementById('prizeDetails').value,
+        startDateTime: document.getElementById('startDateTime').value,
+        endDateTime: document.getElementById('endDateTime').value,
+        venue: document.getElementById('venue').value,
+        contactName: document.getElementById('contactName').value,
+        contactPhone: document.getElementById('contactPhone').value,
+        venueGmapsLink: document.getElementById('venueGmapsLink').value,
+        brochureUrl: ''
+      };
+  
+      try {
+        await db.collection('competitions').add(competitionData);
+        alert('Competition details added to dashboard successfully!');
+      } catch (error) {
+        console.error('Failed to add competition details:', error.message);
+      }
+    }
+  </script>  
+</body>
+</html>
