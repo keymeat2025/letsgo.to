@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Registration</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .form-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .competition-banner {
+      background: linear-gradient(135deg, #f6f8fa, #e3e5ea);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0.5rem;
+    }
+
+    .form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .submit-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: #6b7280;
+    }
+    
+    .input-with-icon {
+      padding-left: 2.5rem;
+    }
+    
+    .form-subtitle {
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #3b82f6;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto px-4">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Competition Registration</h1>
+        <p class="mt-2">Fill in your details to register for this event</p>
+      </div>
+      
+      <div class="p-6">
+        <!-- Competition Details Banner -->
+        <div class="competition-banner flex items-center">
+          <div class="mr-4">
+            <i class="lucide-trophy text-4xl text-blue-600"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold" id="competitionTitle">National Coding Championship</h2>
+            <div class="flex items-center text-sm text-gray-600 mt-1">
+              <i class="lucide-calendar mr-2"></i>
+              <span id="competitionDates">May 15 - May 17, 2025</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Single Page Form -->
+        <div class="my-6">
+          <form id="registrationForm">
+            <div class="form-step active" id="step1">
+              <h3 class="text-xl font-semibold mb-2">Personal Information</h3>
+              <p class="form-subtitle">Let us know who you are</p>
+              
+              <div class="mb-4">
+                <h4 class="section-title">Name Details</h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="relative">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <i class="lucide-user input-icon"></i>
+                    <input type="text" id="firstName" name="firstName" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                  </div>
+                  <div class="relative">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <i class="lucide-user input-icon"></i>
+                    <input type="text" id="lastName" name="lastName" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h4 class="section-title">Contact Information</h4>
+                <div class="mb-4 relative">
+                  <label for="email" class="form-label">Email Address</label>
+                  <i class="lucide-mail input-icon"></i>
+                  <input type="email" id="email" name="email" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="relative">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <i class="lucide-phone input-icon"></i>
+                    <input type="tel" id="phone" name="phone" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                  </div>
+                  <div class="relative">
+                    <label for="hometown" class="form-label">Hometown</label>
+                    <i class="lucide-map-pin input-icon"></i>
+                    <input type="text" id="hometown" name="hometown" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h4 class="section-title">Personal Details</h4>
+                <div class="relative">
+                  <label for="dob" class="form-label">Date of Birth (DD/MM/YYYY)</label>
+                  <i class="lucide-cake input-icon"></i>
+                  <input type="date" id="dob" name="dob" class="form-input input-with-icon w-full p-2.5 border border-gray-300 rounded-lg" required>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <label class="flex items-center">
+                  <input type="checkbox" id="termsAgree" name="termsAgree" class="mr-2" required>
+                  <span class="text-sm">I agree to the <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a></span>
+                </label>
+              </div>
+              
+              <div class="flex justify-end mt-6">
+                <button type="submit" class="submit-btn flex items-center"><i class="lucide-check mr-1"></i> Complete Registration</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed top-0 left-0 right-0 z-50 hidden w-full h-full overflow-x-hidden overflow-y-auto flex items-center justify-center bg-black bg-opacity-50">
+    <div class="relative w-full max-w-md max-h-full">
+      <div class="relative bg-white rounded-lg shadow">
+        <div class="p-6 text-center">
+          <div class="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+            <i class="lucide-check-circle text-5xl text-green-500"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Registration Successful!</h3>
+          <p class="text-gray-600 mb-4">Your registration has been submitted successfully. We have sent a confirmation email with all the details.</p>
+          <button type="button" onclick="closeModal()" class="submit-btn w-full">Go to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Form submission
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Simple validation
+      if (!document.getElementById('firstName').value || 
+          !document.getElementById('lastName').value ||
+          !document.getElementById('email').value ||
+          !document.getElementById('phone').value ||
+          !document.getElementById('hometown').value ||
+          !document.getElementById('dob').value ||
+          !document.getElementById('termsAgree').checked) {
+        alert('Please fill in all required fields and accept the terms to complete registration.');
+        return;
+      }
+      
+      // Show success modal
+      document.getElementById('successModal').classList.remove('hidden');
+    });
+    
+    // Close success modal
+    function closeModal() {
+      document.getElementById('successModal').classList.add('hidden');
+      // Redirect to dashboard in a real implementation
+      // window.location.href = 'dashboard.html';
+    }
+    
+    // Initialize competition info dynamically (in a real app, this would come from the database)
+    function initCompetitionInfo() {
+      // This would typically be passed from the competitions page
+      const urlParams = new URLSearchParams(window.location.search);
+      const competitionId = urlParams.get('id');
+      
+      // For demo purposes, just set some default values
+      document.getElementById('competitionTitle').textContent = 'National Coding Championship';
+      document.getElementById('competitionDates').textContent = 'May 15 - May 17, 2025';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      initCompetitionInfo();
+    });
+  </script>
+</body>
+</html>
