@@ -2,239 +2,552 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Competition Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competitions Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
   <style>
     body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e6e9f0 100%);
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
       font-family: 'Inter', sans-serif;
     }
+
+    .dashboard-container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-container {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-container h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: -1px;
+    }
+
     .competition-card {
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      perspective: 1000px;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
     }
+
     .competition-card:hover {
-      transform: rotateY(10deg) translateZ(50px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
     }
-    .category-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.8rem;
+
+    .card-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 1rem;
+    }
+
+    .prize-badge {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: black;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
       font-weight: bold;
-      text-transform: uppercase;
+      box-shadow: 0 5px 10px rgba(255, 170, 0, 0.3);
+      display: inline-block;
     }
-    .pulse-animation {
-      animation: pulse 2s infinite;
+
+    .days-left-badge {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      box-shadow: 0 5px 10px rgba(255, 71, 87, 0.3);
+      display: inline-block;
     }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+
+    .venue-link {
+      color: #3b82f6;
+      text-decoration: underline;
+      transition: color 0.3s ease;
     }
-    .glitch-text {
-      position: relative;
-      text-shadow: 
-        0.05em 0 0 #00fffc,
-        -0.03em -0.04em 0 #fc00ff,
-        0.025em 0.04em 0 #fffc00;
-      animation: glitch 725ms infinite;
+
+    .venue-link:hover {
+      color: #2563eb;
     }
-    @keyframes glitch {
-      0% {
-        text-shadow: 
-          0.05em 0 0 #00fffc,
-          -0.03em -0.04em 0 #fc00ff,
-          0.025em 0.04em 0 #fffc00;
-      }
-      15% {
-        text-shadow: 
-          0.05em 0 0 #00fffc,
-          -0.03em -0.04em 0 #fc00ff,
-          0.025em 0.04em 0 #fffc00;
-      }
-      16% {
-        text-shadow: 
-          -0.05em -0.025em 0 #00fffc,
-          0.025em 0.035em 0 #fc00ff,
-          -0.05em -0.05em 0 #fffc00;
-      }
-      49% {
-        text-shadow: 
-          -0.05em -0.025em 0 #00fffc,
-          0.025em 0.035em 0 #fc00ff,
-          -0.05em -0.05em 0 #fffc00;
-      }
-      50% {
-        text-shadow: 
-          0.05em 0.035em 0 #00fffc,
-          0.03em 0 0 #fc00ff,
-          0 -0.04em 0 #fffc00;
-      }
-      99% {
-        text-shadow: 
-          0.05em 0.035em 0 #00fffc,
-          0.03em 0 0 #fc00ff,
-          0 -0.04em 0 #fffc00;
-      }
-      100% {
-        text-shadow: 
-          -0.05em 0 0 #00fffc,
-          -0.025em -0.04em 0 #fc00ff,
-          -0.04em -0.025em 0 #fffc00;
-      }
+
+    .filter-bar {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .no-competitions {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 0.5rem;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .detail-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .detail-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(59, 130, 246, 0.3);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16 text-center">
-    <h1 class="text-5xl font-extrabold mb-4 glitch-text">Competition Dashboard</h1>
-    <p class="text-xl max-w-2xl mx-auto opacity-80">Discover, Compete, Excel: Your Gateway to Extraordinary Challenges</p>
-  </header>
+<body>
+  <div class="dashboard-container">
+    <div class="header-container">
+      <h1>Competitions Dashboard</h1>
+      <p class="text-lg mt-2">Discover and join exciting competitions</p>
+    </div>
 
-  <main class="container mx-auto px-4 py-12 flex-grow">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-3xl font-bold text-gray-800">Upcoming Competetions</h2>
-      <div class="flex space-x-2">
-        <button id="gridView" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          <i data-lucide="grid" class="inline-block mr-2"></i>Grid View
-        </button>
-        <button id="listView" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
-          <i data-lucide="list" class="inline-block mr-2"></i>List View
-        </button>
+    <div class="filter-bar">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="input-group">
+          <input type="text" id="searchInput" placeholder="Search competitions..." class="w-full p-2 border border-gray-300 rounded-lg">
+        </div>
+        <div class="input-group">
+          <select id="categoryFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+            <option value="">All Categories</option>
+            <option value="technology">Technology</option>
+            <option value="music">Music</option>
+            <option value="dance">Dance</option>
+            <option value="art">Art</option>
+            <option value="sports">Sports</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="timeFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+            <option value="">All Time</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <button id="resetFilters" class="w-full p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Reset Filters</button>
+        </div>
       </div>
     </div>
 
-    <div id="competitionsList" class="grid md:grid-cols-3 gap-6">
-      <!-- Competitions will be dynamically populated here -->
-    </div>
-  </main>
-
-  <footer class="bg-gray-900 text-white py-8 text-center">
-    <p>&copy; 2024 Competition Horizon. All rights reserved.</p>
-  </footer>
-
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-
-    const competitions = [
-      {
-        id: 1,
-        title: 'Tech Innovation Challenge',
-        category: 'Technology',
-        organizer: 'TechHub Innovations',
-        startDate: '2024-08-15',
-        endDate: '2024-09-15',
-        prizeDetails: '$5000 Grand Prize',
-        registrationFee: 25.00,
-        color: 'bg-blue-200',
-        icon: 'computer'
-      },
-      {
-        id: 2,
-        title: 'Global Music Composition Contest',
-        category: 'Music',
-        organizer: 'Harmony Productions',
-        startDate: '2024-09-01',
-        endDate: '2024-10-01',
-        prizeDetails: 'Recording Contract',
-        registrationFee: 30.00,
-        color: 'bg-purple-200',
-        icon: 'music'
-      },
-      {
-        id: 3,
-        title: 'Urban Photography Showcase',
-        category: 'Art',
-        organizer: 'Visual Narratives',
-        startDate: '2024-07-20',
-        endDate: '2024-08-20',
-        prizeDetails: 'Professional Camera & Exhibition',
-        registrationFee: 20.00,
-        color: 'bg-green-200',
-        icon: 'camera'
-      }
-    ];
-
-    function renderCompetitions(view = 'grid') {
-      const competitionsList = document.getElementById('competitionsList');
-      
-      competitionsList.innerHTML = competitions.map(comp => `
-        <div class="competition-card bg-white rounded-lg shadow-lg overflow-hidden relative 
-                    ${view === 'list' ? 'flex items-center' : ''}">
-          <div class="category-badge ${comp.color} text-gray-800">
-            ${comp.category}
+    <div id="competitions-loading" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Skeleton loading cards -->
+      <div class="competition-card">
+        <div class="card-header">
+          <div class="h-7 w-3/4 skeleton mb-1"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between mb-4">
+            <div class="h-6 w-1/3 skeleton"></div>
+            <div class="h-6 w-1/3 skeleton"></div>
           </div>
-          <div class="p-6 w-full">
-            <div class="flex items-center mb-4">
-              <i data-lucide="${comp.icon}" class="mr-4 text-blue-600"></i>
-              <h2 class="text-2xl font-bold text-blue-600">${comp.title}</h2>
+          <div class="space-y-3">
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-3/4 skeleton"></div>
+          </div>
+        </div>
+      </div>
+      <div class="competition-card">
+        <div class="card-header">
+          <div class="h-7 w-3/4 skeleton mb-1"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between mb-4">
+            <div class="h-6 w-1/3 skeleton"></div>
+            <div class="h-6 w-1/3 skeleton"></div>
+          </div>
+          <div class="space-y-3">
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-3/4 skeleton"></div>
+          </div>
+        </div>
+      </div>
+      <div class="competition-card">
+        <div class="card-header">
+          <div class="h-7 w-3/4 skeleton mb-1"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between mb-4">
+            <div class="h-6 w-1/3 skeleton"></div>
+            <div class="h-6 w-1/3 skeleton"></div>
+          </div>
+          <div class="space-y-3">
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-full skeleton"></div>
+            <div class="h-5 w-3/4 skeleton"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="competitions-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+      <!-- Competition cards will be inserted here -->
+    </div>
+
+    <div id="no-competitions" class="no-competitions mt-6 hidden">
+      <i class="lucide-search-x text-gray-400 text-6xl mb-4"></i>
+      <h3 class="text-2xl font-bold text-gray-600 mb-2">No competitions found</h3>
+      <p class="text-gray-500">Try adjusting your filters or check back later for new competitions</p>
+    </div>
+  </div>
+
+  <!-- Competition Details Modal -->
+  <div id="competitionModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex items-center justify-center">
+    <div class="relative w-full max-w-2xl max-h-full">
+      <div class="relative bg-white rounded-lg shadow">
+        <div class="flex items-start justify-between p-5 border-b rounded-t bg-gradient-to-r from-blue-500 to-blue-700">
+          <h3 class="text-xl font-semibold text-white" id="modalTitle">
+            Competition Details
+          </h3>
+          <button type="button" class="text-white bg-transparent hover:bg-blue-600 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" onclick="closeModal()">
+            <i class="lucide-x"></i>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div class="p-6 space-y-6" id="modalContent">
+          <!-- Modal content will be inserted here -->
+        </div>
+        <div class="flex items-center justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
+          <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" onclick="closeModal()">Close</button>
+          <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" id="registerButton">Register Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make Firebase functions available globally
+    window.db = db;
+    window.firestore = { collection, getDocs, query, where, orderBy };
+
+    // Load competitions after the page is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchCompetitions();
+      
+      // Set up event listeners
+      document.getElementById('searchInput').addEventListener('input', applyFilters);
+      document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+      document.getElementById('timeFilter').addEventListener('change', applyFilters);
+      document.getElementById('resetFilters').addEventListener('click', resetFilters);
+    });
+
+    window.fetchCompetitions = async function() {
+      try {
+        const competitionsRef = window.firestore.collection(window.db, 'competitions');
+        const q = window.firestore.query(competitionsRef, window.firestore.orderBy('startDateTime', 'asc'));
+        const querySnapshot = await window.firestore.getDocs(q);
+        
+        // Hide loading skeletons
+        document.getElementById('competitions-loading').classList.add('hidden');
+        
+        if (querySnapshot.empty) {
+          document.getElementById('no-competitions').classList.remove('hidden');
+          return;
+        }
+        
+        // Store all competitions for filtering
+        window.allCompetitions = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          window.allCompetitions.push(data);
+        });
+        
+        displayCompetitions(window.allCompetitions);
+      } catch (error) {
+        console.error("Error fetching competitions: ", error);
+        document.getElementById('competitions-loading').classList.add('hidden');
+        document.getElementById('no-competitions').classList.remove('hidden');
+        document.getElementById('no-competitions').innerHTML = `
+          <i class="lucide-alert-triangle text-red-500 text-6xl mb-4"></i>
+          <h3 class="text-2xl font-bold text-gray-600 mb-2">Error loading competitions</h3>
+          <p class="text-gray-500">${error.message}</p>
+        `;
+      }
+    };
+
+    window.displayCompetitions = function(competitions) {
+      const container = document.getElementById('competitions-container');
+      container.innerHTML = '';
+      
+      if (competitions.length === 0) {
+        document.getElementById('no-competitions').classList.remove('hidden');
+        container.classList.add('hidden');
+        return;
+      }
+      
+      document.getElementById('no-competitions').classList.add('hidden');
+      container.classList.remove('hidden');
+      
+      competitions.forEach(comp => {
+        // Format dates
+        const startDate = new Date(comp.startDateTime);
+        const endDate = new Date(comp.endDateTime);
+        const now = new Date();
+        
+        // Calculate days left
+        const timeDiff = endDate.getTime() - now.getTime();
+        const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        // Determine competition status
+        let statusBadge = '';
+        if (now < startDate) {
+          statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Upcoming</span>`;
+        } else if (now > endDate) {
+          statusBadge = `<span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Completed</span>`;
+        } else {
+          statusBadge = `<span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Ongoing</span>`;
+        }
+        
+        // Create card
+        const card = document.createElement('div');
+        card.className = 'competition-card';
+        card.innerHTML = `
+          <div class="card-header">
+            <h3 class="text-xl font-bold">${comp.title}</h3>
+            <p class="text-sm opacity-80">by ${comp.organizer}</p>
+          </div>
+          <div class="p-4">
+            <div class="flex flex-wrap justify-between mb-4 gap-2">
+              <div class="prize-badge text-sm">
+                ${comp.prizeDetails}
+              </div>
+              ${now > endDate ? '' : `
+              <div class="days-left-badge text-sm">
+                ${daysLeft} Days Left
+              </div>`}
             </div>
-            <div class="space-y-3 ${view === 'list' ? 'flex justify-between items-center' : ''}">
-              <div>
-                <p><strong>Organized By:</strong> ${comp.organizer}</p>
-                <p><strong>Dates:</strong> ${comp.startDate} to ${comp.endDate}</p>
+            
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center">
+                <i class="lucide-award mr-2 text-blue-600"></i>
+                <span>${statusBadge} ${comp.category.charAt(0).toUpperCase() + comp.category.slice(1)}</span>
               </div>
-              <div class="flex justify-between items-center mt-4">
-                <span class="text-green-600 font-bold">
-                  Registration: $${comp.registrationFee}
-                </span>
-                <button 
-                  onclick="registerForCompetition(${comp.id})" 
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 pulse-animation"
-                >
-                  Register Now
-                </button>
+              <div class="flex items-center">
+                <i class="lucide-calendar mr-2 text-blue-600"></i>
+                <span>${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}</span>
               </div>
+              <div class="flex items-center">
+                <i class="lucide-map-pin mr-2 text-blue-600"></i>
+                <span>${comp.venue}</span>
+                ${comp.venueGmapsLink ? `<a href="${comp.venueGmapsLink}" class="venue-link ml-2 text-sm" target="_blank">Map</a>` : ''}
+              </div>
+              <div class="flex items-center">
+                <i class="lucide-user mr-2 text-blue-600"></i>
+                <span>${comp.contactName}</span>
+              </div>
+            </div>
+            
+            <button class="detail-btn w-full flex items-center justify-center gap-2" onclick="showCompetitionDetails('${comp.id}')">
+              <i class="lucide-info"></i>
+              View Details
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+    };
+
+    window.applyFilters = function() {
+      if (!window.allCompetitions) return;
+      
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const timeFilter = document.getElementById('timeFilter').value;
+      const now = new Date();
+      
+      const filtered = window.allCompetitions.filter(comp => {
+        // Search filter
+        const matchesSearch = comp.title.toLowerCase().includes(searchTerm) || 
+                             comp.organizer.toLowerCase().includes(searchTerm) ||
+                             comp.venue.toLowerCase().includes(searchTerm);
+        
+        // Category filter
+        const matchesCategory = category === '' || comp.category === category;
+        
+        // Time filter
+        const startDate = new Date(comp.startDateTime);
+        const endDate = new Date(comp.endDateTime);
+        let matchesTime = true;
+        
+        if (timeFilter === 'upcoming') {
+          matchesTime = startDate > now;
+        } else if (timeFilter === 'ongoing') {
+          matchesTime = startDate <= now && endDate >= now;
+        } else if (timeFilter === 'past') {
+          matchesTime = endDate < now;
+        }
+        
+        return matchesSearch && matchesCategory && matchesTime;
+      });
+      
+      displayCompetitions(filtered);
+    };
+
+    window.resetFilters = function() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('timeFilter').value = '';
+      if (window.allCompetitions) {
+        displayCompetitions(window.allCompetitions);
+      }
+    };
+
+    window.showCompetitionDetails = function(competitionId) {
+      const competition = window.allCompetitions.find(comp => comp.id === competitionId);
+      if (!competition) return;
+      
+      const startDate = new Date(competition.startDateTime);
+      const endDate = new Date(competition.endDateTime);
+      const now = new Date();
+      
+      // Determine registration availability
+      let registrationStatus = '';
+      if (now > endDate) {
+        registrationStatus = `<div class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded">Registration Closed</div>`;
+        document.getElementById('registerButton').disabled = true;
+        document.getElementById('registerButton').classList.add('bg-gray-500');
+        document.getElementById('registerButton').classList.remove('bg-blue-700', 'hover:bg-blue-800');
+      } else {
+        registrationStatus = `<div class="bg-green-100 text-green-800 text-sm font-medium px-3 py-2 rounded">Registration Open</div>`;
+        document.getElementById('registerButton').disabled = false;
+        document.getElementById('registerButton').classList.remove('bg-gray-500');
+        document.getElementById('registerButton').classList.add('bg-blue-700', 'hover:bg-blue-800');
+      }
+      
+      document.getElementById('modalTitle').textContent = competition.title;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="prize-badge w-full text-center">
+            Prize: ${competition.prizeDetails}
+          </div>
+          <div class="text-center">
+            ${registrationStatus}
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <h4 class="text-lg font-semibold text-gray-700">About</h4>
+            <p class="text-gray-600 mt-1">${competition.organizer} is organizing a ${competition.category} competition.</p>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-semibold text-gray-700">Rules & Regulations</h4>
+            <p class="text-gray-600 mt-1 whitespace-pre-line">${competition.rules}</p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-lg font-semibold text-gray-700">Start Date & Time</h4>
+              <p class="text-gray-600 mt-1">${startDate.toLocaleString()}</p>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold text-gray-700">End Date & Time</h4>
+              <p class="text-gray-600 mt-1">${endDate.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-semibold text-gray-700">Venue</h4>
+            <p class="text-gray-600 mt-1">${competition.venue}</p>
+            ${competition.venueGmapsLink ? `<a href="${competition.venueGmapsLink}" class="venue-link text-sm" target="_blank">View on Google Maps</a>` : ''}
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-lg font-semibold text-gray-700">Contact Person</h4>
+              <p class="text-gray-600 mt-1">${competition.contactName}</p>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold text-gray-700">Contact Phone</h4>
+              <p class="text-gray-600 mt-1">${competition.contactPhone}</p>
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      
+      // Set register button action
+      document.getElementById('registerButton').onclick = function() {
+        alert(`You are registering for ${competition.title}. Registration process will be initiated.`);
+        closeModal();
+      };
+      
+      // Show modal
+      document.getElementById('competitionModal').classList.remove('hidden');
+    };
 
-      // Reinitialize Lucide icons after dynamic rendering
-      lucide.createIcons();
-    }
+    window.closeModal = function() {
+      document.getElementById('competitionModal').classList.add('hidden');
+    };
 
-    // View toggle functionality
-    document.getElementById('gridView').addEventListener('click', () => {
-      document.getElementById('gridView').classList.replace('bg-gray-200', 'bg-blue-500');
-      document.getElementById('listView').classList.replace('bg-blue-500', 'bg-gray-200');
-      renderCompetitions('grid');
-    });
-
-    document.getElementById('listView').addEventListener('click', () => {
-      document.getElementById('gridView').classList.replace('bg-blue-500', 'bg-gray-200');
-      document.getElementById('listView').classList.replace('bg-gray-200', 'bg-blue-500');
-      renderCompetitions('list');
-    });
-
-    function registerForCompetition(competitionId) {
-      const competition = competitions.find(c => c.id === competitionId);
-      if (competition) {
-        // Your existing registration logic
-        alert(`Registering for ${competition.title}`);
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('competitionModal');
+      if (event.target === modal) {
+        closeModal();
       }
-    }
-
-    // Initial render
-    renderCompetitions();
-
-    // Optional: Add GSAP animations
-    window.addEventListener('load', () => {
-      gsap.from(".competition-card", {
-        duration: 0.8, 
-        opacity: 0, 
-        y: 50, 
-        stagger: 0.2,
-        ease: "power3.out"
-      });
-    });
+    };
   </script>
 </body>
 </html>
