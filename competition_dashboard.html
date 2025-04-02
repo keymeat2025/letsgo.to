@@ -527,12 +527,27 @@
         </div>
       `;
       
-    
+   
       // Set register button action
       document.getElementById('registerButton').onclick = function() {
-        // Redirect to competition_registration page with the competition ID
-        window.location.href = `competition_registration.html?id=${competition.id}`;
+        // Check if user is logged in (this assumes you have a function or variable to check login status)
+        // You'll need to implement or use your existing authentication check here
+        const isLoggedIn = checkUserLoggedIn(); // Replace with your actual auth check
+        
+        if (isLoggedIn) {
+          // If logged in, redirect to registration page
+          window.location.href = `competition_registration.html?id=${competition.id}`;
+        } else {
+          // If not logged in, redirect to login page with return URL
+          window.location.href = `login.html?redirect=competition_registration.html?id=${competition.id}`;
+        }
       };
+      
+      // This is a placeholder function - you need to replace this with your actual auth check
+      function checkUserLoggedIn() {
+        // For example, check if user auth token exists in localStorage or sessionStorage
+        return localStorage.getItem('userAuthToken') !== null;
+      }
       // Show modal
       document.getElementById('competitionModal').classList.remove('hidden');
     };
