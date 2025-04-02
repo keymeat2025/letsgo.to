@@ -527,12 +527,12 @@
         </div>
       `;
       
+    
       // Set register button action
       document.getElementById('registerButton').onclick = function() {
-        alert(`You are registering for ${competition.title}. Registration process will be initiated.`);
-        closeModal();
+        // Redirect to competition_registration page with the competition ID
+        window.location.href = `competition_registration.html?id=${competition.id}`;
       };
-      
       // Show modal
       document.getElementById('competitionModal').classList.remove('hidden');
     };
