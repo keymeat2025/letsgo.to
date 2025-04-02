@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
+    <title>Competition Registration</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -37,7 +37,7 @@
             font-weight: 500;
             color: #555;
         }
-        input, select {
+        input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -45,7 +45,7 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        input:focus, select:focus {
+        input:focus {
             outline: none;
             border-color: #4285f4;
         }
@@ -104,7 +104,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>User Registration</h1>
+        <h1>Competition Registration</h1>
         
         <div class="user-type">
             <div class="user-type-option active" data-type="student">Student</div>
@@ -118,55 +118,48 @@
             </div>
             
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
+                <label for="pin">PIN (4-6 digits):</label>
+                <input type="password" id="pin" pattern="[0-9]{4,6}" maxlength="6" required>
             </div>
             
             <div class="form-group">
-                <label for="name">Full Name:</label>
-                <input type="text" id="name" required>
+                <label for="confirm-pin">Re-enter PIN:</label>
+                <input type="password" id="confirm-pin" pattern="[0-9]{4,6}" maxlength="6" required>
             </div>
             
             <!-- Student specific fields -->
             <div class="student-fields">
                 <div class="form-group">
-                    <label for="student-id">Student ID:</label>
-                    <input type="text" id="student-id">
+                    <label for="student-name">Student Full Name:</label>
+                    <input type="text" id="student-name" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="major">Major:</label>
-                    <input type="text" id="major">
+                    <label for="parent-name">Parent's Name:</label>
+                    <input type="text" id="parent-name" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="year">Year:</label>
-                    <select id="year">
-                        <option value="">Select year</option>
-                        <option value="1">Freshman</option>
-                        <option value="2">Sophomore</option>
-                        <option value="3">Junior</option>
-                        <option value="4">Senior</option>
-                        <option value="5">Graduate</option>
-                    </select>
+                    <label for="parent-phone">Parent's Contact Number:</label>
+                    <input type="tel" id="parent-phone" required>
                 </div>
             </div>
             
             <!-- Organizer specific fields -->
             <div class="organizer-fields">
                 <div class="form-group">
+                    <label for="organizer-name">Full Name:</label>
+                    <input type="text" id="organizer-name" required>
+                </div>
+                
+                <div class="form-group">
                     <label for="organization">Organization Name:</label>
-                    <input type="text" id="organization">
+                    <input type="text" id="organization" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="position">Position:</label>
-                    <input type="text" id="position">
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Contact Phone:</label>
-                    <input type="tel" id="phone">
+                    <label for="organizer-phone">Contact Number:</label>
+                    <input type="tel" id="organizer-phone" required>
                 </div>
             </div>
             
@@ -205,6 +198,8 @@
         const organizerFields = document.querySelector('.organizer-fields');
         const form = document.getElementById('registration-form');
         const statusMessage = document.getElementById('status-message');
+        const pinInput = document.getElementById('pin');
+        const confirmPinInput = document.getElementById('confirm-pin');
         
         // Default user type
         let currentUserType = 'student';
@@ -239,19 +234,30 @@
             
             // Get common form values
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const name = document.getElementById('name').value;
+            const pin = pinInput.value;
+            const confirmPin = confirmPinInput.value;
+            
+            // Validate PIN match
+            if (pin !== confirmPin) {
+                showStatus("PINs do not match. Please try again.", 'error');
+                return;
+            }
+            
+            // Validate PIN format (4-6 digits)
+            if (!/^\d{4,6}$/.test(pin)) {
+                showStatus("PIN must be 4-6 digits.", 'error');
+                return;
+            }
             
             try {
-                // Create user with email and password
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                // Create user with email and password (PIN)
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
                 const user = userCredential.user;
                 
                 // Prepare user data based on type
                 let userData = {
                     uid: user.uid,
                     email,
-                    name,
                     userType: currentUserType,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
@@ -260,9 +266,9 @@
                 if (currentUserType === 'student') {
                     userData = {
                         ...userData,
-                        studentId: document.getElementById('student-id').value,
-                        major: document.getElementById('major').value,
-                        year: document.getElementById('year').value
+                        studentName: document.getElementById('student-name').value,
+                        parentName: document.getElementById('parent-name').value,
+                        parentPhone: document.getElementById('parent-phone').value
                     };
                     
                     // Save to students collection
@@ -270,9 +276,9 @@
                 } else {
                     userData = {
                         ...userData,
+                        organizerName: document.getElementById('organizer-name').value,
                         organization: document.getElementById('organization').value,
-                        position: document.getElementById('position').value,
-                        phone: document.getElementById('phone').value
+                        phone: document.getElementById('organizer-phone').value
                     };
                     
                     // Save to organizers collection
