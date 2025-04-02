@@ -6,144 +6,6 @@
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
     <script defer src="includeBanner.js"></script>
-    <!-- Firebase SDK - Using latest version with modular API -->
-    <script type="module">
-        // Import the functions you need from the SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-          authDomain: "letsgoto-a630e.firebaseapp.com",
-          projectId: "letsgoto-a630e",
-          storageBucket: "letsgoto-a630e.firebasestorage.app",
-          messagingSenderId: "194513214154",
-          appId: "1:194513214154:web:7825241b22095d7c43f233",
-          measurementId: "G-N8CN6LM82S"
-        };
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
-
-        // Check if user is already signed in
-        window.onload = function() {
-            includeHTML();
-            
-            // Check if coming from registration page
-            const urlParams = new URLSearchParams(window.location.search);
-            const fromRegistration = urlParams.get('fromRegistration');
-            
-            if (fromRegistration === 'true') {
-                // Sign out if coming from registration
-                signOut(auth).then(() => {
-                    console.log("Signed out after registration");
-                    sessionStorage.setItem('isLoggedIn', 'false');
-                    sessionStorage.removeItem('userId');
-                    updateLoginStatus();
-                }).catch((error) => {
-                    console.error("Error signing out:", error);
-                });
-            } else {
-                // Normal auth state check
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        // User is signed in
-                        sessionStorage.setItem('isLoggedIn', 'true');
-                        sessionStorage.setItem('userId', user.uid);
-                        
-                        // Only redirect if not explicitly showing login form
-                        const noRedirect = urlParams.get('noRedirect');
-                        if (noRedirect !== 'true') {
-                            // Redirect to home page if already logged in
-                            window.location.href = 'index.html';
-                        }
-                    } else {
-                        // User is signed out
-                        sessionStorage.setItem('isLoggedIn', 'false');
-                        sessionStorage.removeItem('userId');
-                    }
-                    updateLoginStatus();
-                });
-            }
-        };
-
-        // Check if the user exists in the database, if not create a new record
-        async function checkUserInDatabase(user) {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (!userDoc.exists()) {
-                    // First time Google sign-in, redirect to finish profile
-                    window.location.href = 'complete-profile.html';
-                } else {
-                    // Existing user, go to home page
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                console.error("Error checking user:", error);
-            }
-        }
-
-        // Regular email/password login
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('loginForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                
-                const email = document.getElementById('email').value;
-                const pin = document.getElementById('pin').value;
-                
-                try {
-                    await signInWithEmailAndPassword(auth, email, pin);
-                    // Success is handled by onAuthStateChanged
-                } catch (error) {
-                    alert('Login failed: ' + error.message);
-                }
-            });
-
-            // Google Sign-in
-            document.getElementById('google-signin').addEventListener('click', async function() {
-                try {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    
-                    // Check if user exists in database
-                    checkUserInDatabase(result.user);
-                } catch (error) {
-                    console.error(error);
-                    alert('Error: ' + error.message);
-                }
-            });
-
-            // Get category from URL if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const category = urlParams.get('category');
-            if (category) {
-                document.getElementById('category').value = category;
-            }
-        });
-
-        // Make functions available globally
-        window.updateLoginStatus = function() {
-            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-            const loginLink = document.getElementById('login-link');
-            const signupLink = document.getElementById('signup-link');
-            const logoutLink = document.getElementById('logout-link');
-            
-            if (!loginLink || !signupLink || !logoutLink) return;
-            
-            if (isLoggedIn === 'true') {
-                signupLink.style.display = 'none';
-                loginLink.style.display = 'none';
-                logoutLink.style.display = 'block';
-            } else {
-                signupLink.style.display = 'block';
-                loginLink.style.display = 'block';
-                logoutLink.style.display = 'none';
-            }
-        };
-    </script>
 </head>
 <body>
     <div id="banner-container" w3-include-html="banner.html"></div>
@@ -168,22 +30,216 @@
         <p>Don't have an account? <a href="register.html">Register here</a></p>
     </div>
 
+    <!-- Firebase SDK - Using latest version with modular API -->
+    <script type="module">
+        // Import the functions you need from the SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+          authDomain: "letsgoto-a630e.firebaseapp.com",
+          projectId: "letsgoto-a630e",
+          storageBucket: "letsgoto-a630e.firebasestorage.app",
+          messagingSenderId: "194513214154",
+          appId: "1:194513214154:web:7825241b22095d7c43f233",
+          measurementId: "G-N8CN6LM82S"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Make functions available globally
+        window.updateLoginStatus = function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const loginLink = document.getElementById('login-link');
+            const signupLink = document.getElementById('signup-link');
+            const logoutLink = document.getElementById('logout-link');
+            
+            if (!loginLink || !signupLink || !logoutLink) {
+                console.log("Navigation elements not found");
+                return;
+            }
+            
+            console.log("Login status:", isLoggedIn);
+            
+            if (isLoggedIn === 'true') {
+                signupLink.style.display = 'none';
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                signupLink.style.display = 'block';
+                loginLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        };
+
+        // Check if user exists in the database, if not create a new record
+        async function checkUserInDatabase(user) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists()) {
+                    // First time Google sign-in, redirect to finish profile
+                    window.location.href = 'complete-profile.html';
+                } else {
+                    // Existing user, go to home page
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error("Error checking user:", error);
+                alert("Error checking user profile: " + error.message);
+            }
+        }
+
+        // Handle page initialization
+        function initPage() {
+            console.log("Initializing login page");
+            
+            // Include HTML components
+            includeHTML();
+            
+            // Check if coming from registration page
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromRegistration = urlParams.get('fromRegistration');
+            
+            if (fromRegistration === 'true') {
+                // Sign out if coming from registration
+                console.log("Coming from registration, signing out");
+                signOut(auth).then(() => {
+                    console.log("Signed out after registration");
+                    sessionStorage.setItem('isLoggedIn', 'false');
+                    sessionStorage.removeItem('userId');
+                    updateLoginStatus();
+                }).catch((error) => {
+                    console.error("Error signing out:", error);
+                });
+            } else {
+                // Normal auth state check
+                console.log("Checking authentication state");
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("User is signed in:", user.email);
+                        // User is signed in
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        sessionStorage.setItem('userId', user.uid);
+                        
+                        // Only redirect if not explicitly showing login form
+                        const noRedirect = urlParams.get('noRedirect');
+                        if (noRedirect !== 'true') {
+                            console.log("Redirecting to home page");
+                            // Redirect to home page if already logged in
+                            window.location.href = 'index.html';
+                        }
+                    } else {
+                        console.log("User is signed out");
+                        // User is signed out
+                        sessionStorage.setItem('isLoggedIn', 'false');
+                        sessionStorage.removeItem('userId');
+                    }
+                    updateLoginStatus();
+                });
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Set up event listeners for the page
+        function setupEventListeners() {
+            console.log("Setting up event listeners");
+            
+            // Regular email/password login
+            document.getElementById('loginForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                console.log("Login form submitted");
+                
+                const email = document.getElementById('email').value;
+                const pin = document.getElementById('pin').value;
+                
+                try {
+                    console.log("Attempting login with:", email);
+                    // Wait for sign-in to complete
+                    const userCredential = await signInWithEmailAndPassword(auth, email, pin);
+                    // Get the user
+                    const user = userCredential.user;
+                    console.log("Login successful for:", user.email);
+                    
+                    // Set session storage
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userId', user.uid);
+                    
+                    // Explicitly redirect to home page
+                    console.log("Redirecting to home page after login");
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error("Login error:", error);
+                    alert('Login failed: ' + error.message);
+                }
+            });
+
+            // Google Sign-in
+            document.getElementById('google-signin').addEventListener('click', async function() {
+                console.log("Google sign-in button clicked");
+                try {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    console.log("Google sign-in successful for:", result.user.email);
+                    
+                    // Set session storage
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userId', result.user.uid);
+                    
+                    // Check if user exists in database
+                    console.log("Checking if user exists in database");
+                    checkUserInDatabase(result.user);
+                } catch (error) {
+                    console.error("Google sign-in error:", error);
+                    alert('Error: ' + error.message);
+                }
+            });
+
+            // Get category from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            if (category) {
+                console.log("Setting category from URL:", category);
+                document.getElementById('category').value = category;
+            }
+        }
+
+        // Run initialization when page loads
+        window.onload = initPage;
+    </script>
+
     <script>
         function includeHTML() {
+            console.log("Starting includeHTML");
             const z = document.getElementsByTagName("*");
             for (let i = 0; i < z.length; i++) {
                 const elmnt = z[i];
                 const file = elmnt.getAttribute("w3-include-html");
                 if (file) {
+                    console.log("Including HTML file:", file);
                     const xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4) {
-                            if (this.status == 200) { elmnt.innerHTML = this.responseText; }
-                            if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                            if (this.status == 200) { 
+                                elmnt.innerHTML = this.responseText; 
+                                console.log("Successfully included:", file);
+                            }
+                            if (this.status == 404) { 
+                                elmnt.innerHTML = "Page not found."; 
+                                console.error("File not found:", file);
+                            }
                             elmnt.removeAttribute("w3-include-html");
                             includeHTML();
                             // Call updateLoginStatus after loading banner
                             if (typeof updateLoginStatus === 'function') {
+                                console.log("Updating login status after including HTML");
                                 updateLoginStatus();
                             }
                         }
@@ -193,6 +249,7 @@
                     return;
                 }
             }
+            console.log("includeHTML completed");
         }
     </script>
 </body>
