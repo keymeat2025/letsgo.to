@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
-    <script defer src="includeBanner.js"></script> <!-- Link to your JavaScript file -->
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="includeBanner.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div id="banner-container" w3-include-html="banner.html"></div> <!-- Placeholder for the banner -->
+    <div id="banner-container" w3-include-html="banner.html"></div>
     <div class="container">
         <h2>Register</h2>
-        <form id="registerForm" action="register" method="post"> <!-- Change the action to your register endpoint -->
+        <form id="registerForm">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             <label for="email">Email:</label>
@@ -20,7 +24,7 @@
             <input type="password" id="pin" name="pin" required>
             <label for="confirmPin">Confirm PIN:</label>
             <input type="password" id="confirmPin" name="confirmPin" required>
-            <div id="category-select" style="display: none;">
+            <div id="category-select">
                 <label for="category">I am a:</label>
                 <select id="category" name="category" required>
                     <option value="">Select...</option>
@@ -28,37 +32,130 @@
                     <option value="organizer">Organizer</option>
                 </select>
             </div>
-            <button type="submit">Register</button>
+            <button type="submit" id="register-btn">Register</button>
+            <div class="divider">OR</div>
+            <button type="button" id="google-signin" class="google-btn">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                Sign in with Google
+            </button>
         </form>
         <p>Already have an account? <a href="login.html">Login here</a></p>
     </div>
+
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function(event) {
-            const pin = document.getElementById('pin').value;
-            const confirmPin = document.getElementById('confirmPin').value;
-
-            if (pin !== confirmPin) {
-                event.preventDefault();
-                alert('PINs do not match. Please re-enter.');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const category = urlParams.get('category');
-            if (category) {
-                document.getElementById('category').value = category;
-                document.getElementById('category-select').style.display = 'none';
-            } else {
-                document.getElementById('category-select').style.display = 'block';
-            }
-        });
-
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Check if user is already signed in
         document.addEventListener('DOMContentLoaded', function() {
             includeHTML();
-            updateLoginStatus();
+            
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // User is signed in
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userId', user.uid);
+                    checkUserInDatabase(user);
+                } else {
+                    // User is signed out
+                    sessionStorage.setItem('isLoggedIn', 'false');
+                    sessionStorage.removeItem('userId');
+                }
+                updateLoginStatus();
+            });
         });
 
+        // Check if the user exists in the database, if not create a new record
+        function checkUserInDatabase(user) {
+            db.collection('users').doc(user.uid).get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        // First time Google sign-in, redirect to finish profile
+                        window.location.href = 'complete-profile.html';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking user:", error);
+                });
+        }
+
+        // Regular email/password registration
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const pin = document.getElementById('pin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+            const username = document.getElementById('username').value;
+            const category = document.getElementById('category').value;
+
+            if (pin !== confirmPin) {
+                alert('PINs do not match. Please re-enter.');
+                return;
+            }
+
+            // Create user with email and password
+            auth.createUserWithEmailAndPassword(email, pin)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    
+                    // Store additional user data in Firestore
+                    return db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: email,
+                        category: category,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    alert('Registration successful!');
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        });
+
+        // Google Sign-in
+        document.getElementById('google-signin').addEventListener('click', function() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    // Check if this is the first time signing in with Google
+                    const isNewUser = result.additionalUserInfo.isNewUser;
+                    
+                    if (isNewUser) {
+                        // Save minimal information and redirect to complete profile
+                        db.collection('users').doc(result.user.uid).set({
+                            email: result.user.email,
+                            username: result.user.displayName || '',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        window.location.href = 'complete-profile.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        });
+
+        // Include HTML function (from your original code)
         function includeHTML() {
             const z = document.getElementsByTagName("*");
             for (let i = 0; i < z.length; i++) {
@@ -81,6 +178,7 @@
             }
         }
 
+        // Update login status (from your original code)
         function updateLoginStatus() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn');
             if (isLoggedIn === 'true') {
@@ -94,6 +192,7 @@
             }
         }
 
+        // Original search functions (from your original code)
         function clearSearch() {
             const searchInput = document.getElementById('search-input');
             const searchHint = document.getElementById('search-hint');
