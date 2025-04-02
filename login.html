@@ -4,38 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
-    <script defer src="includeBanner.js"></script> <!-- Link to your JavaScript file -->
-</head>
-<body>
-    <div id="banner-container"></div> <!-- Placeholder for the banner -->
-    <div class="container">
-        <h2>Login</h2>
-        <form action="login" method="post"> <!-- Change the action to your login endpoint -->
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="pin">PIN:</label>
-            <input type="password" id="pin" name="pin" required>
-            <input type="hidden" id="category" name="category" value="">
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="register.html">Register here</a></p>
-    </div>
-    <script>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="includeBanner.js"></script>
+    <!-- Firebase SDK - Using latest version with modular API -->
+    <script type="module">
+        // Import the functions you need from the SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+     
+
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+          authDomain: "letsgoto-a630e.firebaseapp.com",
+          projectId: "letsgoto-a630e",
+          storageBucket: "letsgoto-a630e.firebasestorage.app",
+          messagingSenderId: "194513214154",
+          appId: "1:194513214154:web:7825241b22095d7c43f233",
+          measurementId: "G-N8CN6LM82S"
+        };
+                // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Check if user is already signed in
+        window.onload = function() {
+            includeHTML();
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userId', user.uid);
+                    // Redirect to home page if already logged in
+                    window.location.href = 'index.html';
+                } else {
+                    // User is signed out
+                    sessionStorage.setItem('isLoggedIn', 'false');
+                    sessionStorage.removeItem('userId');
+                }
+                updateLoginStatus();
+            });
+        };
+
+        // Check if the user exists in the database, if not create a new record
+        async function checkUserInDatabase(user) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists()) {
+                    // First time Google sign-in, redirect to finish profile
+                    window.location.href = 'complete-profile.html';
+                } else {
+                    // Existing user, go to home page
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error("Error checking user:", error);
+            }
+        }
+
+        // Regular email/password login
         document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const pin = document.getElementById('pin').value;
+                
+                try {
+                    // Firebase uses email for authentication, so we're using username as email here
+                    // In a real-world scenario, you might want to look up the email by username first
+                    await signInWithEmailAndPassword(auth, username, pin);
+                    // Success is handled by onAuthStateChanged
+                } catch (error) {
+                    alert('Login failed: ' + error.message);
+                }
+            });
+
+            // Google Sign-in
+            document.getElementById('google-signin').addEventListener('click', async function() {
+                try {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    
+                    // Check if user exists in database
+                    checkUserInDatabase(result.user);
+                } catch (error) {
+                    console.error(error);
+                    alert('Error: ' + error.message);
+                }
+            });
+
+            // Get category from URL if present
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category');
             if (category) {
                 document.getElementById('category').value = category;
             }
         });
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('banner.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('banner-container').innerHTML = data;
-                });
-        });
+
+        // Make functions available globally
+        window.updateLoginStatus = function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const loginLink = document.getElementById('login-link');
+            const signupLink = document.getElementById('signup-link');
+            const logoutLink = document.getElementById('logout-link');
+            
+            if (!loginLink || !signupLink || !logoutLink) return;
+            
+            if (isLoggedIn === 'true') {
+                signupLink.style.display = 'none';
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                signupLink.style.display = 'block';
+                loginLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        };
+    </script>
+</head>
+<body>
+    <div id="banner-container" w3-include-html="banner.html"></div>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username/Email:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="pin">PIN:</label>
+            <input type="password" id="pin" name="pin" required>
+            <input type="hidden" id="category" name="category" value="">
+            <button type="submit">Login</button>
+            <div class="divider" style="margin: 20px 0; text-align: center; position: relative;">
+                <span style="background-color: white; padding: 0 10px; position: relative; z-index: 1;">OR</span>
+                <hr style="margin-top: -10px; border: none; border-top: 1px solid #ddd;">
+            </div>
+            <button type="button" id="google-signin" class="google-btn" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 18px; margin-right: 10px;">
+                Sign in with Google
+            </button>
+        </form>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+
+    <script>
+        function includeHTML() {
+            const z = document.getElementsByTagName("*");
+            for (let i = 0; i < z.length; i++) {
+                const elmnt = z[i];
+                const file = elmnt.getAttribute("w3-include-html");
+                if (file) {
+                    const xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4) {
+                            if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+                            if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                            elmnt.removeAttribute("w3-include-html");
+                            includeHTML();
+                            // Call updateLoginStatus after loading banner
+                            if (typeof updateLoginStatus === 'function') {
+                                updateLoginStatus();
+                            }
+                        }
+                    };
+                    xhttp.open("GET", file, true);
+                    xhttp.send();
+                    return;
+                }
+            }
+        }
     </script>
 </body>
 </html>
