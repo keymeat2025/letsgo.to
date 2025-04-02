@@ -10,7 +10,7 @@
     <script type="module">
         // Import the functions you need from the SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         // Your web app's Firebase configuration
@@ -33,20 +33,42 @@
         window.onload = function() {
             includeHTML();
             
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // User is signed in
-                    sessionStorage.setItem('isLoggedIn', 'true');
-                    sessionStorage.setItem('userId', user.uid);
-                    // Redirect to home page if already logged in
-                    window.location.href = 'index.html';
-                } else {
-                    // User is signed out
+            // Check if coming from registration page
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromRegistration = urlParams.get('fromRegistration');
+            
+            if (fromRegistration === 'true') {
+                // Sign out if coming from registration
+                signOut(auth).then(() => {
+                    console.log("Signed out after registration");
                     sessionStorage.setItem('isLoggedIn', 'false');
                     sessionStorage.removeItem('userId');
-                }
-                updateLoginStatus();
-            });
+                    updateLoginStatus();
+                }).catch((error) => {
+                    console.error("Error signing out:", error);
+                });
+            } else {
+                // Normal auth state check
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // User is signed in
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        sessionStorage.setItem('userId', user.uid);
+                        
+                        // Only redirect if not explicitly showing login form
+                        const noRedirect = urlParams.get('noRedirect');
+                        if (noRedirect !== 'true') {
+                            // Redirect to home page if already logged in
+                            window.location.href = 'index.html';
+                        }
+                    } else {
+                        // User is signed out
+                        sessionStorage.setItem('isLoggedIn', 'false');
+                        sessionStorage.removeItem('userId');
+                    }
+                    updateLoginStatus();
+                });
+            }
         };
 
         // Check if the user exists in the database, if not create a new record
