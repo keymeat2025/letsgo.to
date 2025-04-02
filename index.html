@@ -189,27 +189,78 @@
         .proceed-button a:hover {
             background-color: #0056b3;
         }
+        .students-section {
+            padding: 40px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+        }
     </style>
     <script type="module">
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        const auth = getAuth();
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 
-        window.updateLoginStatus = function() {
-            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        // Initialize Firebase (you need to add your Firebase configuration here)
+        const firebaseConfig = {
+            // Your firebase config details should be here
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.handleLogout = function() {
+            signOut(auth).then(() => {
+                // Sign-out successful
+                sessionStorage.setItem('isLoggedIn', 'false');
+                sessionStorage.removeItem('userId');
+                updateAuthUI();
+                window.location.href = "index.html"; // Redirect to home page after logout
+            }).catch((error) => {
+                // An error happened
+                console.error("Logout error:", error);
+            });
+        };
+
+        window.updateAuthUI = function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
             const loginLink = document.getElementById('login-link');
             const signupLink = document.getElementById('signup-link');
             const logoutLink = document.getElementById('logout-link');
+            const proceedButtons = document.querySelectorAll('.proceed-button a[href*="register.html"]');
             
-            if (!loginLink || !signupLink || !logoutLink) return;
+            if (loginLink && signupLink && logoutLink) {
+                if (isLoggedIn) {
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    logoutLink.style.display = 'block';
+                } else {
+                    loginLink.style.display = 'block';
+                    signupLink.style.display = 'block';
+                    logoutLink.style.display = 'none';
+                }
+            }
             
-            if (isLoggedIn === 'true') {
-                signupLink.style.display = 'none';
-                loginLink.style.display = 'none';
-                logoutLink.style.display = 'block';
-            } else {
-                signupLink.style.display = 'block';
-                loginLink.style.display = 'block';
-                logoutLink.style.display = 'none';
+            // Update proceed buttons for logged-in users
+            if (proceedButtons) {
+                proceedButtons.forEach(button => {
+                    if (isLoggedIn) {
+                        // If user is logged in, update links to go directly to relevant pages
+                        if (button.getAttribute('href').includes('category=organizer')) {
+                            button.textContent = 'Create Competition';
+                            button.href = 'competition_form.html';
+                        } else if (button.getAttribute('href').includes('category=student')) {
+                            button.textContent = 'Browse Competitions';
+                            button.href = 'competition_dashboard.html';
+                        }
+                    } else {
+                        // Keep original text for non-logged in users
+                        if (button.getAttribute('href').includes('category=organizer')) {
+                            button.textContent = 'Proceed to Sign Up or Log In';
+                        } else if (button.getAttribute('href').includes('category=student')) {
+                            button.textContent = 'Proceed to Sign Up or Log In';
+                        }
+                    }
+                });
             }
         };
 
@@ -218,13 +269,15 @@
             
             onAuthStateChanged(auth, (user) => {
                 if (user) {
+                    // User is signed in
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('userId', user.uid);
                 } else {
+                    // User is signed out
                     sessionStorage.setItem('isLoggedIn', 'false');
                     sessionStorage.removeItem('userId');
                 }
-                updateLoginStatus();
+                updateAuthUI();
             });
         };
 
@@ -241,8 +294,8 @@
                             if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
                             elmnt.removeAttribute("w3-include-html");
                             includeHTML();
-                            if (typeof updateLoginStatus === 'function') {
-                                updateLoginStatus();
+                            if (typeof updateAuthUI === 'function') {
+                                updateAuthUI();
                             }
                         }
                     };
@@ -275,7 +328,7 @@
         <div class="auth-links">
             <a href="register.html" id="signup-link">Sign Up</a>
             <a href="login.html" id="login-link">Login</a>
-            <a href="logout.html" id="logout-link" style="display: none;">Logout</a>
+            <a href="#" id="logout-link" style="display: none;" onclick="handleLogout(); return false;">Logout</a>
         </div>
     </div>
     
@@ -361,6 +414,14 @@
             const searchHint = document.getElementById('search-hint');
             searchHint.innerHTML = hintHtml;
             searchHint.style.display = filteredHints.length ? 'block' : 'none';
+        });
+
+        // Check login status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // This will handle the auth UI as soon as the DOM is loaded
+            if (typeof updateAuthUI === 'function') {
+                updateAuthUI();
+            }
         });
     </script>
 </body>
