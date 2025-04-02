@@ -47,12 +47,12 @@
             });
         };
 
-        // Check if the user exists in the database, if not create a new record
+        // Check if the user exists in the database
         async function checkUserInDatabase(user) {
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (!userDoc.exists()) {
-                    window.location.href = 'complete-profile.html';
+                    // User does not exist in the database, handle accordingly if needed
                 }
             } catch (error) {
                 console.error("Error checking user:", error);
@@ -106,7 +106,7 @@
                             createdAt: serverTimestamp()
                         });
 
-                        window.location.href = 'complete-profile.html';
+                        window.location.href = 'login.html';
                     } else {
                         window.location.href = 'login.html';
                     }
