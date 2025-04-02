@@ -36,12 +36,10 @@
             
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // User is signed in
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('userId', user.uid);
                     checkUserInDatabase(user);
                 } else {
-                    // User is signed out
                     sessionStorage.setItem('isLoggedIn', 'false');
                     sessionStorage.removeItem('userId');
                 }
@@ -54,7 +52,6 @@
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (!userDoc.exists()) {
-                    // First time Google sign-in, redirect to finish profile
                     window.location.href = 'complete-profile.html';
                 }
             } catch (error) {
@@ -78,19 +75,19 @@
                 }
 
                 try {
-                    // Create user with email and password
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pin);
                     const user = userCredential.user;
                     
-                    // Store additional user data in Firestore
-                    await setDoc(doc(db, 'users', user.uid), {
+                    // Store user data in the appropriate collection
+                    const collectionName = category === 'student' ? 'students' : 'organizers';
+                    await setDoc(doc(db, collectionName, user.uid), {
                         email: email,
                         category: category,
                         createdAt: serverTimestamp()
                     });
                     
-                    alert('Registration successful!');
-                    window.location.href = 'index.html';
+                    alert('Registration successful! Please log in with your new account.');
+                    window.location.href = 'login.html';
                 } catch (error) {
                     alert('Error: ' + error.message);
                 }
@@ -101,11 +98,9 @@
                 try {
                     const result = await signInWithPopup(auth, googleProvider);
 
-                    // Check if this is the first time signing in with Google
                     const isNewUser = result._tokenResponse.isNewUser;
 
                     if (isNewUser) {
-                        // Save minimal information and redirect to complete profile
                         await setDoc(doc(db, 'users', result.user.uid), {
                             email: result.user.email,
                             createdAt: serverTimestamp()
@@ -113,7 +108,7 @@
 
                         window.location.href = 'complete-profile.html';
                     } else {
-                        window.location.href = 'index.html';
+                        window.location.href = 'login.html';
                     }
                 } catch (error) {
                     console.error(error);
@@ -189,7 +184,6 @@
                             if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
                             elmnt.removeAttribute("w3-include-html");
                             includeHTML();
-                            // Call updateLoginStatus after loading banner
                             if (typeof updateLoginStatus === 'function') {
                                 updateLoginStatus();
                             }
