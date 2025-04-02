@@ -14,9 +14,6 @@
         import { getFirestore, collection, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         // Your web app's Firebase configuration
-        
-
-                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
           apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
           authDomain: "letsgoto-a630e.firebaseapp.com",
@@ -73,7 +70,6 @@
                 const email = document.getElementById('email').value;
                 const pin = document.getElementById('pin').value;
                 const confirmPin = document.getElementById('confirmPin').value;
-                const username = document.getElementById('username').value;
                 const category = document.getElementById('category').value;
 
                 if (pin !== confirmPin) {
@@ -88,7 +84,6 @@
                     
                     // Store additional user data in Firestore
                     await setDoc(doc(db, 'users', user.uid), {
-                        username: username,
                         email: email,
                         category: category,
                         createdAt: serverTimestamp()
@@ -105,18 +100,17 @@
             document.getElementById('google-signin').addEventListener('click', async function() {
                 try {
                     const result = await signInWithPopup(auth, googleProvider);
-                    
+
                     // Check if this is the first time signing in with Google
                     const isNewUser = result._tokenResponse.isNewUser;
-                    
+
                     if (isNewUser) {
                         // Save minimal information and redirect to complete profile
                         await setDoc(doc(db, 'users', result.user.uid), {
                             email: result.user.email,
-                            username: result.user.displayName || '',
                             createdAt: serverTimestamp()
                         });
-                        
+
                         window.location.href = 'complete-profile.html';
                     } else {
                         window.location.href = 'index.html';
@@ -154,8 +148,6 @@
     <div class="container">
         <h2>Register</h2>
         <form id="registerForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             <label for="pin">PIN:</label>
