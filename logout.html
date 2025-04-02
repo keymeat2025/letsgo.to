@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging out...</title>
+    <!-- Firebase SDK - Using latest version with modular API -->
+    <script type="module">
+        // Import the functions you need from the SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+          authDomain: "letsgoto-a630e.firebaseapp.com",
+          projectId: "letsgoto-a630e",
+          storageBucket: "letsgoto-a630e.firebasestorage.app",
+          messagingSenderId: "194513214154",
+          appId: "1:194513214154:web:7825241b22095d7c43f233",
+          measurementId: "G-N8CN6LM82S"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Sign out the user and redirect to the login page
+        window.onload = async function() {
+            try {
+                await signOut(auth);
+                // Clear session storage
+                sessionStorage.setItem('isLoggedIn', 'false');
+                sessionStorage.removeItem('userId');
+                // Redirect to login page
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error during sign out:', error);
+                alert('Error during sign out: ' + error.message);
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Logging out...</h1>
+    <p>Please wait while we log you out.</p>
+</body>
+</html>
