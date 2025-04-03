@@ -355,7 +355,7 @@
         window.updateAuthUI = function() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
             const authLinks = document.querySelector('.auth-links');
-            const proceedButtons = document.querySelectorAll('.proceed-button a[href*="registration.html"]');
+            const proceedButtons = document.querySelectorAll('.proceed-button a[href*="register.html"]');
             
             if (authLinks) {
                 if (isLoggedIn) {
@@ -479,7 +479,7 @@
         </div>
         <div class="auth-links">
             <!-- This will be dynamically replaced by updateAuthUI() -->
-            <a href="registration.html" id="signup-link">Sign Up</a>
+            <a href="register.html" id="signup-link">Sign Up</a>
             <a href="login.html" id="login-link">Login</a>
         </div>
     </div>
@@ -526,7 +526,7 @@
                 <p>Once you've filled in all the details, make discounted amount payment submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
             </div>
             <div class="proceed-button">
-                <a href="registration.html?category=organizer">Proceed to Sign Up or Log In</a>
+                <a href="register.html?category=organizer">Proceed to Sign Up or Log In</a>
             </div>
             <div class="proceed-button">
                 <a href="competition_form.html">Add Competition Details</a>
@@ -549,11 +549,11 @@
             </div>
             <div class="step">
                 <div class="icon">3</div>
-                <h3>Step 3: registration for a Competition</h3>
-                <p>Click on a competition to view details and registration for it.</p>
+                <h3>Step 3: register for a Competition</h3>
+                <p>Click on a competition to view details and register for it.</p>
             </div>
             <div class="proceed-button">
-                <a href="registration.html?category=student">Proceed to Sign Up or Log In</a>
+                <a href="register.html?category=student">Proceed to Sign Up or Log In</a>
             </div>
         </div>
     </section>
