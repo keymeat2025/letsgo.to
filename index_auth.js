@@ -5,17 +5,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 // Firebase configuration
 // Security Best Practice: Don't hardcode the API keys in your JavaScript
 // Load the Firebase configuration from a separate JSON file or environment variables
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    // Your firebase configuration should be stored securely
-    // For development, you can use a config object loaded at runtime
-    // For production, consider using environment variables or server-side inclusion
-    // apiKey: process.env.FIREBASE_API_KEY,
-    // authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    // projectId: process.env.FIREBASE_PROJECT_ID,
-    // storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    // messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    // appId: process.env.FIREBASE_APP_ID
-};
+  apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+  authDomain: "letsgoto-a630e.firebaseapp.com",
+  projectId: "letsgoto-a630e",
+  storageBucket: "letsgoto-a630e.firebasestorage.app",
+  messagingSenderId: "194513214154",
+  appId: "1:194513214154:web:7825241b22095d7c43f233",
+  measurementId: "G-N8CN6LM82S"
+};    
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
