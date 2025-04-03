@@ -1,92 +1,138 @@
-// Import auth functions
-import { updateAuthUI } from './auth.js';
+import { auth, signOut, onAuthStateChanged } from './firebase-config.js';
 
-// Function to clear search
-function clearSearch() {
-    const searchInput = document.getElementById('search-input');
-    const searchHint = document.getElementById('search-hint');
-    if (searchInput && searchHint) {
-        searchInput.value = '';
-        searchHint.innerHTML = '';
-        searchHint.style.display = 'none';
-    }
-}
+window.handleLogout = function() {
+    const modal = document.getElementById('logoutModal');
+    modal.style.display = 'block';
+};
 
-// Function to provide search hints
-function setupSearchFunctionality() {
-    const searchInput = document.getElementById('search-input');
-    const clearBtn = document.getElementById('clear-btn');
+window.confirmLogout = function() {
+    const modal = document.getElementById('logoutModal');
+    modal.style.display = 'none';
     
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const hints = ['Competitions', 'For Organizers', 'For Students', 'Summer Courses', 'Winners'];
-            let filteredHints = hints.filter(hint => hint.toLowerCase().includes(searchTerm));
-            let hintHtml = filteredHints.map(hint => `<div>${hint}</div>`).join('');
-            const searchHint = document.getElementById('search-hint');
+    const logoutText = document.getElementById('logoutText');
+    if (logoutText) {
+        logoutText.innerHTML = 'Logging out...';
+    }
+    
+    signOut(auth).then(() => {
+        sessionStorage.setItem('isLoggedIn', 'false');
+        sessionStorage.removeItem('userId');
+        updateAuthUI();
+        
+        const userMenu = document.querySelector('.user-menu');
+        if (userMenu) {
+            userMenu.innerHTML = '<div class="logout-success">Logout successful!</div>';
+        }
+        
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1000);
+    }).catch((error) => {
+        console.error("Logout error:", error);
+        if (logoutText) {
+            logoutText.innerHTML = 'Logout failed. Try again';
+        }
+    });
+};
+
+window.cancelLogout = function() {
+    const modal = document.getElementById('logoutModal');
+    modal.style.display = 'none';
+};
+
+window.updateAuthUI = function() {
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+    const authLinks = document.querySelector('.auth-links');
+    const proceedButtons = document.querySelectorAll('.proceed-button a[href*="registration.html"]');
+    
+    if (authLinks) {
+        if (isLoggedIn) {
+            const user = auth.currentUser;
+            const displayName = user ? (user.displayName || user.email || 'User') : 'User';
             
-            if (searchHint) {
-                searchHint.innerHTML = hintHtml;
-                searchHint.style.display = filteredHints.length && searchTerm ? 'block' : 'none';
-            }
-            
-            // Show clear button when there's text
-            if (clearBtn) {
-                clearBtn.style.display = searchTerm ? 'block' : 'none';
+            authLinks.innerHTML = `
+                <div class="user-menu">
+                    <button class="user-menu-button">
+                        <img src="https://img.icons8.com/ios-glyphs/30/000000/user-male-circle.png" alt="User">
+                        <span id="logoutText">${displayName}</span>
+                    </button>
+                    <div class="user-dropdown">
+                        <a href="profile.html">Profile</a>
+                        <a href="my_competitions.html">My Competitions</a>
+                        <a href="#" onclick="handleLogout(); return false;">Logout</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            authLinks.innerHTML = `
+                <a href="registration.html" id="signup-link">Sign Up</a>
+                <a href="login.html" id="login-link">Login</a>
+            `;
+        }
+    }
+    
+    if (proceedButtons) {
+        proceedButtons.forEach(button => {
+            if (isLoggedIn) {
+                if (button.getAttribute('href').includes('category=organizer')) {
+                    button.textContent = 'Create Competition';
+                    button.href = 'competition_form.html';
+                } else if (button.getAttribute('href').includes('category=student')) {
+                    button.textContent = 'Browse Competitions';
+                    button.href = 'competition_dashboard.html';
+                }
+            } else {
+                if (button.getAttribute('href').includes('category=organizer')) {
+                    button.textContent = 'Proceed to Sign Up or Log In';
+                } else if (button.getAttribute('href').includes('category=student')) {
+                    button.textContent = 'Proceed to Sign Up or Log In';
+                }
             }
         });
     }
-    
-    // Set up clear button
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearSearch);
-    }
-}
+};
 
-// Function to include HTML templates
+window.onload = function() {
+    includeHTML();
+    
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userId', user.uid);
+            
+            if (user.displayName) {
+                sessionStorage.setItem('userDisplayName', user.displayName);
+            }
+        } else {
+            sessionStorage.setItem('isLoggedIn', 'false');
+            sessionStorage.removeItem('userId');
+            sessionStorage.removeItem('userDisplayName');
+        }
+        updateAuthUI();
+    });
+};
+
 function includeHTML() {
-    const elements = document.getElementsByTagName("*");
-    for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        const file = element.getAttribute("w3-include-html");
+    const z = document.getElementsByTagName("*");
+    for (let i = 0; i < z.length; i++) {
+        const elmnt = z[i];
+        const file = elmnt.getAttribute("w3-include-html");
         if (file) {
-            fetch(file)
-                .then(response => {
-                    if (response.ok) {
-                        return response.text();
-                    }
-                    throw new Error('Page not found');
-                })
-                .then(html => {
-                    element.innerHTML = html;
-                    element.removeAttribute("w3-include-html");
-                    // Handle any callbacks for newly loaded content
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+                    if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                    elmnt.removeAttribute("w3-include-html");
                     includeHTML();
-                    updateAuthUI();
-                })
-                .catch(error => {
-                    element.innerHTML = "Page not found.";
-                    element.removeAttribute("w3-include-html");
-                });
+                    if (typeof updateAuthUI === 'function') {
+                        updateAuthUI();
+                    }
+                }
+            };
+            xhttp.open("GET", file, true);
+            xhttp.send();
+            return;
         }
     }
 }
-
-// Initialize application when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Include HTML templates if any
-    includeHTML();
-    
-    // Set up search functionality
-    setupSearchFunctionality();
-    
-    // Update UI based on auth state
-    updateAuthUI();
-});
-
-// Export functions to be used in other modules
-export {
-    clearSearch,
-    setupSearchFunctionality,
-    includeHTML
-};
