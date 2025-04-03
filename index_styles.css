@@ -1,174 +1,537 @@
-// Import Firebase SDK
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-
-// Firebase configuration
-// Security Best Practice: Don't hardcode the API keys in your JavaScript
-// Load the Firebase configuration from a separate JSON file or environment variables
-const firebaseConfig = {
-    // Your firebase configuration should be stored securely
-    // For development, you can use a config object loaded at runtime
-    // For production, consider using environment variables or server-side inclusion
-    // apiKey: process.env.FIREBASE_API_KEY,
-    // authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    // projectId: process.env.FIREBASE_PROJECT_ID,
-    // storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    // messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    // appId: process.env.FIREBASE_APP_ID
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Handle logout function
-function handleLogout() {
-    // Show confirmation modal
-    const modal = document.getElementById('logoutModal');
-    modal.style.display = 'block';
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary: #f59e0b;
+    --dark: #1f2937;
+    --light: #f9fafb;
+    --gray: #e5e7eb;
+    --gray-dark: #9ca3af;
+    --danger: #dc2626;
+    --success: #10b981;
+    --border-radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.3s ease;
 }
 
-// Confirm logout function
-async function confirmLogout() {
-    // Close modal
-    const modal = document.getElementById('logoutModal');
-    modal.style.display = 'none';
-    
-    // Show loading indicator
-    const logoutText = document.getElementById('logoutText');
-    if (logoutText) {
-        logoutText.innerHTML = 'Logging out...';
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--dark);
+    background-color: #f5f7fa;
+}
+
+/* Header Styles */
+.header {
+    background-color: white;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.top-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo span {
+    margin-left: 8px;
+}
+
+/* Navigation */
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    background-color: var(--gray);
+    color: var(--primary);
+}
+
+.nav-link.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+.nav-link i {
+    font-size: 18px;
+}
+
+/* Search Bar */
+.search-bar {
+    position: relative;
+    width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid var(--gray);
+    border-radius: 30px;
+    font-size: 14px;
+    transition: var(--transition);
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-dark);
+}
+
+.clear-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-dark);
+    cursor: pointer;
+    display: none;
+    background: none;
+    border: none;
+    font-size: 14px;
+}
+
+.search-hint {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    box-shadow: var(--shadow);
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.hint-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.hint-item:hover {
+    background-color: var(--gray);
+}
+
+/* Auth Links */
+.auth-links {
+    display: flex;
+    gap: 15px;
+}
+
+.auth-link {
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.login-link {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.login-link:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.signup-link {
+    background-color: var(--primary);
+    color: white;
+}
+
+.signup-link:hover {
+    background-color: var(--primary-dark);
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: 1px solid var(--gray);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    padding: 8px 15px;
+    transition: var(--transition);
+    gap: 8px;
+}
+
+.user-menu-button:hover {
+    background-color: var(--gray);
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    min-width: 200px;
+    z-index: 100;
+    display: none;
+    overflow: hidden;
+}
+
+.user-menu:hover .user-dropdown {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--dark);
+    transition: var(--transition);
+}
+
+.dropdown-item:hover {
+    background-color: var(--gray);
+}
+
+.dropdown-item.logout {
+    color: var(--danger);
+}
+
+/* Mobile Menu */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--dark);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Sections */
+.section {
+    padding: 80px 0;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: var(--primary);
+    border-radius: 2px;
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--gray);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(37, 99, 235, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+/* Steps */
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: var(--shadow);
+}
+
+.step-content {
+    margin-top: 15px;
+}
+
+.step-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.step-description {
+    color: #4b5563;
+    font-size: 14px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--light);
+    color: var(--dark);
+    border: 1px solid var(--gray);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    transform: translateY(20px);
+    transition: var(--transition);
+}
+
+.modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .nav-links {
+        gap: 15px;
     }
     
-    try {
-        await signOut(auth);
-        // Sign-out successful
-        sessionStorage.setItem('isLoggedIn', 'false');
-        sessionStorage.removeItem('userId');
-        updateAuthUI();
-        
-        // Show success message before redirecting
-        const userMenu = document.querySelector('.user-menu');
-        if (userMenu) {
-            userMenu.innerHTML = '<div class="logout-success">Logout successful!</div>';
-        }
-        
-        // Redirect to home page after short delay
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1000);
-    } catch (error) {
-        // An error happened
-        console.error("Logout error:", error);
-        if (logoutText) {
-            logoutText.innerHTML = 'Logout failed. Try again';
-        }
+    .search-bar {
+        width: 250px;
     }
 }
 
-// Cancel logout function
-function cancelLogout() {
-    const modal = document.getElementById('logoutModal');
-    modal.style.display = 'none';
-}
-
-// Update UI based on authentication state
-function updateAuthUI() {
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-    const authLinks = document.querySelector('.auth-links');
-    const proceedButtons = document.querySelectorAll('.proceed-button a[href*="registration.html"]');
-    
-    if (authLinks) {
-        if (isLoggedIn) {
-            // Get user info if available
-            const user = auth.currentUser;
-            const displayName = user ? (user.displayName || user.email || 'User') : 'User';
-            
-            // Replace login/signup links with user menu
-            authLinks.innerHTML = `
-                <div class="user-menu">
-                    <button class="user-menu-button">
-                        <img src="https://img.icons8.com/ios-glyphs/30/000000/user-male-circle.png" alt="User">
-                        <span id="logoutText">${displayName}</span>
-                    </button>
-                    <div class="user-dropdown">
-                        <a href="profile.html">Profile</a>
-                        <a href="my_competitions.html">My Competitions</a>
-                        <a href="#" id="logout-link">Logout</a>
-                    </div>
-                </div>
-            `;
-            
-            // Add event listener to the logout link
-            document.getElementById('logout-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleLogout();
-            });
-        } else {
-            // Show login/signup links for logged out users
-            authLinks.innerHTML = `
-                <a href="registration.html" id="signup-link">Sign Up</a>
-                <a href="login.html" id="login-link">Login</a>
-            `;
-        }
+@media (max-width: 768px) {
+    .top-banner {
+        flex-wrap: wrap;
     }
     
-    // Update proceed buttons for logged-in users
-    if (proceedButtons.length > 0) {
-        proceedButtons.forEach(button => {
-            if (isLoggedIn) {
-                // If user is logged in, update links to go directly to relevant pages
-                if (button.getAttribute('href').includes('category=organizer')) {
-                    button.textContent = 'Create Competition';
-                    button.href = 'competition_form.html';
-                } else if (button.getAttribute('href').includes('category=student')) {
-                    button.textContent = 'Browse Competitions';
-                    button.href = 'competition_dashboard.html';
-                }
-            } else {
-                // Keep original text for non-logged in users
-                if (button.getAttribute('href').includes('category=organizer')) {
-                    button.textContent = 'Proceed to Sign Up or Log In';
-                } else if (button.getAttribute('href').includes('category=student')) {
-                    button.textContent = 'Proceed to Sign Up or Log In';
-                }
-            }
-        });
+    .nav-links {
+        order: 3;
+        width: 100%;
+        margin-top: 15px;
+        justify-content: space-between;
+    }
+    
+    .nav-link span {
+        display: none;
+    }
+    
+    .search-bar {
+        order: 2;
+        width: auto;
+    }
+    
+    .section {
+        padding: 60px 0;
     }
 }
 
-// Set up authentication state observer
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('userId', user.uid);
-        
-        // Optionally store display name if available
-        if (user.displayName) {
-            sessionStorage.setItem('userDisplayName', user.displayName);
-        }
-    } else {
-        // User is signed out
-        sessionStorage.setItem('isLoggedIn', 'false');
-        sessionStorage.removeItem('userId');
-        sessionStorage.removeItem('userDisplayName');
+@media (max-width: 576px) {
+    .mobile-menu-toggle {
+        display: block;
     }
-    updateAuthUI();
-});
-
-// Set up event listeners for logout modal
-document.addEventListener('DOMContentLoaded', () => {
-    // Set up the logout confirmation buttons
-    document.getElementById('confirm-logout-btn')?.addEventListener('click', confirmLogout);
-    document.getElementById('cancel-logout-btn')?.addEventListener('click', cancelLogout);
-});
-
-// Export functions to be used in other modules
-export { 
-    handleLogout,
-    confirmLogout,
-    cancelLogout,
-    updateAuthUI,
-    auth
-};
+    
+    .nav-links {
+        display: none;
+    }
+    
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .auth-links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    
+    .search-bar {
+        margin-left: auto;
+    }
+    
+    .section-title {
+        font-size: 28px;
+    }
+    
+    .steps-container {
+        grid-template-columns: 1fr;
+    }
+}
