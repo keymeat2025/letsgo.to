@@ -845,9 +845,12 @@
         window.cancelLogout = function() {
             logoutModal.classList.remove('active');
         };
+
         
         // Update UI based on auth state
         window.updateAuthUI = function() {
+        
+           
             const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
             const authLinks = document.getElementById('authLinks');
             
@@ -893,6 +896,4 @@
                 }
             }
             
-            // Update button text for logged-in users
-            const organizerBtn = document.querySelector('a[href="register.html?category=organizer"]');
-            const studentBtn = document.querySelector('a[href="
+        
