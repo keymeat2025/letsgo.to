@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitions</title>
+    <link rel="stylesheet" href="index_styles.css">
+</head>
+<body>
+    <div class="top-banner">
+        <h1>LetsGo.to</h1>
+        <div class="nav-links">
+            <a href="competition_dashboard.html"><img src="https://img.icons8.com/ios-glyphs/30/000000/trophy.png" alt="Competitions Icon">Competitions</a>
+            <a href="#organizers"><img src="https://img.icons8.com/ios-glyphs/30/000000/event-accepted-tentatively.png" alt="Organizers Icon">For Organizers</a>
+            <a href="#students"><img src="https://img.icons8.com/ios-glyphs/30/000000/student-center.png" alt="Students Icon">For Students</a>
+            <a href="#classes"><img src="https://img.icons8.com/ios-glyphs/30/000000/summer.png" alt="Summer Courses Icon">Summer Courses</a>
+            <a href="#winners"><img src="https://img.icons8.com/ios-glyphs/30/000000/winner.png" alt="Winners Icon">Winners</a>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search..." id="search-input">
+            <span class="clear-btn" id="clear-btn">✖</span>
+            <img src="https://img.icons8.com/ios-glyphs/30/000000/search.png" alt="Search Icon">
+            <div class="hint" id="search-hint">
+                <!-- Dynamic search hints will be added here -->
+            </div>
+        </div>
+        <div class="auth-links">
+            <!-- This will be dynamically replaced by updateAuthUI() -->
+            <a href="registration.html" id="signup-link">Sign Up</a>
+            <a href="login.html" id="login-link">Login</a>
+        </div>
+    </div>
+    
+    <!-- Logout confirmation modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to log out?</p>
+            <div class="modal-buttons">
+                <button class="confirm-button" id="confirm-logout-btn">Yes, Log out</button>
+                <button class="cancel-button" id="cancel-logout-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- For Organizers Section -->
+    <section id="organizers" class="organizers-section">
+        <div class="instruction-window">
+            <h2>For Organizers: How to Upload Your Competition Details</h2>
+            <div class="step">
+                <div class="icon">1</div>
+                <h3>Step 1: Sign Up or Log In</h3>
+                <p>If you don't have an account, sign up. If you already have an account, log in.</p>
+            </div>
+            <div class="step">
+                <div class="icon">2</div>
+                <h3>Step 2: Go to 'Create Competition'</h3>
+                <p>Navigate to the "Create Competition" under "For Organizers" section from the "Home" </p>
+            </div>
+            <div class="step">
+                <div class="icon">3</div>
+                <h3>Step 3: Fill in Competition Details</h3>
+                <p>Provide all the necessary details about your competition, including title, description, dates, and any relevant rules.</p>
+            </div>
+            <div class="step">
+                <div class="icon">4</div>
+                <h3>Step 4: Upload Media</h3>
+                <p>Upload any prospectus or banners related to your competition.</p>
+            </div>
+            <div class="step">
+                <div class="icon">5</div>
+                <h3>Step 5: Make payment and Submit for Review</h3>
+                <p>Once you've filled in all the details, make discounted amount payment submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
+            </div>
+            <div class="proceed-button">
+                <a href="registration.html?category=organizer" id="organizer-proceed">Proceed to Sign Up or Log In</a>
+            </div>
+            <div class="proceed-button">
+                <a href="competition_form.html">Add Competition Details</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="students" class="students-section">
+        <div class="instruction-window">
+            <h2>For Students: How to Participate in Competitions</h2>
+            <div class="step">
+                <div class="icon">1</div>
+                <h3>Step 1: Sign Up or Log In</h3>
+                <p>If you don't have an account, sign up. If you already have an account, log in.</p>
+            </div>
+            <div class="step">
+                <div class="icon">2</div>
+                <h3>Step 2: Browse Competitions</h3>
+                <p>Navigate to the 'Competitions' section to view available competitions.</p>
+            </div>
+            <div class="step">
+                <div class="icon">3</div>
+                <h3>Step 3: registration for a Competition</h3>
+                <p>Click on a competition to view details and registration for it.</p>
+            </div>
+            <div class="proceed-button">
+                <a href="registration.html?category=student" id="student-proceed">Proceed to Sign Up or Log In</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Load Firebase SDK -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    
+    <!-- Load our scripts -->
+    <script type="module" src="index_auth.js"></script>
+    <script type="module" src="index_app.js"></script>
+</body>
+</html>
