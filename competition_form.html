@@ -362,7 +362,7 @@
  
 
     async function addToDashboard() {
-  // Get all the form values
+      // Get all the form values
       const title = document.getElementById('title').value;
       const organizer = document.getElementById('organizer').value;
       const category = document.getElementById('category').value;
@@ -378,7 +378,6 @@
       const formattedName = `${category}-${title}-${formattedDate}`;
       
       const competitionData = {
-        formattedName: formattedName, // Add the formatted name
         title: title,
         organizer: organizer,
         rules: document.getElementById('rules').value,
@@ -396,14 +395,18 @@
       };
       
       try {
-        const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'competitions'), competitionData);
-        console.log('Document written with ID: ', docRef.id);
+        // Use setDoc instead of addDoc to specify the document ID
+        const docRef = await window.firestore.setDoc(window.firestore.doc(window.db, 'competitions', formattedName), competitionData);
+        console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully!');
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+
+      
+      
        
             
   </script> 
@@ -411,8 +414,10 @@
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs you need
+    
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -431,7 +436,8 @@
     
     // Make Firebase functions available globally
     window.db = db;
-    window.firestore = { collection, addDoc };
+
+    window.firestore = { collection, addDoc, doc, setDoc };
   </script>
 </body>
 </html>
