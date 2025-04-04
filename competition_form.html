@@ -223,7 +223,7 @@
           <span id="previewCategory"></span>
         </div>
         <div>
-          <strong class="text-gray-600">Start:</strong> 
+          <strong class="text-gray-600">Start Date:</strong> 
           <span id="previewStartDate"></span>
         </div>
       </div>
@@ -358,7 +358,8 @@
       alert('Proceeding to payment...');
     }
     
-    function addToDashboard() {
+   
+    async function addToDashboard() {
       const competitionData = {
         title: document.getElementById('title').value,
         organizer: document.getElementById('organizer').value,
@@ -372,12 +373,46 @@
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
+        brochureUrl: '',
         createdAt: new Date()
       };
       
-      alert('Competition added to dashboard successfully!');
-      console.log('Competition data:', competitionData);
+      try {
+        const docRef = await window.firestore.addDoc(window.firestore.collection(window.db, 'competitions'), competitionData);
+        console.log('Document written with ID: ', docRef.id);
+        alert('Competition added to dashboard successfully!');
+      } catch (error) {
+        console.error('Error adding document: ', error);
+        alert('Failed to add to dashboard. Error: ' + error.message);
+      }
     }
-  </script>  
+            
+  </script> 
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    // Make Firebase functions available globally
+    window.db = db;
+    window.firestore = { collection, addDoc };
+  </script>
 </body>
 </html>
