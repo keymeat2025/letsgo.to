@@ -67,7 +67,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
             position: relative;
         }
         .search-bar input {
@@ -139,6 +138,7 @@
             display: flex;
             gap: 15px;
             margin-top: 10px;
+            flex-wrap: wrap;
         }
         .auth-links a {
             text-decoration: none;
@@ -271,6 +271,8 @@
         .proceed-button {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 20px;
             margin-top: 30px;
         }
         .proceed-button a {
@@ -283,7 +285,6 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(42, 117, 252, 0.3);
-            margin: 0 10px;
         }
         .proceed-button a:hover {
             background: linear-gradient(135deg, #7412e0, #3080ff);
@@ -367,8 +368,8 @@
         </div>
         <div class="auth-links">
             <!-- This will be dynamically replaced by updateAuthUI() -->
-            <a href="registration.html" id="signup-link">Sign Up</a>
             <a href="login.html" id="login-link">Login</a>
+            <a href="logout.html" id="logout-link" style="display: none;">Logout</a>
         </div>
     </div>
     
@@ -420,15 +421,13 @@
                 <div class="step">
                     <div class="step-header">
                         <div class="step-icon">5</div>
-                        <h3>Make payment and Submit for Review</h3>
+                        <h3>Make payment and Submit for Review</</h3>
                     </div>
                     <p>Once you've filled in all the details, make discounted amount payment submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
                 </div>
             </div>
             <div class="proceed-button">
                 <a href="registration.html?category=organizer">Proceed to Sign Up or Log In</a>
-            </div>
-            <div class="proceed-button">
                 <a href="competition_form.html">Add Competition Details</a>
             </div>
         </div>
@@ -455,7 +454,7 @@
                 <div class="step">
                     <div class="step-header">
                         <div class="step-icon">3</div>
-                        <h3>Registration for a Competition</h3>
+                        <h3>Registration for a Competition</</h3>
                     </div>
                     <p>Click on a competition to view details and register for it.</p>
                 </div>
@@ -476,23 +475,4 @@
         }
 
         // Function to provide search hints
-        document.getElementById('search-input').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const hints = ['Competitions', 'For Organizers', 'For Students', 'Summer Courses', 'Winners'];
-            let filteredHints = hints.filter(hint => hint.toLowerCase().includes(searchTerm));
-            let hintHtml = filteredHints.map(hint => `<div>${hint}</div>`).join('');
-            const searchHint = document.getElementById('search-hint');
-            searchHint.innerHTML = hintHtml;
-            searchHint.style.display = filteredHints.length ? 'block' : 'none';
-        });
-
-        // Check login status on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // This will handle the auth UI as soon as the DOM is loaded
-            if (typeof updateAuthUI === 'function') {
-                updateAuthUI();
-            }
-        });
-    </script>
-</body>
-</html>
+        document.getElementById('search-input').addEventListener('input
