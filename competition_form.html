@@ -359,14 +359,32 @@
     }
     
    
+ 
+
     async function addToDashboard() {
+  // Get all the form values
+      const title = document.getElementById('title').value;
+      const organizer = document.getElementById('organizer').value;
+      const category = document.getElementById('category').value;
+      const startDateTime = document.getElementById('startDateTime').value;
+      
+      // Create formatted date (YYYYMMDD) from startDateTime
+      const startDate = new Date(startDateTime);
+      const formattedDate = startDate.getFullYear() + 
+                            String(startDate.getMonth() + 1).padStart(2, '0') + 
+                            String(startDate.getDate()).padStart(2, '0');
+      
+      // Create the formatted name using [Category]-[Title]-[Date] format
+      const formattedName = `${category}-${title}-${formattedDate}`;
+      
       const competitionData = {
-        title: document.getElementById('title').value,
-        organizer: document.getElementById('organizer').value,
+        formattedName: formattedName, // Add the formatted name
+        title: title,
+        organizer: organizer,
         rules: document.getElementById('rules').value,
-        category: document.getElementById('category').value,
+        category: category,
         prizeDetails: document.getElementById('prizeDetails').value,
-        startDateTime: document.getElementById('startDateTime').value,
+        startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
         venue: document.getElementById('venue').value,
@@ -386,6 +404,7 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+       
             
   </script> 
 
