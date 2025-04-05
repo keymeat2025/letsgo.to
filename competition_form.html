@@ -380,15 +380,26 @@
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
-  
+    function isOrganizer(organizer) {
+    // Replace with the actual logic to verify if the user is an organizer
+    // For example, you can check against an array of known organizers
+      const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
+      return knownOrganizers.includes(organizer);
+    }
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-  
-      const title = document.getElementById('title').value;
+    
       const organizer = document.getElementById('organizer').value;
+    
+      if (!isOrganizer(organizer)) {
+        alert('Only organizers can submit to the dashboard.');
+        return;
+      }
+    
+      const title = document.getElementById('title').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
       const startDate = new Date(startDateTime);
