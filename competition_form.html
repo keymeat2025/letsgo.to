@@ -351,24 +351,11 @@
       formContainer.classList.add('hidden');
     }
   
-   
     function editForm() {
-      if (editAttempts < MAX_EDIT_ATTEMPTS) {
-        editAttempts++;
-        previewDiv.classList.add('hidden');
-        formContainer.classList.remove('hidden');
-        
-        if (editAttempts === MAX_EDIT_ATTEMPTS) {
-          alert(`This is your last edit attempt. You are allowed to edit only ${MAX_EDIT_ATTEMPTS} times.`);
-        } else if (editAttempts < MAX_EDIT_ATTEMPTS) {
-          alert(`You have ${MAX_EDIT_ATTEMPTS - editAttempts} edit attempts remaining.`);
-        }
-      } else {
-        alert('You have reached the maximum number of edit attempts (2). Further edits are not allowed.');
-      }
+      previewDiv.classList.add('hidden');
+      formContainer.classList.remove('hidden');
     }
-      
-
+  
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
@@ -419,8 +406,6 @@
         
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully!');
-        // Hide the edit button after successfully adding to dashboard
-        document.querySelector('button[onclick="editForm()"]').style.display = 'none';
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
@@ -438,16 +423,16 @@
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs you need
-    // Track edit attempts
-    let editAttempts = 0;
-    const MAX_EDIT_ATTEMPTS = 2;
+    
 
         // In your <script type="module"> section where you already import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-
+// After initializing Firebase app
+const auth = getAuth(app);
+let currentUser = null;
 
 // Update the window.firestore object
 window.firestore = { collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc };
@@ -480,10 +465,6 @@ onAuthStateChanged(auth, (user) => {
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // After initializing Firebase app
-    const auth = getAuth(app);
-    let currentUser = null;
     
     // Make Firebase functions available globally
     window.db = db;
