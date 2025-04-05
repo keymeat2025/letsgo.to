@@ -381,11 +381,17 @@
       alert('Proceeding to payment...');
     }
     function isOrganizer(organizer) {
-    // Replace with the actual logic to verify if the user is an organizer
-    // For example, you can check against an array of known organizers
+   // Replace with the actual logic to verify if the user is an organizer
+  // For example, you can check against an array of known organizers
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
-      return knownOrganizers.includes(organizer);
+      if (!knownOrganizers.includes(organizer)) {
+        alert('Only organizers can submit to the dashboard. Redirecting to login page...');
+        window.location.href = '/login.html'; // Replace with the actual login page URL
+        return false;
+      }
+      return true;
     }
+    
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
@@ -395,7 +401,7 @@
       const organizer = document.getElementById('organizer').value;
     
       if (!isOrganizer(organizer)) {
-        alert('Only organizers can submit to the dashboard.');
+        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
         return;
       }
     
