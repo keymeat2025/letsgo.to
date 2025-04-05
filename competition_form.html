@@ -265,8 +265,10 @@
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
       
+   
       <div class="flex justify-between mt-6">
-        <button onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit</button>
+      
+        <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
         <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
       </div>
@@ -278,7 +280,10 @@
     const fileNameSpan = document.getElementById('fileName');
     const previewDiv = document.getElementById('preview');
     const formContainer = document.getElementById('formContainer');
-    
+    // Add these two lines below the existing variable declarations
+    let editAttemptsRemaining = 3;
+    let addedToDashboard = false;
+        
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -347,10 +352,34 @@
   
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
+      // Update edit button text with remaining attempts
+      const editButtonText = addedToDashboard ? 
+        'Edit (Unavailable)' : 
+        `Edit (${editAttemptsRemaining} attempts left)`;
+      
+      document.getElementById('editButton').textContent = editButtonText;
+      
+      // Show or hide edit button based on dashboard status
+      document.getElementById('editButton').style.display = addedToDashboard ? 'none' : 'block';
     }
   
+   
     function editForm() {
+      if (editAttemptsRemaining <= 0) {
+        alert('You have used all your edit attempts. Please proceed with current details.');
+        return;
+      }
+      
+      editAttemptsRemaining--;
       previewDiv.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+      
+      // Update the edit button text to show remaining attempts
+      document.getElementById('editButton').textContent = `Edit (${editAttemptsRemaining} attempts left)`;
+    }
+
+
+      
       formContainer.classList.remove('hidden');
     }
   
@@ -360,6 +389,7 @@
     
    
  
+
 
     async function addToDashboard() {
   // Get all the form values
@@ -403,12 +433,19 @@
         await window.firestore.setDoc(docRef, competitionData);
         
         console.log('Document written with ID: ', formattedName);
-        alert('Competition added to dashboard successfully!');
+        alert('Competition added to dashboard successfully! You can no longer edit this submission.');
+        
+        // Hide the edit button and mark as added to dashboard
+        document.getElementById('editButton').style.display = 'none';
+        addedToDashboard = true;
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+
+      
+  
   
 
 
