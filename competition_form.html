@@ -382,6 +382,9 @@
     }
   
     async function addToDashboard() {
+      const isAuthorized = await checkUserAuthorization();
+      if (!isAuthorized) return;
+  
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
@@ -426,15 +429,37 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+
+
+    function checkUserAuthorization() {
+      return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const uid = user.uid;
+            const userDoc = await window.firestore.doc(window.db, 'users', uid).get();
+            if (userDoc.exists() && userDoc.data().role === 'organizer') {
+              resolve(true);
+            } else {
+              alert('Access denied. Only organizers can add to the dashboard.');
+              resolve(false);
+            }
+          } else {
+            alert('You must be logged in to perform this action.');
+            resolve(false);
+          }
+        });
+      });
+    }
+
   </script>
 
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs you need
     
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -450,10 +475,11 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     
     // Make Firebase functions available globally
     window.db = db;
-
+    window.auth = auth;
     window.firestore = { collection, addDoc, doc, setDoc };
   </script>
 </body>
