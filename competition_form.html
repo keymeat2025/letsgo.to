@@ -380,18 +380,66 @@
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
+
     function isOrganizer(organizer) {
-   // Replace with the actual logic to verify if the user is an organizer
+  // Replace with the actual logic to verify if the user is an organizer
   // For example, you can check against an array of known organizers
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
         alert('Only organizers can submit to the dashboard. Redirecting to login page...');
+        
+        // Save form data to local storage
+        saveFormData();
+    
         window.location.href = 'login.html'; // Replace with the actual login page URL
-         // <a href="login.html" id="login-link">Login</a>
         return false;
       }
       return true;
     }
+    
+    function saveFormData() {
+      // Get form data
+      const formData = {
+        title: document.getElementById('title').value,
+        organizer: document.getElementById('organizer').value,
+        category: document.getElementById('category').value,
+        prizeDetails: document.getElementById('prizeDetails').value,
+        startDateTime: document.getElementById('startDateTime').value,
+        endDateTime: document.getElementById('endDateTime').value,
+        registrationDeadline: document.getElementById('registrationDeadline').value,
+        venue: document.getElementById('venue').value,
+        venueGmapsLink: document.getElementById('venueGmapsLink').value,
+        contactName: document.getElementById('contactName').value,
+        contactPhone: document.getElementById('contactPhone').value,
+        rules: document.getElementById('rules').value
+      };
+    
+      // Save to local storage
+      localStorage.setItem('competitionFormData', JSON.stringify(formData));
+    }
+    
+    function populateFormData() {
+      // Retrieve form data from local storage
+      const formData = JSON.parse(localStorage.getItem('competitionFormData'));
+    
+      if (formData) {
+        document.getElementById('title').value = formData.title;
+        document.getElementById('organizer').value = formData.organizer;
+        document.getElementById('category').value = formData.category;
+        document.getElementById('prizeDetails').value = formData.prizeDetails;
+        document.getElementById('startDateTime').value = formData.startDateTime;
+        document.getElementById('endDateTime').value = formData.endDateTime;
+        document.getElementById('registrationDeadline').value = formData.registrationDeadline;
+        document.getElementById('venue').value = formData.venue;
+        document.getElementById('venueGmapsLink').value = formData.venueGmapsLink;
+        document.getElementById('contactName').value = formData.contactName;
+        document.getElementById('contactPhone').value = formData.contactPhone;
+        document.getElementById('rules').value = formData.rules;
+      }
+    }
+    
+    // Call the function to populate form data when the page loads
+    window.onload = populateFormData;
     
     async function addToDashboard() {
       if (!validateForm()) {
