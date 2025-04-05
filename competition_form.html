@@ -198,8 +198,6 @@
     <div class="text-center mb-6">
       <h3 class="text-2xl font-bold text-blue-600">Competition Preview</h3>
     </div>
-
-    
     <div class="grid md:grid-cols-2 gap-4 mb-6">
       <div class="prize-badge">
         Prize: <span id="previewPrizeDetails"></span>
@@ -413,7 +411,7 @@
     }
   
 
-  
+
       
       
        
@@ -425,29 +423,8 @@
     // Import the functions you need from the SDKs you need
     
 
-        // In your <script type="module"> section where you already import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-
-    
-
-// Update the window.firestore object
-window.firestore = { collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc };
-
-
-// Track current user
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user;
-    // Load user's submissions when they log in
-    loadUserSubmissions();
-  } else {
-    currentUser = null;
-    // Clear submissions display when logged out
-    document.getElementById('userSubmissions').innerHTML = '';
-  }
-});
+    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -463,9 +440,7 @@ onAuthStateChanged(auth, (user) => {
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    // After initializing Firebase app
-    const auth = getAuth(app);
-    let currentUser = null;
+    
     // Make Firebase functions available globally
     window.db = db;
 
