@@ -386,7 +386,8 @@
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
         alert('Only organizers can submit to the dashboard. Redirecting to login page...');
-        window.location.href = '/login.html'; // Replace with the actual login page URL
+        window.location.href = 'login.html'; // Replace with the actual login page URL
+         // <a href="login.html" id="login-link">Login</a>
         return false;
       }
       return true;
