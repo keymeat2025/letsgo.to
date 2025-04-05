@@ -447,9 +447,7 @@
     import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-// After initializing Firebase app
-const auth = getAuth(app);
-let currentUser = null;
+
 
 // Update the window.firestore object
 window.firestore = { collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc };
@@ -482,6 +480,10 @@ onAuthStateChanged(auth, (user) => {
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // After initializing Firebase app
+    const auth = getAuth(app);
+    let currentUser = null;
     
     // Make Firebase functions available globally
     window.db = db;
