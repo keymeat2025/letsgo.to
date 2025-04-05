@@ -198,6 +198,8 @@
     <div class="text-center mb-6">
       <h3 class="text-2xl font-bold text-blue-600">Competition Preview</h3>
     </div>
+
+    
     <div class="grid md:grid-cols-2 gap-4 mb-6">
       <div class="prize-badge">
         Prize: <span id="previewPrizeDetails"></span>
@@ -349,11 +351,24 @@
       formContainer.classList.add('hidden');
     }
   
+   
     function editForm() {
-      previewDiv.classList.add('hidden');
-      formContainer.classList.remove('hidden');
+      if (editAttempts < MAX_EDIT_ATTEMPTS) {
+        editAttempts++;
+        previewDiv.classList.add('hidden');
+        formContainer.classList.remove('hidden');
+        
+        if (editAttempts === MAX_EDIT_ATTEMPTS) {
+          alert(`This is your last edit attempt. You are allowed to edit only ${MAX_EDIT_ATTEMPTS} times.`);
+        } else if (editAttempts < MAX_EDIT_ATTEMPTS) {
+          alert(`You have ${MAX_EDIT_ATTEMPTS - editAttempts} edit attempts remaining.`);
+        }
+      } else {
+        alert('You have reached the maximum number of edit attempts (2). Further edits are not allowed.');
+      }
     }
-  
+      
+
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
@@ -404,6 +419,8 @@
         
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully!');
+        // Hide the edit button after successfully adding to dashboard
+        document.querySelector('button[onclick="editForm()"]').style.display = 'none';
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
@@ -411,7 +428,7 @@
     }
   
 
-
+  
       
       
        
@@ -421,10 +438,35 @@
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs you need
-    
+    // Track edit attempts
+    let editAttempts = 0;
+    const MAX_EDIT_ATTEMPTS = 2;
 
+        // In your <script type="module"> section where you already import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+// After initializing Firebase app
+const auth = getAuth(app);
+let currentUser = null;
+
+// Update the window.firestore object
+window.firestore = { collection, addDoc, doc, setDoc, deleteDoc, query, where, getDocs, getDoc };
+
+
+// Track current user
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    // Load user's submissions when they log in
+    loadUserSubmissions();
+  } else {
+    currentUser = null;
+    // Clear submissions display when logged out
+    document.getElementById('userSubmissions').innerHTML = '';
+  }
+});
     
     // Your web app's Firebase configuration
     const firebaseConfig = {
