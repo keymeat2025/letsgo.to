@@ -275,15 +275,15 @@
     </div>
   </div>
   
+  
   <script>
     const fileInput = document.getElementById('brochureFile');
     const fileNameSpan = document.getElementById('fileName');
     const previewDiv = document.getElementById('preview');
     const formContainer = document.getElementById('formContainer');
-    // Add these two lines below the existing variable declarations
     let editAttemptsRemaining = 3;
     let addedToDashboard = false;
-        
+  
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -352,19 +352,20 @@
   
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
-      // Update edit button text with remaining attempts
       const editButtonText = addedToDashboard ? 
         'Edit (Unavailable)' : 
         `Edit (${editAttemptsRemaining} attempts left)`;
       
       document.getElementById('editButton').textContent = editButtonText;
-      
-      // Show or hide edit button based on dashboard status
       document.getElementById('editButton').style.display = addedToDashboard ? 'none' : 'block';
     }
   
-   
     function editForm() {
+      if (addedToDashboard) {
+        alert('You can no longer edit this submission. Please contact us for assistance.');
+        return;
+      }
+      
       if (editAttemptsRemaining <= 0) {
         alert('You have used all your edit attempts. Please proceed with current details.');
         return;
@@ -373,40 +374,28 @@
       editAttemptsRemaining--;
       previewDiv.classList.add('hidden');
       formContainer.classList.remove('hidden');
-      
-      // Update the edit button text to show remaining attempts
       document.getElementById('editButton').textContent = `Edit (${editAttemptsRemaining} attempts left)`;
     }
-
-
-      
-      formContainer.classList.remove('hidden');
-    
   
     function confirmPayment() {
       alert('Proceeding to payment...');
     }
-    
-   
- 
-
-
+  
     async function addToDashboard() {
-  // Get all the form values
+      if (!validateForm()) {
+        alert('Please fill all required fields.');
+        return;
+      }
+  
       const title = document.getElementById('title').value;
       const organizer = document.getElementById('organizer').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
-      
-      // Create formatted date (YYYYMMDD) from startDateTime
       const startDate = new Date(startDateTime);
       const formattedDate = startDate.getFullYear() + 
                             String(startDate.getMonth() + 1).padStart(2, '0') + 
                             String(startDate.getDate()).padStart(2, '0');
-      
-      // Create the formatted name using [Category]-[Title]-[Date] format
       const formattedName = `${category}-${title}-${formattedDate}`;
-      
       const competitionData = {
         title: title,
         organizer: organizer,
@@ -425,17 +414,11 @@
       };
       
       try {
-        // Create a document reference with explicit ID
         const competitionsRef = window.firestore.collection(window.db, 'competitions');
         const docRef = window.firestore.doc(competitionsRef, formattedName);
-        
-        // Set the document data
         await window.firestore.setDoc(docRef, competitionData);
-        
         console.log('Document written with ID: ', formattedName);
-        alert('Competition added to dashboard successfully! You can no longer edit this submission.');
-        
-        // Hide the edit button and mark as added to dashboard
+        alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
         addedToDashboard = true;
       } catch (error) {
@@ -443,17 +426,7 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
-
-      
-  
-  
-
-
-      
-      
-       
-            
-  </script> 
+  </script>
 
   <!-- Firebase SDK -->
   <script type="module">
