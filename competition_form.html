@@ -362,7 +362,7 @@
  
 
     async function addToDashboard() {
-      // Get all the form values
+  // Get all the form values
       const title = document.getElementById('title').value;
       const organizer = document.getElementById('organizer').value;
       const category = document.getElementById('category').value;
@@ -395,8 +395,13 @@
       };
       
       try {
-        // Use setDoc instead of addDoc to specify the document ID
-        const docRef = await window.firestore.setDoc(window.firestore.doc(window.db, 'competitions', formattedName), competitionData);
+        // Create a document reference with explicit ID
+        const competitionsRef = window.firestore.collection(window.db, 'competitions');
+        const docRef = window.firestore.doc(competitionsRef, formattedName);
+        
+        // Set the document data
+        await window.firestore.setDoc(docRef, competitionData);
+        
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully!');
       } catch (error) {
@@ -404,6 +409,8 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+  
+
 
       
       
