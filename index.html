@@ -63,77 +63,6 @@
         .nav-links a:hover img {
             transform: scale(1.2);
         }
-        .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-        }
-        .search-bar input {
-            padding: 10px 35px 10px 15px;
-            font-size: 15px;
-            width: 220px;
-            border-radius: 25px;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        .search-bar input:focus {
-            outline: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            width: 240px;
-        }
-        .search-bar img {
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            right: 12px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-        .search-bar img:hover {
-            opacity: 1;
-        }
-        .search-bar .clear-btn {
-            position: absolute;
-            right: 35px;
-            cursor: pointer;
-            display: none;
-            color: #777;
-            transition: color 0.2s;
-        }
-        .search-bar .clear-btn:hover {
-            color: #333;
-        }
-        .search-bar input:focus + .clear-btn {
-            display: block;
-        }
-        .search-bar .hint {
-            display: none;
-            position: absolute;
-            top: 45px;
-            left: 0;
-            background-color: white;
-            border-radius: 8px;
-            border: none;
-            width: 100%;
-            max-width: 220px;
-            z-index: 10;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        .search-bar .hint div {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .search-bar .hint div:hover {
-            background-color: #f0f7ff;
-        }
-        .search-bar input:focus + .clear-btn + .hint {
-            display: block;
-        }
         .auth-links {
             display: flex;
             gap: 15px;
@@ -358,14 +287,6 @@
             <a href="#classes"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/summer.png" alt="Summer Courses Icon">Summer Courses</a>
             <a href="#winners"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/winner.png" alt="Winners Icon">Winners</a>
         </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search..." id="search-input">
-            <span class="clear-btn" onclick="clearSearch()">✖</span>
-            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/search.png" alt="Search Icon">
-            <div class="hint" id="search-hint">
-                <!-- Dynamic search hints will be added here -->
-            </div>
-        </div>
         <div class="auth-links">
             <!-- This will be dynamically replaced by updateAuthUI() -->
             <a href="login.html" id="login-link">Login</a>
@@ -421,7 +342,7 @@
                 <div class="step">
                     <div class="step-header">
                         <div class="step-icon">5</div>
-                        <h3>Make payment and Submit for Review</</h3>
+                        <h3>Make payment and Submit for Review</h3>
                     </div>
                     <p>Once you've filled in all the details, make discounted amount payment submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
                 </div>
@@ -454,7 +375,7 @@
                 <div class="step">
                     <div class="step-header">
                         <div class="step-icon">3</div>
-                        <h3>Registration for a Competition</</h3>
+                        <h3>Registration for a Competition</h3>
                     </div>
                     <p>Click on a competition to view details and register for it.</p>
                 </div>
@@ -475,4 +396,79 @@
         }
 
         // Function to provide search hints
-        document.getElementById('search-input').addEventListener('input
+        document.getElementById('search-input').addEventListener('input', function() {
+            const input = this.value;
+            const searchHint = document.getElementById('search-hint');
+            searchHint.innerHTML = ''; // Clear previous hints
+
+            if (input.length > 0) {
+                // Generate dynamic hints (for demo purposes, static hints are used)
+                const hints = ['Competition 1', 'Competition 2', 'Organizer 1', 'Organizer 2'];
+                hints.forEach(hint => {
+                    if (hint.toLowerCase().includes(input.toLowerCase())) {
+                        const hintDiv = document.createElement('div');
+                        hintDiv.textContent = hint;
+                        hintDiv.onclick = function() {
+                            document.getElementById('search-input').value = hint;
+                            searchHint.innerHTML = ''; // Clear hints
+                            searchHint.style.display = 'none';
+                        };
+                        searchHint.appendChild(hintDiv);
+                    }
+                });
+
+                searchHint.style.display = 'block';
+            } else {
+                searchHint.style.display = 'none';
+            }
+        });
+
+        // Function to clear search input
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-hint').innerHTML = '';
+            document.getElementById('search-hint').style.display = 'none';
+        }
+
+        // Function to update authentication UI
+        function updateAuthUI() {
+            const isLoggedIn = false; // This should be replaced with actual authentication logic
+            const loginLink = document.getElementById('login-link');
+            const logoutLink = document.getElementById('logout-link');
+
+            if (isLoggedIn) {
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                loginLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        }
+
+        // Function to show logout confirmation modal
+        function showLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+
+        // Function to hide logout confirmation modal
+        function hideLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        // Function to confirm logout
+        function confirmLogout() {
+            // Perform logout logic here
+            hideLogoutModal();
+            updateAuthUI();
+        }
+
+        // Function to cancel logout
+        function cancelLogout() {
+            hideLogoutModal();
+        }
+
+        // Call updateAuthUI on page load
+        updateAuthUI();
+    </script>
+</body>
+</html>
