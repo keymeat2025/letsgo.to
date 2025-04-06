@@ -287,10 +287,11 @@
             <a href="#classes"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/summer.png" alt="Summer Courses Icon">Summer Courses</a>
             <a href="#winners"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/winner.png" alt="Winners Icon">Winners</a>
         </div>
+        
         <div class="auth-links">
-            <!-- This will be dynamically replaced by updateAuthUI() -->
+            <span id="user-display"></span> <!-- Add this line -->
             <a href="login.html" id="login-link">Login</a>
-            <a href="logout.html" id="logout-link" style="display: none;">Logout</a>
+            <a href="#" id="logout-link" style="display: none;" onclick="logout()">Logout</a>
         </div>
     </div>
     
@@ -469,6 +470,55 @@
 
         // Call updateAuthUI on page load
         updateAuthUI();
+
+    // Your existing Firebase initialization code
+      
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+          authDomain: "letsgoto-a630e.firebaseapp.com",
+          projectId: "letsgoto-a630e",
+          storageBucket: "letsgoto-a630e.firebasestorage.app",
+          messagingSenderId: "194513214154",
+          appId: "1:194513214154:web:7825241b22095d7c43f233",
+          measurementId: "G-N8CN6LM82S"
+        };
+    
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    
+        // Function to handle user logout
+        function logout() {
+            auth.signOut().then(() => {
+                console.log("User logged out");
+                updateAuthUI();
+            }).catch((error) => {
+                console.error("Error logging out:", error.message);
+            });
+        }
+    
+        // Update authentication UI based on user's state
+        function updateAuthUI() {
+            const user = auth.currentUser;
+            const loginLink = document.getElementById('login-link');
+            const logoutLink = document.getElementById('logout-link');
+            const userDisplay = document.getElementById('user-display');
+    
+            if (user) {
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+                userDisplay.innerHTML = `Welcome, ${user.email}`;
+            } else {
+                loginLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+                userDisplay.innerHTML = '';
+            }
+        }
+    
+        // Listen to authentication state changes
+        auth.onAuthStateChanged(updateAuthUI);
+
     </script>
 </body>
 </html>
