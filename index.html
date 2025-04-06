@@ -73,14 +73,23 @@
             text-decoration: none;
             color: white;
             font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 25px;
+            padding: 10px 20px; /* Increase padding */
+            border-radius: 8px; /* Adjust border-radius */
             transition: all 0.3s ease;
             background-color: rgba(255,255,255,0.15);
+            font-size: 16px; /* Increase font size */
         }
+        
         .auth-links a:hover {
             background-color: rgba(255,255,255,0.25);
             transform: translateY(-2px);
+        }
+        
+        @media (max-width: 600px) {
+            .auth-links a {
+                padding: 8px 16px; /* Adjust padding for smaller screens */
+                font-size: 14px; /* Adjust font size for smaller screens */
+            }
         }
         .organizers-section {
             padding: 100px 40px 60px;
