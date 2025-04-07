@@ -402,6 +402,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <script>
            // Firebase configuration
@@ -474,12 +475,15 @@
             });
         }
         
-        // Update authentication UI based on user's state
-        function updateAuthUI() {
+  
+            // Update authentication UI based on user's state
+        async function updateAuthUI() {
             const user = auth.currentUser;
             const loginLink = document.getElementById('login-link');
             const logoutLink = document.getElementById('logout-link');
             const userDisplay = document.getElementById('user-display');
+            const competitionFormButton = document.getElementById('competition-form-button');
+            const organizerAuthButton = document.getElementById('organizer-auth-button');
         
             if (user) {
                 console.log("User is logged in:", user.email);
@@ -488,14 +492,38 @@
                 userDisplay.textContent = `Welcome, ${user.email}`;
                 userDisplay.style.color = 'white';
                 userDisplay.style.fontWeight = 'bold';
+                
+                // Check user role in Firestore
+                try {
+                    // Check in organizers collection
+                    const organizerDoc = await firebase.firestore().collection('organizers').doc(user.uid).get();
+                    
+                    // Check in students collection
+                    const studentDoc = await firebase.firestore().collection('students').doc(user.uid).get();
+                    
+                    if (organizerDoc.exists) {
+                        // User is an organizer
+                        sessionStorage.setItem('userRole', 'organizer');
+                        if (competitionFormButton) competitionFormButton.style.display = 'block';
+                        if (organizerAuthButton) organizerAuthButton.textContent = 'Go to Organizer Dashboard';
+                    } else if (studentDoc.exists) {
+                        // User is a student
+                        sessionStorage.setItem('userRole', 'student');
+                        if (competitionFormButton) competitionFormButton.style.display = 'none';
+                        if (organizerAuthButton) organizerAuthButton.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error checking user role:", error);
+                }
             } else {
                 console.log("No user is logged in");
                 loginLink.style.display = 'block';
                 logoutLink.style.display = 'none';
                 userDisplay.textContent = '';
+                sessionStorage.removeItem('userRole');
             }
         }
-
+           
         // Add this function to your script section
         function handleStudentAuth() {
             const user = auth.currentUser;
@@ -511,31 +539,59 @@
         // Add these functions to your script section
         function handleOrganizerAuth() {
             const user = auth.currentUser;
+            const userRole = sessionStorage.getItem('userRole');
+            
             if (user) {
-                // User is logged in, redirect to organizer dashboard
-                window.location.href = "organizer_dashboard.html"; // Change to your organizer page
+                // User is logged in
+                if (userRole === 'organizer') {
+                    // User is an organizer, redirect to organizer dashboard
+                    window.location.href = "organizer_dashboard.html";
+                } else {
+                    // User is not an organizer
+                    alert("Your account does not have organizer privileges.");
+                }
             } else {
                 // User is not logged in, redirect to login page
                 window.location.href = "register.html?category=organizer";
             }
         }
         
+     
         function handleCompetitionForm() {
             const user = auth.currentUser;
-            if (user) {
-                // User is logged in, redirect to competition form
-                window.location.href = "competition_form.html";
-            } else {
-                // User is not logged in, show alert and redirect to login
+            const userRole = sessionStorage.getItem('userRole');
+            
+            if (!user) {
+                // User is not logged in
                 alert("You need to log in first to add competition details.");
                 window.location.href = "login.html";
+                return;
             }
+            
+            if (userRole !== 'organizer') {
+                // User is not an organizer
+                alert("Only organizers can add competition details.");
+                return;
+            }
+            
+            // User is logged in and is an organizer, redirect to competition form
+            window.location.href = "competition_form.html";
         }
         
         // Listen to authentication state changes
+            // Add this after the auth state changed listener
         auth.onAuthStateChanged((user) => {
             console.log("Auth state changed", user ? user.email : "No user");
             updateAuthUI();
+            
+            // Check if we should hide organizer section for students
+            const userRole = sessionStorage.getItem('userRole');
+            const organizersSection = document.getElementById('organizers');
+            
+            if (user && userRole === 'student') {
+                // Optional: Hide entire organizers section for students
+                // organizersSection.style.display = 'none';
+            }
         });
         
         // Call updateAuthUI on page load
