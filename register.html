@@ -74,6 +74,8 @@
                     return;
                 }
 
+         
+                   // Modify the registration part of the code
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pin);
                     const user = userCredential.user;
@@ -83,6 +85,13 @@
                     await setDoc(doc(db, collectionName, user.uid), {
                         email: email,
                         category: category,
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    // Also store in main users collection with role information
+                    await setDoc(doc(db, 'users', user.uid), {
+                        email: email,
+                        role: category,
                         createdAt: serverTimestamp()
                     });
                     
