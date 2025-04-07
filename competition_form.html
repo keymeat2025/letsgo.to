@@ -413,7 +413,7 @@
         startDateTime: document.getElementById('startDateTime').value,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-        registrationAmount: document.getElementById('registrationAmount').value
+        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
@@ -458,6 +458,11 @@
         alert('Please fill all required fields.');
         return;
       }
+           // Save form data to localStorage before redirecting
+      saveFormData();
+      
+      // Redirect to the pricing page
+      window.location.href = 'pricing.html';
     
       const organizer = document.getElementById('organizer').value;
     
