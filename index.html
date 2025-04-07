@@ -357,9 +357,11 @@
                     <p>Once you've filled in all the details, make discounted amount payment submit your competition for review. Our team will review and approve it within 24-48 hours.</p>
                 </div>
             </div>
+     
+            <!-- Change this in the organizers section -->
             <div class="proceed-button">
-                <a href="register.html?category=organizer">Proceed to Sign Up or Log In</a>
-                <a href="competition_form.html">Add Competition Details</a>
+                <a href="#" id="organizer-auth-button" onclick="handleOrganizerAuth()">Proceed to Sign Up or Log In</a>
+                <a href="#" id="competition-form-button" onclick="handleCompetitionForm()">Add Competition Details</a>
             </div>
         </div>
     </section>
@@ -390,8 +392,10 @@
                     <p>Click on a competition to view details and register for it.</p>
                 </div>
             </div>
+          
+        
             <div class="proceed-button">
-                <a href="register.html?category=student">Proceed to Sign Up or Log In</a>
+                <a href="#" id="student-auth-button" onclick="handleStudentAuth()">Proceed to Sign Up or Log In</a>
             </div>
         </div>
     </section>
@@ -489,6 +493,42 @@
                 loginLink.style.display = 'block';
                 logoutLink.style.display = 'none';
                 userDisplay.textContent = '';
+            }
+        }
+
+        // Add this function to your script section
+        function handleStudentAuth() {
+            const user = auth.currentUser;
+            if (user) {
+                // User is logged in, redirect to competition browsing/registration
+                window.location.href = "competitions.html"; // Change to your competition listing page
+            } else {
+                // User is not logged in, redirect to login page
+                window.location.href = "register.html?category=student";
+            }
+        }
+
+        // Add these functions to your script section
+        function handleOrganizerAuth() {
+            const user = auth.currentUser;
+            if (user) {
+                // User is logged in, redirect to organizer dashboard
+                window.location.href = "organizer_dashboard.html"; // Change to your organizer page
+            } else {
+                // User is not logged in, redirect to login page
+                window.location.href = "register.html?category=organizer";
+            }
+        }
+        
+        function handleCompetitionForm() {
+            const user = auth.currentUser;
+            if (user) {
+                // User is logged in, redirect to competition form
+                window.location.href = "competition_form.html";
+            } else {
+                // User is not logged in, show alert and redirect to login
+                alert("You need to log in first to add competition details.");
+                window.location.href = "login.html";
             }
         }
         
