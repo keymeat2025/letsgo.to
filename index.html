@@ -396,21 +396,31 @@
         </div>
     </section>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <script>
-        function clearSearch() {
-            const searchInput = document.getElementById('search-input');
-            const searchHint = document.getElementById('search-hint');
-            searchInput.value = '';
-            searchHint.innerHTML = '';
-            searchHint.style.display = 'none';
-        }
-
+           // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+          authDomain: "letsgoto-a630e.firebaseapp.com",
+          projectId: "letsgoto-a630e",
+          storageBucket: "letsgoto-a630e.firebasestorage.app",
+          messagingSenderId: "194513214154",
+          appId: "1:194513214154:web:7825241b22095d7c43f233",
+          measurementId: "G-N8CN6LM82S"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        
         // Function to provide search hints
-        document.getElementById('search-input').addEventListener('input', function() {
+        document.getElementById('search-input')?.addEventListener('input', function() {
             const input = this.value;
             const searchHint = document.getElementById('search-hint');
             searchHint.innerHTML = ''; // Clear previous hints
-
+        
             if (input.length > 0) {
                 // Generate dynamic hints (for demo purposes, static hints are used)
                 const hints = ['Competition 1', 'Competition 2', 'Organizer 1', 'Organizer 2'];
@@ -426,108 +436,72 @@
                         searchHint.appendChild(hintDiv);
                     }
                 });
-
+        
                 searchHint.style.display = 'block';
             } else {
                 searchHint.style.display = 'none';
             }
         });
-
+        
         // Function to clear search input
         function clearSearch() {
             document.getElementById('search-input').value = '';
             document.getElementById('search-hint').innerHTML = '';
             document.getElementById('search-hint').style.display = 'none';
         }
-
-        // Function to update authentication UI
-        function updateAuthUI() {
-            const isLoggedIn = false; // This should be replaced with actual authentication logic
-            const loginLink = document.getElementById('login-link');
-            const logoutLink = document.getElementById('logout-link');
-
-            if (isLoggedIn) {
-                loginLink.style.display = 'none';
-                logoutLink.style.display = 'block';
-            } else {
-                loginLink.style.display = 'block';
-                logoutLink.style.display = 'none';
-            }
-        }
-
+        
         // Function to show logout confirmation modal
-        function showLogoutModal() {
+        function logout() {
             document.getElementById('logoutModal').style.display = 'flex';
         }
-
+        
         // Function to hide logout confirmation modal
-        function hideLogoutModal() {
+        function cancelLogout() {
             document.getElementById('logoutModal').style.display = 'none';
         }
-
-        // Function to confirm logout
+        
+        // Function to confirm and process logout
         function confirmLogout() {
-            // Perform logout logic here
-            hideLogoutModal();
-            updateAuthUI();
-        }
-
-        // Function to cancel logout
-        function cancelLogout() {
-            hideLogoutModal();
-        }
-
-        // Call updateAuthUI on page load
-        updateAuthUI();
-
-    // Your existing Firebase initialization code
-      
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-          apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-          authDomain: "letsgoto-a630e.firebaseapp.com",
-          projectId: "letsgoto-a630e",
-          storageBucket: "letsgoto-a630e.firebasestorage.app",
-          messagingSenderId: "194513214154",
-          appId: "1:194513214154:web:7825241b22095d7c43f233",
-          measurementId: "G-N8CN6LM82S"
-        };
-    
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-    
-        // Function to handle user logout
-        function logout() {
             auth.signOut().then(() => {
-                console.log("User logged out");
-                updateAuthUI();
+                console.log("User logged out successfully");
+                document.getElementById('logoutModal').style.display = 'none';
             }).catch((error) => {
                 console.error("Error logging out:", error.message);
             });
         }
-    
+        
         // Update authentication UI based on user's state
         function updateAuthUI() {
             const user = auth.currentUser;
             const loginLink = document.getElementById('login-link');
             const logoutLink = document.getElementById('logout-link');
             const userDisplay = document.getElementById('user-display');
-    
+        
             if (user) {
+                console.log("User is logged in:", user.email);
                 loginLink.style.display = 'none';
                 logoutLink.style.display = 'block';
-                userDisplay.innerHTML = `Welcome, ${user.email}`;
+                userDisplay.textContent = `Welcome, ${user.email}`;
+                userDisplay.style.color = 'white';
+                userDisplay.style.fontWeight = 'bold';
             } else {
+                console.log("No user is logged in");
                 loginLink.style.display = 'block';
                 logoutLink.style.display = 'none';
-                userDisplay.innerHTML = '';
+                userDisplay.textContent = '';
             }
         }
-    
+        
         // Listen to authentication state changes
-        auth.onAuthStateChanged(updateAuthUI);
-
+        auth.onAuthStateChanged((user) => {
+            console.log("Auth state changed", user ? user.email : "No user");
+            updateAuthUI();
+        });
+        
+        // Call updateAuthUI on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+        });
     </script>
 </body>
 </html>
