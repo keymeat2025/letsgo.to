@@ -242,7 +242,10 @@
           <strong class="text-gray-600">Registration Deadline:</strong> 
           <span id="previewRegistrationDeadline"></span>
         </div>
-       
+         <div>
+          <strong class="text-gray-600">Registration Amount:</strong> 
+          <span id="previwRegistrationAmount"></span>
+        </div>
       </div>
       
       
@@ -333,11 +336,11 @@
       const startDate = new Date(document.getElementById('startDateTime').value);
       const endDate = new Date(document.getElementById('endDateTime').value);
       const regDeadline = new Date(document.getElementById('registrationDeadline').value);
-      
+      const regamount = document.getElementByID('registrationAmount').value);
       document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
       document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
       document.getElementById('previewRegistrationDeadline').textContent = regDeadline.toLocaleString();
-      
+      document.getElementByID('previwRegistrationAmount').textContent = regamount.toLocaleString();
       document.getElementById('previewVenue').textContent = document.getElementById('venue').value;
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
       document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
