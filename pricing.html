@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Listing Package</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', sans-serif;
+    }
+    .pricing-container {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.125);
+      overflow: hidden;
+      max-width: 900px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    .pricing-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .pricing-content { padding: 2rem; }
+    .pricing-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .pricing-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1);
+    }
+    .pricing-card.selected {
+      border-color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+    .feature-list li {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .feature-list li:before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+    .payment-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .payment-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+    .coupon-container {
+      position: relative;
+    }
+    .coupon-btn {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.25rem 0.75rem;
+      background: #e2e8f0;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .coupon-btn:hover {
+      background: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div class="pricing-container" id="pricingContainer">
+    <div class="pricing-header">
+      <h2 class="text-3xl font-bold">Choose Your Listing Package</h2>
+      <p class="mt-2 text-blue-100">Select the best option to promote your competition</p>
+    </div>
+    <div class="pricing-content">
+      <div id="competitionSummary" class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="font-bold text-gray-700">Competition Summary</h3>
+        <p id="summaryTitle" class="text-lg"></p>
+        <p id="summaryCategory" class="text-sm text-gray-600"></p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mt-4">
+        <!-- Basic Listing -->
+        <div class="pricing-card" data-package="basic" onclick="selectPackage('basic')">
+          <div class="text-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Basic Listing</h3>
+            <div class="mt-2">
+              <span class="text-3xl font-bold text-blue-600">$49</span>
+            </div>
+            <p class="text-gray-600 mt-1">Standard visibility</p>
+          </div>
+          <ul class="feature-list text-sm text-gray-700">
+            <li>Standard dashboard listing</li>
+            <li>7 days featured in "New" section</li>
+            <li>Basic search visibility</li>
+            <li>Standard analytics reporting</li>
+          </ul>
+          <div class="mt-6 text-center">
+            <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="basic-selector"></div>
+          </div>
+        </div>
+
+        <!-- Featured Listing -->
+        <div class="pricing-card" data-package="featured" onclick="selectPackage('featured')">
+          <div class="text-center mb-4">
+            <div class="bg-blue-600 text-white py-1 px-3 rounded-full text-xs inline-block mb-2">RECOMMENDED</div>
+            <h3 class="text-xl font-bold text-gray-800">Featured Listing</h3>
+            <div class="mt-2">
+              <span class="text-3xl font-bold text-blue-600">$89</span>
+            </div>
+            <p class="text-gray-600 mt-1">Enhanced visibility</p>
+          </div>
+          <ul class="feature-list text-sm text-gray-700">
+            <li>Everything in Basic</li>
+            <li>14 days in "Featured" section</li>
+            <li>Priority search placement</li>
+            <li>Social media promotion</li>
+            <li>Extended analytics reporting</li>
+          </ul>
+          <div class="mt-6 text-center">
+            <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="featured-selector"></div>
+          </div>
+        </div>
+
+        <!-- Premium Listing -->
+        <div class="pricing-card" data-package="premium" onclick="selectPackage('premium')">
+          <div class="text-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Premium Listing</h3>
+            <div class="mt-2">
+              <span class="text-3xl font-bold text-blue-600">$149</span>
+            </div>
+            <p class="text-gray-600 mt-1">Maximum exposure</p>
+          </div>
+          <ul class="feature-list text-sm text-gray-700">
+            <li>Everything in Featured</li>
+            <li>30 days in "Premium" section</li>
+            <li>Homepage banner placement</li>
+            <li>Email newsletter promotion</li>
+            <li>Dedicated social media post</li>
+            <li>Premium analytics dashboard</li>
+          </ul>
+          <div class="mt-6 text-center">
+            <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="premium-selector"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <div class="coupon-container mb-6">
+          <input type="text" id="couponCode" class="w-full p-3 border-2 border-gray-200 rounded-lg" placeholder="Enter coupon code (if available)">
+          <button class="coupon-btn text-sm font-medium text-gray-700" onclick="applyCoupon()">Apply</button>
+        </div>
+
+        <div class="flex justify-between items-center mt-6">
+          <div>
+            <p class="text-lg font-semibold">Total: <span id="totalPrice">$49</span></p>
+            <p id="discountText" class="text-sm text-green-600 hidden">Coupon applied: <span id="discountAmount"></span> off</p>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="goBackToForm()" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">Back</button>
+            <button onclick="proceedToPayment()" class="payment-btn">Proceed to Payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="paymentContainer" class="pricing-container hidden">
+    <div class="pricing-header">
+      <h2 class="text-3xl font-bold">Payment Information</h2>
+      <p class="mt-2 text-blue-100">Complete your transaction securely</p>
+    </div>
+    <div class="pricing-content">
+      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="font-bold text-gray-700">Order Summary</h3>
+        <p id="orderTitle" class="text-lg"></p>
+        <p id="orderPackage" class="text-sm text-gray-600 mt-1"></p>
+        <p class="text-lg font-bold mt-2">Total: <span id="orderTotal"></span></p>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Card Information</label>
+          <input type="text" placeholder="Card Number" class="w-full p-3 border-2 border-gray-200 rounded-lg mb-2">
+          <div class="grid grid-cols-2 gap-4">
+            <input type="text" placeholder="MM/YY" class="p-3 border-2 border-gray-200 rounded-lg">
+            <input type="text" placeholder="CVC" class="p-3 border-2 border-gray-200 rounded-lg">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Cardholder Name</label>
+          <input type="text" placeholder="Name on card" class="w-full p-3 border-2 border-gray-200 rounded-lg">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Billing Address</label>
+          <input type="text" placeholder="Address" class="w-full p-3 border-2 border-gray-200 rounded-lg mb-2">
+          <div class="grid grid-cols-2 gap-4 mb-2">
+            <input type="text" placeholder="City" class="p-3 border-2 border-gray-200 rounded-lg">
+            <input type="text" placeholder="State" class="p-3 border-2 border-gray-200 rounded-lg">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <input type="text" placeholder="Zip Code" class="p-3 border-2 border-gray-200 rounded-lg">
+            <select class="p-3 border-2 border-gray-200 rounded-lg">
+              <option value="">Select Country</option>
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="UK">United Kingdom</option>
+              <option value="AU">Australia</option>
+              <!-- Add more countries as needed -->
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6">
+          <button onclick="goBackToPricing()" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">Back</button>
+          <button onclick="processPayment()" class="payment-btn">Complete Payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="successContainer" class="pricing-container hidden">
+    <div class="pricing-header bg-green-600">
+      <h2 class="text-3xl font-bold">Success!</h2>
+      <p class="mt-2 text-green-100">Your competition has been submitted</p>
+    </div>
+    <div class="pricing-content text-center">
+      <div class="mb-10">
+        <svg class="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        
+        <h3 class="text-2xl font-bold text-gray-800 mt-4">Payment Complete!</h3>
+        <p class="text-gray-600 mt-2">Your competition listing has been submitted for review.</p>
+        <p class="text-gray-600">You will receive a confirmation email shortly.</p>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg text-left mb-6">
+        <h4 class="font-semibold text-gray-700">What happens next?</h4>
+        <ol class="mt-2 text-gray-600 ml-5 list-decimal">
+          <li class="mb-1">Our admin team will review your listing (usually within 24-48 hours)</li>
+          <li class="mb-1">You'll receive an email notification when your listing is approved</li>
+          <li class="mb-1">Your competition will appear on the dashboard according to your selected package</li>
+        </ol>
+      </div>
+      
+      <button onclick="goToDashboard()" class="payment-btn">Go to Dashboard</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedPackage = 'basic';
+    let competitionData = {};
+    let packagePrices = {
+      'basic': 49,
+      'featured': 89,
+      'premium': 149
+    };
+    let currentPrice = 49;
+    let discountApplied = false;
+    let discountPercent = 0;
+
+    // When the page loads
+    window.onload = function() {
+      // Try to retrieve the competition data from localStorage
+      const storedData = localStorage.getItem('competitionFormData');
+      if (storedData) {
+        competitionData = JSON.parse(storedData);
+        
+        // Update the summary section
+        document.getElementById('summaryTitle').textContent = competitionData.title || "Your Competition";
+        document.getElementById('summaryCategory').textContent = competitionData.category || "General Category";
+      } else {
+        // Redirect back to the form if no data exists
+        window.location.href = 'index.html';
+      }
+      
+      // Select basic package by default
+      selectPackage('basic');
+    };
+
+    function selectPackage(packageName) {
+      // First, remove selected class from all packages
+      document.querySelectorAll('.pricing-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Reset all selectors
+      document.getElementById('basic-selector').style.backgroundColor = 'transparent';
+      document.getElementById('featured-selector').style.backgroundColor = 'transparent';
+      document.getElementById('premium-selector').style.backgroundColor = 'transparent';
+      
+      // Add selected class to the chosen package
+      const selectedCard = document.querySelector(`.pricing-card[data-package="${packageName}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+        
+        // Update the selector
+        document.getElementById(`${packageName}-selector`).style.backgroundColor = '#3b82f6';
+      }
+      
+      // Update selected package and price
+      selectedPackage = packageName;
+      currentPrice = packagePrices[packageName];
+      
+      // Update the UI
+      updateTotalPrice();
+    }
+
+    function updateTotalPrice() {
+      // Calculate with discount if applicable
+      let finalPrice = currentPrice;
+      if (discountApplied) {
+        finalPrice = currentPrice * (1 - discountPercent / 100);
+      }
+      
+      // Update the display
+      document.getElementById('totalPrice').textContent = `$${finalPrice.toFixed(2)}`;
+    }
+
+    function applyCoupon() {
+      const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+      
+      // Simple coupon validation - in real app this would check against database
+      const validCoupons = {
+        'WELCOME10': 10,
+        'SPECIAL20': 20,
+        'VIP30': 30
+      };
+      
+      if (couponCode in validCoupons) {
+        discountApplied = true;
+        discountPercent = validCoupons[couponCode];
+        
+        // Show discount info
+        document.getElementById('discountText').classList.remove('hidden');
+        document.getElementById('discountAmount').textContent = `${discountPercent}%`;
+        
+        // Update price
+        updateTotalPrice();
+        
+        // Show success message
+        alert(`Coupon applied successfully! ${discountPercent}% discount`);
+      } else {
+        // Invalid coupon
+        alert('Invalid coupon code. Please try again.');
+      }
+    }
+
+    function goBackToForm() {
+      window.location.href = 'index.html';
+    }
+
+    function proceedToPayment() {
+      // Hide pricing container
+      document.getElementById('pricingContainer').classList.add('hidden');
+      
+      // Update order summary
+      document.getElementById('orderTitle').textContent = competitionData.title || "Your Competition";
+      document.getElementById('orderPackage').textContent = 
+        `${selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)} Package`;
+      
+      // Calculate final price
+      let finalPrice = currentPrice;
+      if (discountApplied) {
+        finalPrice = currentPrice * (1 - discountPercent / 100);
+      }
+      document.getElementById('orderTotal').textContent = `$${finalPrice.toFixed(2)}`;
+      
+      // Show payment container
+      document.getElementById('paymentContainer').classList.remove('hidden');
+    }
+
+    function goBackToPricing() {
+      // Hide payment container
+      document.getElementById('paymentContainer').classList.add('hidden');
+      
+      // Show pricing container
+      document.getElementById('pricingContainer').classList.remove('hidden');
+    }
+
+    function processPayment() {
+      // In a real application, this would process the payment
+      // and handle API calls to payment gateway
+      
+      // For demonstration, we'll just show a success message
+      document.getElementById('paymentContainer').classList.add('hidden');
+      document.getElementById('successContainer').classList.remove('hidden');
+      
+      // Save the package information with the competition data
+      competitionData.package = selectedPackage;
+      competitionData.paymentComplete = true;
+      competitionData.status = 'pendingReview';
+      
+      // Store the updated data - in a real app, this would be sent to the server
+      localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+      
+      // In a real application, the data would be saved to the database and go into an admin review queue
+    }
+
+    function goToDashboard() {
+      // Redirect to a dashboard page
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
