@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Registration</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .registration-container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header-container {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-container h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: -1px;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      margin: -2rem -2rem 2rem -2rem;
+      padding: 1.5rem;
+    }
+
+    .submit-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .competition-badge {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: black;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      box-shadow: 0 5px 10px rgba(255, 170, 0, 0.3);
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: #3b82f6;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-container {
+      background-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+    }
+
+    .success-container {
+      background-color: #dcfce7;
+      border-left: 4px solid #22c55e;
+      color: #15803d;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="registration-container">
+    <div class="header-container">
+      <h1>Player Registration</h1>
+      <p class="text-lg mt-2">Register for the competition</p>
+    </div>
+
+    <div id="loading-container" class="form-container text-center py-10">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-gray-600">Loading competition details...</p>
+    </div>
+
+    <div id="error-container" class="error-container hidden">
+      <p id="error-message">An error occurred. Please try again.</p>
+    </div>
+
+    <div id="form-container" class="form-container hidden">
+      <div class="form-header">
+        <h2 class="text-xl font-bold" id="competition-title">Competition Registration</h2>
+        <p class="text-sm opacity-80" id="competition-organizer"></p>
+        <div class="competition-badge" id="competition-prize"></div>
+      </div>
+
+      <form id="registration-form">
+        <input type="hidden" id="competition-id" name="competitionId">
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="form-group">
+            <label for="playerName" class="block mb-2 text-sm font-medium text-gray-700">Player Name*</label>
+            <input type="text" id="playerName" name="playerName" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="gender" class="block mb-2 text-sm font-medium text-gray-700">Gender*</label>
+            <select id="gender" name="gender" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="form-group">
+            <label for="guardianName" class="block mb-2 text-sm font-medium text-gray-700">Parent/Guardian Name*</label>
+            <input type="text" id="guardianName" name="guardianName" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="dob" class="block mb-2 text-sm font-medium text-gray-700">Date of Birth*</label>
+            <input type="date" id="dob" name="dob" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="form-group">
+            <label for="hometown" class="block mb-2 text-sm font-medium text-gray-700">Hometown*</label>
+            <input type="text" id="hometown" name="hometown" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email Address*</label>
+            <input type="email" id="email" name="email" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="form-group">
+            <label for="phone" class="block mb-2 text-sm font-medium text-gray-700">Phone Number*</label>
+            <input type="tel" id="phone" name="phone" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="competitionName" class="block mb-2 text-sm font-medium text-gray-700">Competition</label>
+            <input type="text" id="competitionName" name="competitionName" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100" readonly>
+          </div>
+        </div>
+
+        <div class="form-group mt-8">
+          <div class="flex items-start mb-6">
+            <div class="flex items-center h-5">
+              <input id="terms" type="checkbox" class="w-4 h-4 border border-gray-300 rounded" required>
+            </div>
+            <label for="terms" class="ml-2 text-sm font-medium text-gray-700">
+              I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> and confirm that all information provided is accurate.
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn mt-4 flex items-center justify-center gap-2">
+          <i class="lucide-user-plus"></i>
+          Continue to Payment
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Check if user is logged in
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // Not logged in, redirect to login page with return URL
+        const currentUrl = encodeURIComponent(window.location.href);
+        window.location.href = `login.html?redirect=${currentUrl}`;
+      } else {
+        // User is logged in, get the competition ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const competitionId = urlParams.get('id');
+        
+        if (!competitionId) {
+          showError("No competition selected. Please return to the competitions page.");
+          return;
+        }
+        
+        // Auto-fill email if available
+        if (user.email) {
+          document.getElementById('email').value = user.email;
+        }
+        
+        // Fetch competition details
+        fetchCompetitionDetails(competitionId);
+      }
+    });
+
+    async function fetchCompetitionDetails(competitionId) {
+      try {
+        const competitionRef = doc(db, 'competitions', competitionId);
+        const competitionSnap = await getDoc(competitionRef);
+        
+        if (!competitionSnap.exists()) {
+          showError("Competition not found. Please select a valid competition.");
+          return;
+        }
+        
+        const competitionData = competitionSnap.data();
+        populateCompetitionDetails(competitionId, competitionData);
+        
+        // Hide loading, show form
+        document.getElementById('loading-container').classList.add('hidden');
+        document.getElementById('form-container').classList.remove('hidden');
+      } catch (error) {
+        console.error("Error fetching competition details:", error);
+        showError("Failed to load competition details. Please try again later.");
+      }
+    }
+
+    function populateCompetitionDetails(competitionId, competition) {
+      document.getElementById('competition-id').value = competitionId;
+      document.getElementById('competition-title').textContent = competition.title;
+      document.getElementById('competition-organizer').textContent = `by ${competition.organizer}`;
+      document.getElementById('competition-prize').textContent = competition.prizeDetails;
+      document.getElementById('competitionName').value = competition.title;
+    }
+
+    function showError(message) {
+      document.getElementById('loading-container').classList.add('hidden');
+      document.getElementById('error-container').classList.remove('hidden');
+      document.getElementById('error-message').textContent = message;
+    }
+
+    // Form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('registration-form');
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = {
+          competitionId: document.getElementById('competition-id').value,
+          playerName: document.getElementById('playerName').value,
+          gender: document.getElementById('gender').value,
+          guardianName: document.getElementById('guardianName').value,
+          dob: document.getElementById('dob').value,
+          hometown: document.getElementById('hometown').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          competitionName: document.getElementById('competitionName').value,
+          userId: auth.currentUser.uid,
+          registrationDate: new Date().toISOString(),
+          status: 'pending' // Payment not completed yet
+        };
+        
+        // Store form data in session storage for the payment page
+        sessionStorage.setItem('registrationData', JSON.stringify(formData));
+        
+        // Redirect to payment page
+        window.location.href = `payment.html?competition=${formData.competitionId}`;
+      });
+    });
+  </script>
+</body>
+</html>
