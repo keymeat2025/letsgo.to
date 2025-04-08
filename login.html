@@ -123,8 +123,10 @@
                         const noRedirect = urlParams.get('noRedirect');
                         if (noRedirect !== 'true') {
                             console.log("Redirecting to home page");
+                            updateLoginStatus();
                             // Redirect to home page if already logged in
                             window.location.href = 'index.html';
+                            return;
                         }
                     } else {
                         console.log("User is signed out");
@@ -157,16 +159,23 @@
                     // Wait for sign-in to complete
                     const userCredential = await signInWithEmailAndPassword(auth, email, pin);
                     // Get the user
+                    
                     const user = userCredential.user;
+                    const category = document.getElementById('category').value;
                     console.log("Login successful for:", user.email);
                     
                     // Set session storage
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('userId', user.uid);
+                    sessionStorage.setItem('userCategory', category); // Add category to session
                     
                     // Explicitly redirect to home page
                     console.log("Redirecting to home page after login");
                     window.location.href = 'index.html';
+
+
+
+                    
                 } catch (error) {
                     console.error("Login error:", error);
                     alert('Login failed: ' + error.message);
