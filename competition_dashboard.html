@@ -453,7 +453,12 @@
       }
     };
 
+
+
     window.showCompetitionDetails = function(competitionId) {
+  // Store competition ID before checking login
+      localStorage.setItem('pendingCompetitionRegistration', competitionId);
+      
       const competition = window.allCompetitions.find(comp => comp.id === competitionId);
       if (!competition) return;
       
@@ -536,7 +541,9 @@
           localStorage.setItem('pendingCompetitionRegistration', competition.id);
           
           // Check if user is logged in
-          const isLoggedIn = localStorage.getItem('userAuthToken') !== null;
+         // const isLoggedIn = localStorage.getItem('userAuthToken') !== null;
+          // Check if user is logged in
+          const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
           
           if (isLoggedIn) {
             // If logged in, redirect to registration page with competition ID
@@ -558,13 +565,12 @@
   
       function checkUserLoggedIn() {
   // Check for auth token in localStorage
-        const token = localStorage.getItem('userAuthToken');
-        // Also check that the token hasn't expired (if you store expiration)
-        const tokenExpiry = localStorage.getItem('userAuthTokenExpiry');
-        const currentTime = new Date().getTime();
-        
-        return token !== null && (!tokenExpiry || currentTime < parseInt(tokenExpiry));
-      }
+      
+        // Check for auth in sessionStorage (matching login page)
+        return sessionStorage.getItem('isLoggedIn') === 'true' && 
+               sessionStorage.getItem('userId') !== null;
+      }    
+      
       
       // Show modal
       document.getElementById('competitionModal').classList.remove('hidden');
