@@ -400,12 +400,12 @@
       // Replace with the actual logic to verify if the user is an organizer
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
-        alert('Only organizers can submit to the dashboard. Redirecting to login page...');
+        alert('Only organizers can submit to the dashboard. Redirecting to pricing page...');
         
         // Save form data to local storage
         saveFormData();
         
-        window.location.href = 'login.html'; // Replace with the actual login page URL
+        window.location.href = 'pricing.html'; // Replace with the actual login page URL
         return false;
       }
       return true;
