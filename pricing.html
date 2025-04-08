@@ -295,8 +295,9 @@
     let discountPercent = 0;
 
     // When the page loads
+
     window.onload = function() {
-      // Try to retrieve the competition data from localStorage
+  // Try to retrieve the competition data from localStorage
       const storedData = localStorage.getItem('competitionFormData');
       if (storedData) {
         competitionData = JSON.parse(storedData);
@@ -309,8 +310,13 @@
         window.location.href = 'index.html';
       }
       
-      // Select basic package by default
+      // Select featured package by default (match the initial selectedPackage value)
       selectPackage('featured');
+      
+      // Make sure the UI reflects the selected package
+      document.getElementById('featured-selector').style.backgroundColor = '#3b82f6';
+      document.querySelector('.pricing-card[data-package="featured"]').classList.add('selected');
+
     };
 
     function selectPackage(packageName) {
@@ -347,15 +353,16 @@
     }
 
     function updateTotalPrice() {
-      // Calculate with discount if applicable
+   
+  // Calculate with discount if applicable
       let finalPrice = currentPrice;
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
       }
       
-      // Update the display
-
+      // Update the display with formatted price
       document.getElementById('totalPrice').textContent = `INR ${finalPrice.toFixed(2)}`;
+      return finalPrice; // Return the calculated value for use elsewhere
     }
 
     function applyCoupon() {
@@ -391,8 +398,10 @@
       window.location.href = 'index.html';
     }
 
+
+      
     function proceedToPayment() {
-      // Hide pricing container
+  // Hide pricing container
       document.getElementById('pricingContainer').classList.add('hidden');
       
       // Update order summary
@@ -405,8 +414,9 @@
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
       }
-  
-      document.getElementById('totalPrice').textContent = `INR ${finalPrice.toFixed(2)}`;
+    
+      // Set the order total correctly
+      document.getElementById('orderTotal').textContent = `INR ${finalPrice.toFixed(2)}`;
       
       // Show payment container
       document.getElementById('paymentContainer').classList.remove('hidden');
