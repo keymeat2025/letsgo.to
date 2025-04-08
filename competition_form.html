@@ -275,28 +275,26 @@
       <div id="brochureLink" class="hidden">
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
-
+      
+   
       <div class="flex justify-between mt-6">
-        <div>
-          <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition mr-2">Edit (3 attempts left)</button>
-          <button id="cancelButton" onclick="cancelForm()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Cancel Form</button>
-        </div>
-        <div>
-          <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
-        </div>
+      
+        <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
+        <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
+        <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
       </div>
+    </div>
   </div>
   
   
   <script>
-    // This is the corrected script section
     const fileInput = document.getElementById('brochureFile');
     const fileNameSpan = document.getElementById('fileName');
     const previewDiv = document.getElementById('preview');
     const formContainer = document.getElementById('formContainer');
     let editAttemptsRemaining = 3;
     let addedToDashboard = false;
-    
+  
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -306,7 +304,7 @@
         document.getElementById('brochureLink').classList.remove('hidden');
       }
     });
-    
+  
     function validateForm() {
       const requiredFields = ['title', 'organizer', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'registrationDeadline', 'registrationAmount','venue', 'contactName', 'contactPhone', 'rules'];
       let valid = true;
@@ -322,8 +320,9 @@
       }
       return valid;
     }
-    
+  
     function showPreview() {
+
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
@@ -338,12 +337,12 @@
       const startDate = new Date(document.getElementById('startDateTime').value);
       const endDate = new Date(document.getElementById('endDateTime').value);
       const regDeadline = new Date(document.getElementById('registrationDeadline').value);
-    
+
       const regamount = document.getElementById('registrationAmount').value;
       document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
       document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
       document.getElementById('previewRegistrationDeadline').textContent = regDeadline.toLocaleString();
-    
+ 
       document.getElementById('previewRegistrationAmount').textContent = regamount.toLocaleString();
       document.getElementById('previewVenue').textContent = document.getElementById('venue').value;
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
@@ -373,9 +372,8 @@
       
       document.getElementById('editButton').textContent = editButtonText;
       document.getElementById('editButton').style.display = addedToDashboard ? 'none' : 'block';
-      document.getElementById('cancelButton').style.display = addedToDashboard ? 'none' : 'block';
     }
-    
+  
     function editForm() {
       if (addedToDashboard) {
         alert('You can no longer edit this submission. Please contact us for assistance.');
@@ -392,39 +390,25 @@
       formContainer.classList.remove('hidden');
       document.getElementById('editButton').textContent = `Edit (${editAttemptsRemaining} attempts left)`;
     }
-    
-    // This function was improperly nested inside editForm, now it's moved to global scope
-    function cancelForm() {
-      if (confirm("Are you sure you want to cancel this form? All data will be lost and you'll need to start over.")) {
-        // Clear form data from localStorage
-        localStorage.removeItem('competitionFormData');
-        
-        // Reset all form fields
-        const formElements = document.getElementById('formContainer').querySelectorAll('input, select, textarea');
-        formElements.forEach(element => {
-          element.value = '';
-        });
-        
-        // Reset file input
-        document.getElementById('fileName').textContent = 'No file selected';
-        document.getElementById('brochureLink').classList.add('hidden');
-        
-        // Reset attempts counter
-        editAttemptsRemaining = 3;
-        
-        // Return to the form view
-        previewDiv.classList.add('hidden');
-        formContainer.classList.remove('hidden');
-        
-        // Optional: Show confirmation message
-        alert('Form cancelled successfully. You can now create a new competition.');
-      }
+  
+    function confirmPayment() {
+      alert('Proceeding to payment...');
     }
+
    
     function isOrganizer(organizer) {
-  // Replace with the actual logic to verify if the user is an organizer
+      // Replace with the actual logic to verify if the user is an organizer
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
-      return knownOrganizers.includes(organizer);
+      if (!knownOrganizers.includes(organizer)) {
+        alert('Only organizers can submit to the dashboard. Redirecting to login page...');
+        
+        // Save form data to local storage
+        saveFormData();
+        
+        window.location.href = 'login.html'; // Replace with the actual login page URL
+        return false;
+      }
+      return true;
     }
     
     function saveFormData() {
@@ -449,8 +433,9 @@
       localStorage.setItem('competitionFormData', JSON.stringify(formData));
     }
     
-    function populateFormData() {
-      // Retrieve form data from local storage
+    
+      function populateFormData() {
+  // Retrieve form data from local storage
       const formData = JSON.parse(localStorage.getItem('competitionFormData'));
     
       if (formData) {
@@ -476,34 +461,24 @@
     // Call the function to populate form data when the page loads
     window.onload = populateFormData;
     
- 
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-      
-      const organizer = document.getElementById('organizer').value;
-      
-      // Save form data regardless of login state
+           // Save form data to localStorage before redirecting
       saveFormData();
       
-      // Check if user is logged in first
-      if (!isLoggedIn()) {
-        alert('You need to log in before submitting to the dashboard. Redirecting to login page...');
-        window.location.href = 'login.html';
-        return;
-      }
-      
-      // Check if the logged-in user is an organizer
+      // Redirect to the pricing page
+      window.location.href = 'pricing.html';
+    
+      const organizer = document.getElementById('organizer').value;
+    
       if (!isOrganizer(organizer)) {
-        alert('Only authorized organizers can submit to the dashboard. Please contact support.');
+        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
         return;
       }
-      
-      // If we're here, user is logged in AND is an organizer
-      // Proceed with submission
-      
+    
       const title = document.getElementById('title').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
@@ -521,7 +496,7 @@
         startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-        registrationAmount: document.getElementById('registrationAmount').value,
+         registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
@@ -538,9 +513,6 @@
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
         addedToDashboard = true;
-        
-        // Only redirect to pricing after successful submission
-        window.location.href = 'pricing.html';
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
