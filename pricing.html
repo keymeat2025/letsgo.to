@@ -172,7 +172,7 @@
             <li>Premium analytics dashboard</li> -->
           </ul>
           <div class="mt-6 text-center">
-            /<!-- <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="premium-selector"></div> -->
+            <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="premium-selector"></div>
           </div>
         </div>
         
@@ -290,7 +290,7 @@
       'featured': 899,
       'premium': 1499
     };
-    let currentPrice = 499;
+    let currentPrice = 899;
     let discountApplied = false;
     let discountPercent = 0;
 
@@ -310,7 +310,7 @@
       }
       
       // Select basic package by default
-      selectPackage('basic');
+      selectPackage('feautured');
     };
 
     function selectPackage(packageName) {
@@ -325,7 +325,7 @@
       document.getElementById('premium-selector').style.backgroundColor = 'transparent';
       
       // Add selected class to the chosen package
-      const selectedCard = document.querySelector(`.pricing-card[data-package="INR {packageName}"]`);
+      const selectedCard = document.querySelector(`.pricing-card[data-package="${packageName}"]`);
       if (selectedCard) {
         selectedCard.classList.add('selected');
         
@@ -349,7 +349,8 @@
       }
       
       // Update the display
-      document.getElementById('totalPrice').textContent = `$INR {finalPrice.toFixed(2)}`;
+
+      document.getElementById('totalPrice').textContent = `INR ${finalPrice.toFixed(2)}`;
     }
 
     function applyCoupon() {
@@ -399,7 +400,8 @@
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
       }
-      document.getElementById('orderTotal').textContent = `$INR {finalPrice.toFixed(2)}`;
+  
+      document.getElementById('totalPrice').textContent = `INR ${finalPrice.toFixed(2)}`;
       
       // Show payment container
       document.getElementById('paymentContainer').classList.remove('hidden');
