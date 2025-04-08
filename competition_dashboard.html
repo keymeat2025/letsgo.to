@@ -528,20 +528,29 @@
       `;
       
    
-      // Set register button action
-      document.getElementById('registerButton').onclick = function() {
-        // Check if user is logged in (this assumes you have a function or variable to check login status)
-        // You'll need to implement or use your existing authentication check here
-        const isLoggedIn = checkUserLoggedIn(); // Replace with your actual auth check
-        
-        if (isLoggedIn) {
-          // If logged in, redirect to registration page
-          window.location.href = `player_registration.html?id=${competition.id}`;
-        } else {
-          // If not logged in, redirect to login page with return URL
 
-          // If not logged in, redirect to login page with properly encoded return URL
-          window.location.href = `login.html?redirect=${encodeURIComponent(`player_registration.html?id=${competition.id}`)}`;
+        // Set register button action
+      document.getElementById('registerButton').onclick = function() {
+        try {
+          // Store competition ID in localStorage so we can retrieve it after login
+          localStorage.setItem('pendingCompetitionRegistration', competition.id);
+          
+          // Check if user is logged in
+          const isLoggedIn = localStorage.getItem('userAuthToken') !== null;
+          
+          if (isLoggedIn) {
+            // If logged in, redirect to registration page with competition ID
+            window.location.href = 'player_registration.html?id=' + encodeURIComponent(competition.id);
+            console.log('Redirecting to registration page for competition:', competition.id);
+          } else {
+            // If not logged in, redirect to login page
+            // The login page should check for pendingCompetitionRegistration after successful login
+            window.location.href = 'login.html';
+            console.log('Redirecting to login page, pending competition:', competition.id);
+          }
+        } catch (err) {
+          console.error('Error during registration redirect:', err);
+          alert('There was an error processing your registration. Please try again.');
         }
       };
       
