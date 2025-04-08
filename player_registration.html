@@ -290,9 +290,23 @@
     }
 
     function showError(message) {
+   
       document.getElementById('loading-container').classList.add('hidden');
       document.getElementById('error-container').classList.remove('hidden');
       document.getElementById('error-message').textContent = message;
+      
+      // Add retry button
+      const errorContainer = document.getElementById('error-container');
+      if (!document.getElementById('retry-button')) {
+        const retryBtn = document.createElement('button');
+        retryBtn.id = 'retry-button';
+        retryBtn.className = 'mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded';
+        retryBtn.textContent = 'Retry';
+        retryBtn.onclick = function() {
+          window.location.reload();
+        };
+        errorContainer.appendChild(retryBtn);
+      }
     }
 
     // Form submission
@@ -301,6 +315,22 @@
       
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Validate age
+        const dob = new Date(document.getElementById('dob').value);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        if (age < 5) { // Example minimum age
+          showError("Participant must be at least 5 years old");
+          return;
+        }
+        
+        // Validate phone number (basic validation)
+        const phone = document.getElementById('phone').value;
+        if (!/^\d{10,15}$/.test(phone.replace(/[-()\s]/g, ''))) {
+          showError("Please enter a valid phone number");
+          return;
+        }
         
         // Collect form data
         const formData = {
