@@ -147,7 +147,7 @@
         </div>
 
         <!-- Premium Listing -->
-        <div class="pricing-card" data-package="premium" onclick="selectPackage('premium')">
+        <div class="pricing-card" data-package="premium">  <!-- onclick="selectPackage('premium')"> -->
           <div class="text-center mb-4">
             <h3 class="text-xl font-bold text-gray-800">Premium Listing (Upcoming Plan) </h3>
             <div class="mt-2">
@@ -283,7 +283,7 @@
   </div>
 
   <script>
-    let selectedPackage = 'basic';
+    let selectedPackage = 'featured';
     let competitionData = {};
     let packagePrices = {
       'basic': 499,
@@ -315,6 +315,11 @@
 
     function selectPackage(packageName) {
       // First, remove selected class from all packages
+
+       if (packageName === 'premium') {
+        return; // Exit function early
+      }
+  
       document.querySelectorAll('.pricing-card').forEach(card => {
         card.classList.remove('selected');
       });
