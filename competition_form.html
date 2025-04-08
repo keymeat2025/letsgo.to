@@ -276,16 +276,15 @@
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
 
-        <div class="flex justify-between mt-6">
-      <div>
-        <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition mr-2">Edit (3 attempts left)</button>
-        <button id="cancelButton" onclick="cancelForm()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Cancel Form</button>
+      <div class="flex justify-between mt-6">
+        <div>
+          <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition mr-2">Edit (3 attempts left)</button>
+          <button id="cancelButton" onclick="cancelForm()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Cancel Form</button>
+        </div>
+        <div>
+          <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
+        </div>
       </div>
-      <div>
-        <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
-        <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
-      </div>
-    </div>
   </div>
   
   
@@ -421,9 +420,6 @@
       document.getElementById('editButton').textContent = `Edit (${editAttemptsRemaining} attempts left)`;
     }
   
-    function confirmPayment() {
-      alert('Proceeding to payment...');
-    }
 
    
     function isOrganizer(organizer) {
