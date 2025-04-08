@@ -536,10 +536,10 @@
         
         if (isLoggedIn) {
           // If logged in, redirect to registration page
-          window.location.href = `competition_registration.html?id=${competition.id}`;
+          window.location.href = `player_registration.html?id=${competition.id}`;
         } else {
           // If not logged in, redirect to login page with return URL
-          window.location.href = `login.html?redirect=competition_registration.html?id=${competition.id}`;
+          window.location.href = `login.html?redirect=player_registration.html?id=${competition.id}`;
         }
       };
       
