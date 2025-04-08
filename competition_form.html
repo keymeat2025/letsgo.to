@@ -275,11 +275,13 @@
       <div id="brochureLink" class="hidden">
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
-      
-   
-      <div class="flex justify-between mt-6">
-      
-        <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
+
+        <div class="flex justify-between mt-6">
+      <div>
+        <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition mr-2">Edit (3 attempts left)</button>
+        <button id="cancelButton" onclick="cancelForm()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Cancel Form</button>
+      </div>
+      <div>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
         <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
       </div>
@@ -372,6 +374,7 @@
       
       document.getElementById('editButton').textContent = editButtonText;
       document.getElementById('editButton').style.display = addedToDashboard ? 'none' : 'block';
+      document.getElementById('cancelButton').style.display = addedToDashboard ? 'none' : 'block';
     }
   
     function editForm() {
@@ -379,6 +382,33 @@
         alert('You can no longer edit this submission. Please contact us for assistance.');
         return;
       }
+
+    function cancelForm() {
+      if (confirm("Are you sure you want to cancel this form? All data will be lost and you'll need to start over.")) {
+        // Clear form data from localStorage
+        localStorage.removeItem('competitionFormData');
+        
+        // Reset all form fields
+        const formElements = document.getElementById('formContainer').querySelectorAll('input, select, textarea');
+        formElements.forEach(element => {
+          element.value = '';
+        });
+        
+        // Reset file input
+        document.getElementById('fileName').textContent = 'No file selected';
+        document.getElementById('brochureLink').classList.add('hidden');
+        
+        // Reset attempts counter
+        editAttemptsRemaining = 3;
+        
+        // Return to the form view
+        previewDiv.classList.add('hidden');
+        formContainer.classList.remove('hidden');
+        
+        // Optional: Show confirmation message
+        alert('Form cancelled successfully. You can now create a new competition.');
+      }
+    }
       
       if (editAttemptsRemaining <= 0) {
         alert('You have used all your edit attempts. Please proceed with current details.');
