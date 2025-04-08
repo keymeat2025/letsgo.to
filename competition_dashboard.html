@@ -539,15 +539,24 @@
           window.location.href = `player_registration.html?id=${competition.id}`;
         } else {
           // If not logged in, redirect to login page with return URL
-          window.location.href = `login.html?redirect=player_registration.html?id=${competition.id}`;
+
+          // If not logged in, redirect to login page with properly encoded return URL
+          window.location.href = `login.html?redirect=${encodeURIComponent(`player_registration.html?id=${competition.id}`)}`;
         }
       };
       
       // This is a placeholder function - you need to replace this with your actual auth check
+  
       function checkUserLoggedIn() {
-        // For example, check if user auth token exists in localStorage or sessionStorage
-        return localStorage.getItem('userAuthToken') !== null;
+  // Check for auth token in localStorage
+        const token = localStorage.getItem('userAuthToken');
+        // Also check that the token hasn't expired (if you store expiration)
+        const tokenExpiry = localStorage.getItem('userAuthTokenExpiry');
+        const currentTime = new Date().getTime();
+        
+        return token !== null && (!tokenExpiry || currentTime < parseInt(tokenExpiry));
       }
+      
       // Show modal
       document.getElementById('competitionModal').classList.remove('hidden');
     };
