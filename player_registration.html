@@ -339,7 +339,8 @@
     }
 
 
-// Form submission
+
+      // Form submission
     document.addEventListener('DOMContentLoaded', () => {
       // Add these variables and functions for multiple player management
       const MAX_PLAYERS = 10;
@@ -429,11 +430,9 @@
       // Event listeners for add/remove buttons
       addPlayerBtn.addEventListener('click', addPlayer);
       removePlayerBtn.addEventListener('click', removePlayer);
-
-
       
       const form = document.getElementById('registration-form');
- 
+    
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -470,6 +469,10 @@
           return;
         }
         
+        // Calculate payment amount based on number of players
+        const REGISTRATION_FEE_PER_PLAYER = 250; // Set your fee in INR
+        const paymentAmount = players.length * REGISTRATION_FEE_PER_PLAYER;
+        
         // Collect common form data
         const commonData = {
           competitionId: document.getElementById('competition-id').value,
@@ -481,7 +484,10 @@
           userId: auth.currentUser.uid,
           registrationDate: new Date().toISOString(),
           status: 'pending', // Payment not completed yet
-          playerCount: players.length
+          playerCount: players.length,
+          paymentAmount: paymentAmount, // Add payment amount
+          paymentStatus: 'pending',
+          paymentMethod: 'phonepe'
         };
         
         // Combine data
@@ -490,8 +496,6 @@
           players
         };
         
-        // Store form data in session storage for the payment page
-        sessionStorage.setItem('registrationData', JSON.stringify(formData));
         // Show loading state
         const submitBtn = document.querySelector('.submit-btn');
         submitBtn.disabled = true;
@@ -502,12 +506,34 @@
           const registrationsRef = collection(db, 'competitions', formData.competitionId, 'registrations');
           const docRef = await addDoc(registrationsRef, formData);
           
-          // Store the registration ID in session storage for reference on the payment page
+          // Add payment data
+          const paymentData = {
+            registrationId: docRef.id,
+            userId: auth.currentUser.uid,
+            amount: paymentAmount,
+            currency: 'INR',
+            status: 'pending',
+            timestamp: new Date().toISOString(),
+            competitionId: formData.competitionId,
+            playerCount: players.length,
+            paymentMethod: 'phonepe'
+          };
+          
+          // Create a payments collection to track payments
+          const paymentsRef = collection(db, 'payments');
+          const paymentDocRef = await addDoc(paymentsRef, paymentData);
+          
+          // Store data for payment page
           formData.registrationId = docRef.id;
+          formData.paymentId = paymentDocRef.id;
           sessionStorage.setItem('registrationData', JSON.stringify(formData));
           
+          // Create a transaction ID (unique identifier for PhonePe)
+          const transactionId = `TX_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+          sessionStorage.setItem('transactionId', transactionId);
+          
           // Redirect to payment page
-          window.location.href = `payment.html?competition=${formData.competitionId}&registration=${docRef.id}`;
+          window.location.href = `payment.html?competition=${formData.competitionId}&registration=${docRef.id}&payment=${paymentDocRef.id}&amount=${paymentAmount}`;
         } catch (error) {
           console.error("Error saving registration:", error);
           // Re-enable the submit button
@@ -515,12 +541,12 @@
           submitBtn.innerHTML = '<i class="lucide-user-plus"></i> Continue to Payment';
           
           // Show error to user
-          alert("Failed to save registration. Please try again.");
+          showError("Failed to save registration. Please try again.");
         }
-        // Redirect to payment page
-        window.location.href = `payment.html?competition=${formData.competitionId}`;
       });
     });
+      
+      
   </script>
 </body>
 </html>
