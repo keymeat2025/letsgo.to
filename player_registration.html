@@ -119,14 +119,19 @@
       <p class="text-lg mt-2">Register for the competition</p>
     </div>
 
+
+
     <div id="loading-container" class="form-container text-center py-10">
       <div class="loading-spinner mb-4"></div>
       <p class="text-gray-600">Loading competition details...</p>
     </div>
-
-
+    
+    <div id="error-container" class="error-container hidden">
+      <p id="error-message"></p>
+    </div>
+    
     <div id="form-container" class="form-container hidden">
-
+      
     <div class="form-header">
         <h2 class="text-xl font-bold" id="competition-title">Competition Registration</h2>
         <p class="text-sm opacity-80" id="competition-organizer"></p>
@@ -237,10 +242,10 @@
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
@@ -487,7 +492,31 @@
         
         // Store form data in session storage for the payment page
         sessionStorage.setItem('registrationData', JSON.stringify(formData));
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="loading-spinner mr-2" style="width:20px;height:20px;border-width:2px;"></div> Processing...';
         
+        try {
+          // Store in Firestore - create a registrations collection under the competition
+          const registrationsRef = collection(db, 'competitions', formData.competitionId, 'registrations');
+          const docRef = await addDoc(registrationsRef, formData);
+          
+          // Store the registration ID in session storage for reference on the payment page
+          formData.registrationId = docRef.id;
+          sessionStorage.setItem('registrationData', JSON.stringify(formData));
+          
+          // Redirect to payment page
+          window.location.href = `payment.html?competition=${formData.competitionId}&registration=${docRef.id}`;
+        } catch (error) {
+          console.error("Error saving registration:", error);
+          // Re-enable the submit button
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="lucide-user-plus"></i> Continue to Payment';
+          
+          // Show error to user
+          alert("Failed to save registration. Please try again.");
+        }
         // Redirect to payment page
         window.location.href = `payment.html?competition=${formData.competitionId}`;
       });
