@@ -128,45 +128,95 @@
       <p id="error-message">An error occurred. Please try again.</p>
     </div>
 
-    <div id="form-container" class="form-container hidden">
-      <div class="form-header">
+
+    <div class="form-header">
         <h2 class="text-xl font-bold" id="competition-title">Competition Registration</h2>
         <p class="text-sm opacity-80" id="competition-organizer"></p>
         <div class="competition-badge" id="competition-prize"></div>
+        <div class="mt-3 text-white text-sm">Add up to 10 players with the same contact details</div>
+      </div>
+      
+      <div id="player-count-info" class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 mb-4">
+        <p class="font-medium">Player(s): <span id="current-player-count">1</span> of <span id="max-player-count">10</span></p>
+      </div>
+      
+      <div id="players-container">
+        <!-- Individual player entries will be added here -->
+        <div class="player-entry mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50" data-player-index="0">
+          <h3 class="font-medium text-lg mb-4">Player 1</h3>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="form-group">
+              <label for="playerName-0" class="block mb-2 text-sm font-medium text-gray-700">Player Name*</label>
+              <input type="text" id="playerName-0" name="playerName-0" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="gender-0" class="block mb-2 text-sm font-medium text-gray-700">Gender*</label>
+              <select id="gender-0" name="gender-0" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="dob-0" class="block mb-2 text-sm font-medium text-gray-700">Date of Birth*</label>
+              <input type="date" id="dob-0" name="dob-0" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center mb-6">
+        <button type="button" id="add-player-btn" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5">
+          <i class="lucide-user-plus mr-1"></i> Add Another Player
+        </button>
+        <button type="button" id="remove-player-btn" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 hidden">
+          <i class="lucide-user-minus mr-1"></i> Remove Last Player
+        </button>
       </div>
 
       <form id="registration-form">
         <input type="hidden" id="competition-id" name="competitionId">
         
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
-          <div class="form-group">
-            <label for="playerName" class="block mb-2 text-sm font-medium text-gray-700">Player Name*</label>
-            <input type="text" id="playerName" name="playerName" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+
+
+        <div class="mt-8 mb-6">
+          <h3 class="font-medium text-lg mb-4">Contact Information (Common for all players)</h3>
+  
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="form-group">
+              <label for="guardianName" class="block mb-2 text-sm font-medium text-gray-700">Parent/Guardian Name*</label>
+              <input type="text" id="guardianName" name="guardianName" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email Address*</label>
+              <input type="email" id="email" name="email" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
           </div>
-          
+        
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="form-group">
+              <label for="phone" class="block mb-2 text-sm font-medium text-gray-700">Phone Number*</label>
+              <input type="tel" id="phone" name="phone" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="hometown" class="block mb-2 text-sm font-medium text-gray-700">Hometown*</label>
+              <input type="text" id="hometown" name="hometown" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+            </div>
+          </div>
+        
           <div class="form-group">
-            <label for="gender" class="block mb-2 text-sm font-medium text-gray-700">Gender*</label>
-            <select id="gender" name="gender" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+            <label for="competitionName" class="block mb-2 text-sm font-medium text-gray-700">Competition</label>
+            <input type="text" id="competitionName" name="competitionName" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100" readonly>
           </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
-          <div class="form-group">
-            <label for="guardianName" class="block mb-2 text-sm font-medium text-gray-700">Parent/Guardian Name*</label>
-            <input type="text" id="guardianName" name="guardianName" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="dob" class="block mb-2 text-sm font-medium text-gray-700">Date of Birth*</label>
-            <input type="date" id="dob" name="dob" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
-          </div>
-        </div>
 
+         
         <div class="grid md:grid-cols-2 gap-6 mb-6">
           <div class="form-group">
             <label for="hometown" class="block mb-2 text-sm font-medium text-gray-700">Hometown*</label>
@@ -309,20 +359,129 @@
       }
     }
 
-    // Form submission
+
+// Form submission
     document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('registration-form');
+      // Add these variables and functions for multiple player management
+      const MAX_PLAYERS = 10;
+      let currentPlayerCount = 1;
       
+      const addPlayerBtn = document.getElementById('add-player-btn');
+      const removePlayerBtn = document.getElementById('remove-player-btn');
+      const playersContainer = document.getElementById('players-container');
+      const currentPlayerCountElement = document.getElementById('current-player-count');
+      
+      // Add player function
+      function addPlayer() {
+        if (currentPlayerCount >= MAX_PLAYERS) {
+          alert(`Maximum ${MAX_PLAYERS} players allowed.`);
+          return;
+        }
+        
+        const playerIndex = currentPlayerCount;
+        currentPlayerCount++;
+        
+        const playerHtml = `
+          <div class="player-entry mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50" data-player-index="${playerIndex}">
+            <h3 class="font-medium text-lg mb-4">Player ${currentPlayerCount}</h3>
+            <div class="grid md:grid-cols-3 gap-6">
+              <div class="form-group">
+                <label for="playerName-${playerIndex}" class="block mb-2 text-sm font-medium text-gray-700">Player Name*</label>
+                <input type="text" id="playerName-${playerIndex}" name="playerName-${playerIndex}" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="gender-${playerIndex}" class="block mb-2 text-sm font-medium text-gray-700">Gender*</label>
+                <select id="gender-${playerIndex}" name="gender-${playerIndex}" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="dob-${playerIndex}" class="block mb-2 text-sm font-medium text-gray-700">Date of Birth*</label>
+                <input type="date" id="dob-${playerIndex}" name="dob-${playerIndex}" class="w-full p-2.5 border border-gray-300 rounded-lg" required>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        playersContainer.insertAdjacentHTML('beforeend', playerHtml);
+        currentPlayerCountElement.textContent = currentPlayerCount;
+        
+        // Show remove button once we have more than one player
+        if (currentPlayerCount > 1) {
+          removePlayerBtn.classList.remove('hidden');
+        }
+        
+        // Disable add button if we reached max
+        if (currentPlayerCount >= MAX_PLAYERS) {
+          addPlayerBtn.disabled = true;
+          addPlayerBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      }
+      
+      // Remove player function
+      function removePlayer() {
+        if (currentPlayerCount <= 1) {
+          return;
+        }
+        
+        const lastPlayer = playersContainer.lastElementChild;
+        playersContainer.removeChild(lastPlayer);
+        
+        currentPlayerCount--;
+        currentPlayerCountElement.textContent = currentPlayerCount;
+        
+        // Hide remove button if only one player left
+        if (currentPlayerCount <= 1) {
+          removePlayerBtn.classList.add('hidden');
+        }
+        
+        // Re-enable add button
+        if (currentPlayerCount < MAX_PLAYERS) {
+          addPlayerBtn.disabled = false;
+          addPlayerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      }
+      
+      // Event listeners for add/remove buttons
+      addPlayerBtn.addEventListener('click', addPlayer);
+      removePlayerBtn.addEventListener('click', removePlayer);
+
+
+      
+      const form = document.getElementById('registration-form');
+ 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Validate age
-        const dob = new Date(document.getElementById('dob').value);
-        const today = new Date();
-        const age = today.getFullYear() - dob.getFullYear();
-        if (age < 5) { // Example minimum age
-          showError("Participant must be at least 5 years old");
-          return;
+        // Validate player details
+        const playerEntries = document.querySelectorAll('.player-entry');
+        const players = [];
+        
+        for (let i = 0; i < playerEntries.length; i++) {
+          const playerIndex = playerEntries[i].dataset.playerIndex;
+          const playerName = document.getElementById(`playerName-${playerIndex}`).value;
+          const gender = document.getElementById(`gender-${playerIndex}`).value;
+          const dobInput = document.getElementById(`dob-${playerIndex}`).value;
+          
+          // Validate age
+          const dob = new Date(dobInput);
+          const today = new Date();
+          const age = today.getFullYear() - dob.getFullYear();
+          if (age < 5) { // Example minimum age
+            showError(`Player ${i+1} (${playerName}) must be at least 5 years old`);
+            return;
+          }
+          
+          players.push({
+            playerName,
+            gender,
+            dob: dobInput
+          });
         }
         
         // Validate phone number (basic validation)
@@ -332,20 +491,24 @@
           return;
         }
         
-        // Collect form data
-        const formData = {
+        // Collect common form data
+        const commonData = {
           competitionId: document.getElementById('competition-id').value,
-          playerName: document.getElementById('playerName').value,
-          gender: document.getElementById('gender').value,
           guardianName: document.getElementById('guardianName').value,
-          dob: document.getElementById('dob').value,
           hometown: document.getElementById('hometown').value,
           email: document.getElementById('email').value,
           phone: document.getElementById('phone').value,
           competitionName: document.getElementById('competitionName').value,
           userId: auth.currentUser.uid,
           registrationDate: new Date().toISOString(),
-          status: 'pending' // Payment not completed yet
+          status: 'pending', // Payment not completed yet
+          playerCount: players.length
+        };
+        
+        // Combine data
+        const formData = {
+          ...commonData,
+          players
         };
         
         // Store form data in session storage for the payment page
