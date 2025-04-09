@@ -533,7 +533,7 @@
           sessionStorage.setItem('transactionId', transactionId);
           
           // Redirect to payment page
-          window.location.href = `payment.html?competition=${formData.competitionId}&registration=${docRef.id}&payment=${paymentDocRef.id}&amount=${paymentAmount}`;
+          window.location.href = `player_payment.html?competition=${formData.competitionId}&registration=${docRef.id}&payment=${paymentDocRef.id}&amount=${paymentAmount}`;
         } catch (error) {
           console.error("Error saving registration:", error);
           // Re-enable the submit button
