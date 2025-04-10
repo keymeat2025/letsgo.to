@@ -463,21 +463,6 @@
       }
     }
 
-    
-    // This function simulates a successful payment - In production, remove this and use the real PhonePe flow
-    function simulatePaymentResponse(transactionId, competitionId, registrationId, paymentId, amount) {
-      // Wait 3 seconds to simulate processing
-      setTimeout(() => {
-        // Simulate a successful payment callback
-        handlePaymentCallback(
-          "SUCCESS", 
-          transactionId, 
-          competitionId, 
-          registrationId, 
-          paymentId
-        );
-      }, 3000);
-    }
 
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
       try {
