@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Processing Payment</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -12,32 +11,30 @@
       min-height: 100vh;
       font-family: 'Inter', sans-serif;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
     
-    .processing-container {
+    .container {
       background: white;
       border-radius: 1rem;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
       padding: 2rem;
-      width: 90%;
       max-width: 500px;
+      width: 100%;
       text-align: center;
     }
     
     .loading-spinner {
       border: 4px solid rgba(0, 0, 0, 0.1);
-      width: 36px;
-      height: 36px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border-left-color: #3b82f6;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
+      margin: 0 auto 1.5rem;
     }
-
+    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -45,97 +42,27 @@
   </style>
 </head>
 <body>
-  <div class="processing-container">
-    <div class="loading-spinner mb-4"></div>
-    <h3 class="text-xl font-bold mb-2">Processing Your Payment</h3>
-    <p class="text-gray-600 mb-4">Please wait while we verify your payment...</p>
-    
-    <div id="error-message" class="bg-red-100 text-red-700 p-3 rounded-lg hidden"></div>
+  <div class="container">
+    <div class="loading-spinner"></div>
+    <h1 class="text-2xl font-bold mb-4">Processing Your Payment</h1>
+    <p class="text-gray-600 mb-8">Please wait while we verify your payment...</p>
+    <p class="text-sm text-gray-500">If you're not redirected within 10 seconds, <a href="/" class="text-blue-500">click here</a> to go back.</p>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
-    
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const functions = getFunctions(app);
-    
-    // Get URL parameters
+  <script>
+    // Get query parameters from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const competitionId = urlParams.get('competitionId');
-    const registrationId = urlParams.get('registrationId');
-    const paymentId = urlParams.get('paymentId');
-    const code = urlParams.get('code');
-    const transactionId = urlParams.get('transactionId') || sessionStorage.getItem('currentTransactionId');
     
-    // Check if the user is logged in
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        // Not logged in, redirect to login page with return URL
-        const currentUrl = encodeURIComponent(window.location.href);
-        window.location.href = `login.html?redirect=${currentUrl}`;
-        return;
-      }
-      
-      try {
-        // Verify required parameters
-        if (!competitionId || !registrationId || !paymentId || !transactionId) {
-          showError("Missing payment information. Redirecting to payment page...");
-          setTimeout(() => {
-            window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}`;
-          }, 3000);
-          return;
-        }
-        
-        // Check payment status with PhonePe
-        const checkStatus = httpsCallable(functions, 'phonePe/check-status');
-        const response = await checkStatus({ transactionId: transactionId });
-        
-        if (response.data && response.data.code === "PAYMENT_SUCCESS") {
-          // Redirect to payment page with success status
-          window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&status=SUCCESS&txnId=${transactionId}`;
-        } else if (response.data && response.data.code === "PAYMENT_PENDING") {
-          // Payment is still processing
-          showError("Your payment is still processing. Please wait a moment...");
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        } else {
-          // Payment failed
-          window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&status=FAILED&txnId=${transactionId}`;
-        }
-      } catch (error) {
-        console.error("Error verifying payment:", error);
-        showError("Something went wrong. Redirecting to payment page...");
-        setTimeout(() => {
-          window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}`;
-        }, 3000);
-      }
-    });
+    // Get the relevant parameters
+    const competitionId = urlParams.get('competition');
+    const registrationId = urlParams.get('registration');
+    const paymentId = urlParams.get('payment');
+    const amount = urlParams.get('amount');
+    const status = urlParams.get('status');
+    const txnId = urlParams.get('txnId');
     
-    function showError(message) {
-      const errorElement = document.getElementById('error-message');
-      errorElement.textContent = message;
-      errorElement.classList.remove('hidden');
-    }
+    // Redirect to the payment page with callback parameters
+    window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}&status=${status}&txnId=${txnId}`;
   </script>
 </body>
 </html>
