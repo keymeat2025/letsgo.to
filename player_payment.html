@@ -421,7 +421,7 @@
 
         // Generate a transaction ID
    
-          
+   
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -434,35 +434,29 @@
         // Get user data from sessionStorage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
         
-        // Log all the parameters before initiating the payment
-        console.log("Initiating payment with the following parameters:");
-        console.log("Amount:", amount);
-        console.log("Transaction ID:", transactionId);
-        console.log("Competition ID:", competitionId);
-        console.log("Registration ID:", registrationId);
-        console.log("Payment ID:", paymentId);
-        console.log("Callback URL:", `${window.location.origin}/api/phonepe-callback`);
-        console.log("Redirect URL:", `${window.location.origin}/payment-callback.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`);
-        console.log("User Details:", {
-          userId: auth.currentUser ? auth.currentUser.uid : "User not logged in",
-          mobileNumber: registrationData.phone || "No phone number provided"
-        });
-    
-        // Call Firebase Function
-        const initiatePayment = httpsCallable(functions, 'initiatePayment');
-        const response = await initiatePayment({
-          amount: Number(amount),
+        // Ensure all required parameters are properly formatted
+        const paymentParams = {
+          amount: parseInt(amount, 10), // Ensure amount is an integer
           transactionId: transactionId,
           competitionId: competitionId,
           registrationId: registrationId,
           paymentId: paymentId,
           callbackUrl: `${window.location.origin}/api/phonepe-callback`,
-          redirectUrl: `${window.location.origin}/payment-callback.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`,
+          redirectUrl: `${window.location.origin}/payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`,
           userDetails: {
-            userId: auth.currentUser.uid,
+            userId: auth.currentUser ? auth.currentUser.uid : null,
+            name: registrationData.guardianName || "",
+            email: registrationData.email || "",
             mobileNumber: registrationData.phone || ""
           }
-        });
+        };
+        
+        // Log all the parameters before initiating the payment
+        console.log("Initiating payment with the following parameters:", paymentParams);
+    
+        // Call Firebase Function
+        const initiatePayment = httpsCallable(functions, 'initiatePayment');
+        const response = await initiatePayment(paymentParams);
         
         // Log the response for debugging
         console.log("Payment initiation response:", response);
@@ -499,8 +493,8 @@
           errorMessage += " Network connection problem. Please check your internet connection.";
         } else if (error.message.includes("not found") || error.message.includes("ERR_NAME_NOT_RESOLVED")) {
           errorMessage += " Server connection issue. Please try again later or contact support.";
-        } else if (error.message) {
-          errorMessage += " " + error.message;
+        } else {
+          errorMessage += " " + (error.message || "Please try again later.");
         }
         
         showError(errorMessage);
