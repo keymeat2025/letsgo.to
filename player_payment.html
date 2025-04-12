@@ -415,6 +415,7 @@
 
         // Generate a transaction ID
    
+          
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -427,7 +428,19 @@
         // Get user data from sessionStorage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
         
-        // Call your Firebase Function to initiate payment
+        console.log("Initiating payment with data:", {
+          amount,
+          transactionId,
+          competitionId,
+          registrationId,
+          paymentId,
+          userDetails: {
+            userId: auth.currentUser.uid,
+            mobileNumber: registrationData.phone || ""
+          }
+        });
+        
+        // Call Firebase Function
         const initiatePayment = httpsCallable(functions, 'initiatePayment');
         const response = await initiatePayment({
           amount: Number(amount),
@@ -443,6 +456,8 @@
           }
         });
         
+        console.log("Payment initiation response:", response);
+        
         // Check response from the function
         if (response.data && response.data.success && 
             response.data.data && response.data.data.instrumentResponse && 
@@ -454,16 +469,34 @@
           // Redirect to PhonePe payment page
           window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
         } else {
-          throw new Error('Failed to initiate payment');
+          console.error("Invalid response format:", response);
+          throw new Error('Failed to initiate payment: Invalid response format');
         }
       } catch (error) {
         console.error("Error initiating payment:", error);
+        
+        // Show detailed error in console
+        if (error.code && error.message && error.details) {
+          console.error("Function error details:", error.details);
+        }
+        
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        showError("Failed to initiate payment. Please try again: " + error.message);
+        
+        let errorMessage = "Failed to initiate payment.";
+        
+        // More descriptive error based on the error type
+        if (error.message.includes("network")) {
+          errorMessage += " Network connection problem. Please check your internet connection.";
+        } else if (error.message.includes("not found") || error.message.includes("ERR_NAME_NOT_RESOLVED")) {
+          errorMessage += " Server connection issue. Please try again later or contact support.";
+        } else if (error.message) {
+          errorMessage += " " + error.message;
+        }
+        
+        showError(errorMessage);
       }
     }
-
 
         
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
