@@ -422,6 +422,8 @@
         // Generate a transaction ID
    
   
+
+        // Generate a transaction ID
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -430,77 +432,52 @@
         
         // Generate a transaction ID
         const transactionId = `TX_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+        console.log("Generated transactionId:", transactionId); // Log to verify
         
-        // Get user data from sessionStorage
-        const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
+        // Check required parameters
+        if (!amount) console.log("amount is missing");
+        if (!transactionId) console.log("transactionId is missing");
+        if (!competitionId) console.log("competitionId is missing");
+        if (!registrationId) console.log("registrationId is missing");
+        if (!paymentId) console.log("paymentId is missing");
         
-        // Check if user is authenticated
-        if (!auth.currentUser) {
-          throw new Error("User authentication required");
-        }
-        
-        // Create the payload with all required parameters
+        // Create the simplest possible payload with ONLY the required parameters
         const paymentPayload = {
-          // These are the REQUIRED parameters that match the function check
           amount: Number(amount),
-          transactionId: transactionId,     // IMPORTANT: This is being checked in the function
+          transactionId: transactionId,
           competitionId: competitionId,
           registrationId: registrationId,
-          paymentId: paymentId,
-          
-          // Additional parameters
-          callbackUrl: `${window.location.origin}/api/phonepe-callback`,
-          redirectUrl: `${window.location.origin}/payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}&txnId=${transactionId}`,  // Added txnId to URL
-          userDetails: {
-            userId: auth.currentUser.uid,
-            mobileNumber: registrationData.phone || ""
-          }
+          paymentId: paymentId
         };
         
-        // Log the payload for debugging
-        console.log("Initiating payment with payload:", paymentPayload);
+        // Log the exact payload being sent
+        console.log("Payload sent to initiatePayment:", JSON.stringify(paymentPayload));
         
-        // Call Firebase Function
+        // Call Firebase Function with minimal parameters
         const initiatePayment = httpsCallable(functions, 'initiatePayment');
         const response = await initiatePayment(paymentPayload);
         
         console.log("Payment initiation response:", response);
         
-        // Check if the response contains the redirect URL
-        if (response.data && response.data.success && 
-            response.data.data && response.data.data.instrumentResponse && 
-            response.data.data.instrumentResponse.redirectInfo) {
-          
-          // Store transaction ID in sessionStorage for later verification
+        // Process response...
+        if (response.data && response.data.success) {
           sessionStorage.setItem('currentTransactionId', transactionId);
-          
-          // Redirect to PhonePe payment page
-          window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
+          if (response.data.data?.instrumentResponse?.redirectInfo?.url) {
+            window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
+          } else {
+            throw new Error("No redirect URL in response");
+          }
         } else {
-          throw new Error('Invalid response format from payment service');
+          throw new Error('Payment service error: ' + (response.data?.message || 'Unknown error'));
         }
       } catch (error) {
         console.error("Error initiating payment:", error);
+        console.log("Error details:", JSON.stringify(error, null, 2));
         
-        // Show error in console for debugging
-        if (error.details) {
-          console.error("Function error details:", error.details);
-        }
-        
-        // Hide loading, show payment form again
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
         
-        // Show user-friendly error
-        let errorMessage = "Failed to initiate payment. ";
-        
-        if (error.message) {
-          errorMessage += error.message;
-        } else {
-          errorMessage += "Please try again later or contact support.";
-        }
-        
-        showError(errorMessage);
+        showError("Failed to initiate payment. " + (error.message || "Please try again later."));
       }
     }
         
