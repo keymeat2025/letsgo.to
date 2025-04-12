@@ -49,8 +49,10 @@
     <div class="loader"></div>
     <div class="loading-text">Processing your payment...</div>
   </div>
-
   <script>
+    // Log all URL parameters for debugging
+    console.log("URL parameters:", window.location.search);
+    
     // Extract URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -59,11 +61,36 @@
     const registrationId = urlParams.get('registration');
     const paymentId = urlParams.get('payment');
     const amount = urlParams.get('amount');
-    const status = urlParams.get('code'); // PhonePe returns status as 'code'
-    const txnId = urlParams.get('transactionId');
     
-    // Redirect to the payment page with all parameters
-    window.location.href = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}&status=${status}&txnId=${txnId}`;
+    // PhonePe can return status in different parameters
+    const status = urlParams.get('code') || urlParams.get('status');
+    // PhonePe can return transaction ID in different parameters
+    const txnId = urlParams.get('transactionId') || urlParams.get('txnId');
+    
+    // Log the extracted parameters
+    console.log("Extracted parameters:", {
+      competitionId,
+      registrationId,
+      paymentId,
+      amount,
+      status,
+      txnId
+    });
+    
+    // Build the redirect URL with all necessary parameters
+    const redirectUrl = `payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`;
+    
+    // Add status and txnId if they exist
+    const finalUrl = status ? 
+      `${redirectUrl}&status=${status}&txnId=${txnId}` : 
+      redirectUrl;
+    
+    console.log("Redirecting to:", finalUrl);
+    
+    // Redirect after a short delay to ensure logs are visible
+    setTimeout(() => {
+      window.location.href = finalUrl;
+    }, 1500);
   </script>
 </body>
 </html>
