@@ -414,6 +414,7 @@
     
 
         // Generate a transaction ID
+   
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -429,13 +430,13 @@
         // Call your Firebase Function to initiate payment
         const initiatePayment = httpsCallable(functions, 'initiatePayment');
         const response = await initiatePayment({
-          amount: amount,
+          amount: Number(amount),
           transactionId: transactionId,
           competitionId: competitionId,
           registrationId: registrationId,
           paymentId: paymentId,
-          callbackUrl: window.location.origin + "/api/phonepe-callback",
-          redirectUrl: window.location.origin + "/payment.html",
+          callbackUrl: `${window.location.origin}/api/phonepe-callback`,
+          redirectUrl: `${window.location.origin}/payment-callback.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`,
           userDetails: {
             userId: auth.currentUser.uid,
             mobileNumber: registrationData.phone || ""
@@ -459,11 +460,12 @@
         console.error("Error initiating payment:", error);
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        showError("Failed to initiate payment. Please try again.");
+        showError("Failed to initiate payment. Please try again: " + error.message);
       }
     }
 
 
+        
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
       try {
         // Hide all containers initially
@@ -484,21 +486,42 @@
         const checkStatus = httpsCallable(functions, 'checkStatus');
         const statusResponse = await checkStatus({ transactionId: txnId });
         
-        // Extract payment status from response
-        const paymentStatus = statusResponse.data && statusResponse.data.code;
+        console.log("Status response:", statusResponse.data);
         
-        if (paymentStatus === "PAYMENT_SUCCESS") {
+        // Extract payment status from response
+        const paymentStatus = statusResponse.data && statusResponse.data.code === "PAYMENT_SUCCESS";
+        
+        if (paymentStatus || status === "PAYMENT_SUCCESS" || status === "SUCCESS") {
           // Payment successful
           
           // Get registration details
           const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
-          const registrationData = await getDoc(registrationRef);
-          const registrationDetails = registrationData.data();
+          const registrationSnap = await getDoc(registrationRef);
+          const registrationDetails = registrationSnap.data();
           
           // Get competition details
           const competitionRef = doc(db, 'competitions', competitionId);
-          const competitionData = await getDoc(competitionRef);
-          const competitionDetails = competitionData.data();
+          const competitionSnap = await getDoc(competitionRef);
+          const competitionDetails = competitionSnap.data();
+          
+          // Update payment status in Firestore
+          try {
+            const paymentRef = doc(db, 'competitions', competitionId, 'registrations', registrationId, 'payments', paymentId);
+            await updateDoc(paymentRef, {
+              status: 'COMPLETED',
+              completedAt: new Date().toISOString(),
+              phonepeTransactionId: txnId
+            });
+            
+            // Also update registration status
+            await updateDoc(registrationRef, {
+              paymentStatus: 'COMPLETED',
+              paymentCompletedAt: new Date().toISOString()
+            });
+          } catch (updateError) {
+            console.error("Error updating payment status:", updateError);
+            // Continue flow even if update fails
+          }
           
           // Create receipt data
           const receiptData = {
@@ -515,7 +538,7 @@
             competitionVenue: competitionDetails.venue
           };
           
-          // Send receipt email using Cloud Function
+          // Send receipt email using Cloud Function (if you have one)
           try {
             const sendReceipt = httpsCallable(functions, 'sendReceiptEmail');
             await sendReceipt(receiptData);
@@ -552,7 +575,7 @@
         }
       } catch (error) {
         console.error("Error handling payment callback:", error);
-        showError("Error processing payment. Please contact support.");
+        showError("Error processing payment: " + error.message);
         document.getElementById('payment-container').classList.remove('hidden');
       }
     }
