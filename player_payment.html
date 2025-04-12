@@ -427,7 +427,7 @@
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
         
         // Call your Firebase Function to initiate payment
-        const initiatePayment = httpsCallable(functions, 'phonePe/initiate-payment');
+        const initiatePayment = httpsCallable(functions, 'initiatePayment');
         const response = await initiatePayment({
           amount: amount,
           transactionId: transactionId,
@@ -481,7 +481,7 @@
         }
         
         // Call Firebase function to check payment status
-        const checkStatus = httpsCallable(functions, 'phonePe/check-status');
+        const checkStatus = httpsCallable(functions, 'checkStatus');
         const statusResponse = await checkStatus({ transactionId: txnId });
         
         // Extract payment status from response
