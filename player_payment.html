@@ -421,6 +421,7 @@
 
         // Generate a transaction ID
    
+  
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -433,60 +434,44 @@
         // Get user data from sessionStorage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
         
-        // Check for required data before proceeding
-        if (!competitionId || !registrationId || !paymentId || !amount) {
-          throw new Error("Required parameters are missing: competition, registration, payment, or amount");
-        }
-    
+        // Check if user is authenticated
         if (!auth.currentUser) {
           throw new Error("User authentication required");
         }
         
-        // Format amount as number and ensure it's valid
-        const numericAmount = Number(amount);
-        if (isNaN(numericAmount) || numericAmount <= 0) {
-          throw new Error("Invalid payment amount");
-        }
-        
-        // Structure the payload exactly as the server function expects
+        // Create the payload with all required parameters
         const paymentPayload = {
-          amount: numericAmount,
-          transactionId: transactionId,
+          // These are the REQUIRED parameters that match the function check
+          amount: Number(amount),
+          transactionId: transactionId,     // IMPORTANT: This is being checked in the function
           competitionId: competitionId,
           registrationId: registrationId,
           paymentId: paymentId,
+          
+          // Additional parameters
           callbackUrl: `${window.location.origin}/api/phonepe-callback`,
-          redirectUrl: `${window.location.origin}/payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}`,
+          redirectUrl: `${window.location.origin}/payment.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${amount}&txnId=${transactionId}`,  // Added txnId to URL
           userDetails: {
             userId: auth.currentUser.uid,
-            name: registrationData.guardianName || "",
-            email: registrationData.email || "",
             mobileNumber: registrationData.phone || ""
-          },
-          // Add any other parameters that might be required by phonePe.js:67
-          merchantId: "TEST_M224EYMONN4C8_25041",
-          merchantTransactionId: transactionId,
-          merchantUserId: auth.currentUser.uid,
-          paymentNote: `Competition registration: ${registrationData.competitionTitle || ""}`,
-          paymentInstrument: "UPI_INTENT" // Common PhonePe instrument type
+          }
         };
         
-        // Log all parameters for debugging
-        console.log("Payment payload:", paymentPayload);
-    
+        // Log the payload for debugging
+        console.log("Initiating payment with payload:", paymentPayload);
+        
         // Call Firebase Function
         const initiatePayment = httpsCallable(functions, 'initiatePayment');
         const response = await initiatePayment(paymentPayload);
         
-        // Log the response
         console.log("Payment initiation response:", response);
-    
-        // Check response and redirect to PhonePe
+        
+        // Check if the response contains the redirect URL
         if (response.data && response.data.success && 
             response.data.data && response.data.data.instrumentResponse && 
             response.data.data.instrumentResponse.redirectInfo) {
           
-          // Store transaction ID for later verification
+          // Store transaction ID in sessionStorage for later verification
           sessionStorage.setItem('currentTransactionId', transactionId);
           
           // Redirect to PhonePe payment page
@@ -497,18 +482,22 @@
       } catch (error) {
         console.error("Error initiating payment:", error);
         
-        // Return to payment form
+        // Show error in console for debugging
+        if (error.details) {
+          console.error("Function error details:", error.details);
+        }
+        
+        // Hide loading, show payment form again
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
         
-        // Show error message to user
-        let errorMessage = "Payment initialization failed: ";
+        // Show user-friendly error
+        let errorMessage = "Failed to initiate payment. ";
+        
         if (error.message) {
           errorMessage += error.message;
-        } else if (error.code === 'invalid-argument') {
-          errorMessage += "Missing or invalid parameters. Please try again or contact support.";
         } else {
-          errorMessage += "Unknown error occurred. Please try again later.";
+          errorMessage += "Please try again later or contact support.";
         }
         
         showError(errorMessage);
