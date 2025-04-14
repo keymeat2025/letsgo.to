@@ -443,7 +443,7 @@
           registrationId: registrationId,
           paymentId: paymentId,
           redirectUrl: window.location.origin + "/payment-callback.html",
-          callbackUrl: "https://us-central1-letsgoto-a630e.cloudfunctions.net/phonepeCallback",
+          callbackUrl: "https://asia-south1-letsgoto-a630e.cloudfunctions.net/phonepeCallback",
           userDetails: {
             // Add any user details if available from sessionStorage
             userId: sessionStorage.getItem('userId') || 'guest-user',
@@ -475,7 +475,7 @@
           console.error("httpsCallable failed, trying direct HTTP fallback:", callableError);
           
           // Fallback to the HTTP endpoint if httpsCallable has CORS issues
-          const response = await fetch("https://us-central1-letsgoto-a630e.cloudfunctions.net/initiatePaymentHttp", {
+          const response = await fetch("https://asia-south1-letsgoto-a630e.cloudfunctions.net/initiatePaymentHttp", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
