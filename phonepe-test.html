@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhonePe Test</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-functions-compat.min.js"></script>
+    <title>PhonePe Payment Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,110 +13,171 @@
             margin: 0 auto;
             padding: 20px;
         }
+        h2 {
+            color: #5f259f;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
         button {
             background-color: #5f259f;
             color: white;
-            padding: 10px 15px;
             border: none;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
         }
-        #response {
+        button:hover {
+            background-color: #4a1d7a;
+        }
+        #paymentStatus {
             margin-top: 20px;
             padding: 10px;
-            background-color: #f5f5f5;
             border-radius: 4px;
-            white-space: pre-wrap;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <h2>PhonePe 1 Rupee Test</h2>
-    <button id="payButton">Pay ₹1</button>
-    <div id="response"></div>
+    <h2>PhonePe Payment Test</h2>
+    <div class="form-group">
+        <label for="amount">Amount (₹)</label>
+        <input type="number" id="amount" value="10" min="1" step="0.01">
+    </div>
+    <div class="form-group">
+        <label for="mobileNumber">Mobile Number</label>
+        <input type="tel" id="mobileNumber" placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10">
+    </div>
+    <button id="payButton">Pay with PhonePe</button>
+    <div id="paymentStatus"></div>
 
     <script>
         // Replace with your Firebase config
-  
         const firebaseConfig = {
-            apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-            authDomain: "letsgoto-a630e.firebaseapp.com",
-            projectId: "letsgoto-a630e",
-            storageBucket: "letsgoto-a630e.firebasestorage.app",
-            messagingSenderId: "194513214154",
-            appId: "1:194513214154:web:7825241b22095d7c43f233",
-            measurementId: "G-N8CN6LM82S"
-          };
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
         
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         
-        document.getElementById('payButton').addEventListener('click', async () => {
+        // Get a reference to the functions
+        const functions = firebase.functions();
+        
+        // If using asia-south1 region (as in your code)
+        functions.useEmulator("localhost", 5001);
+        
+        document.getElementById('payButton').addEventListener('click', initiatePayment);
+        
+        async function initiatePayment() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            
+            if (!amount || amount <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('paymentStatus');
+            statusDiv.textContent = 'Processing...';
+            statusDiv.className = '';
+            statusDiv.style.display = 'block';
+            
             try {
-                const responseDiv = document.getElementById('response');
-                responseDiv.textContent = "Initiating payment...";
-                
                 // Generate a unique transaction ID
-                const transactionId = 'TXN_' + Date.now();
+                const transactionId = 'TXN_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                
+                // This would typically come from your database after registration
+                // For testing, we're creating them on the fly
+                const competitionId = 'TEST_COMP_001';
+                const registrationId = 'TEST_REG_' + Date.now();
+                const paymentId = 'PAY_' + Date.now();
                 
                 // Call the Firebase function
-                const initiatePayment = firebase.functions().httpsCallable('initiatePayment');
-                const result = await initiatePayment({
-                    amount: 1, // 1 rupee
+                const initiatePaymentFn = firebase.functions().httpsCallable('initiatePayment');
+                const result = await initiatePaymentFn({
+                    amount: amount,
                     transactionId: transactionId,
-                    competitionId: 'test-comp-123',
-                    registrationId: 'test-reg-123',
-                    paymentId: 'test-pay-123',
-                    callbackUrl: 'https://us-central1-letsgoto-a630e.cloudfunctions.net/phonepeCallback', // Replace with your callback URL
-                    redirectUrl: window.location.href, // Redirect back to this page
+                    competitionId: competitionId,
+                    registrationId: registrationId,
+                    paymentId: paymentId,
                     userDetails: {
-                        userId: 'test-user',
-                        mobileNumber: '9999999999' // Replace with test number
+                        mobileNumber: mobileNumber
                     }
                 });
                 
-                // Display the response
-                responseDiv.textContent = "Response: " + JSON.stringify(result.data, null, 2);
+                // Process the result
+                console.log('Payment initiated:', result.data);
                 
-                // If successful, redirect to PhonePe payment page
-                if (result.data && result.data.data && result.data.data.instrumentResponse && 
-                    result.data.data.instrumentResponse.redirectInfo && 
-                    result.data.data.instrumentResponse.redirectInfo.url) {
-                    const redirectUrl = result.data.data.instrumentResponse.redirectInfo.url;
-                    responseDiv.textContent += "\n\nRedirecting to payment page...";
-                    
-                    // Save transaction ID for status check
-                    localStorage.setItem('lastTransactionId', transactionId);
-                    
-                    // Redirect after a short delay
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1500);
+                if (result.data.success && result.data.data.instrumentResponse.redirectInfo.url) {
+                    // Redirect to PhonePe
+                    window.location.href = result.data.data.instrumentResponse.redirectInfo.url;
+                } else {
+                    showStatus('Failed to initiate payment', 'error');
                 }
             } catch (error) {
-                document.getElementById('response').textContent = "Error: " + JSON.stringify(error, null, 2);
+                console.error('Error initiating payment:', error);
+                showStatus('Error: ' + (error.message || 'Failed to process payment'), 'error');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('paymentStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            statusDiv.style.display = 'block';
+        }
+        
+        // Check for any return parameters if this page is used as the redirect URL
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const txnId = urlParams.get('transactionId');
+            
+            if (status && txnId) {
+                if (status === 'SUCCESS') {
+                    showStatus('Payment successful! Transaction ID: ' + txnId, 'success');
+                    // You could also verify the payment status with the checkStatus function
+                    verifyPayment(txnId);
+                } else {
+                    showStatus('Payment ' + status.toLowerCase() + '. Transaction ID: ' + txnId, 'error');
+                }
             }
         });
         
-        // Check if we're returning from a payment
-        window.addEventListener('load', async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const transactionId = localStorage.getItem('lastTransactionId');
-            
-            if (urlParams.has('transactionId') || transactionId) {
-                const txnId = urlParams.get('transactionId') || transactionId;
-                document.getElementById('response').textContent = "Checking payment status for: " + txnId;
-                
-                try {
-                    const checkStatus = firebase.functions().httpsCallable('checkStatus');
-                    const result = await checkStatus({ transactionId: txnId });
-                    document.getElementById('response').textContent = "Payment status: " + JSON.stringify(result.data, null, 2);
-                } catch (error) {
-                    document.getElementById('response').textContent = "Error checking status: " + JSON.stringify(error, null, 2);
-                }
+        async function verifyPayment(transactionId) {
+            try {
+                const checkStatusFn = firebase.functions().httpsCallable('checkStatus');
+                const result = await checkStatusFn({ transactionId: transactionId });
+                console.log('Payment status:', result.data);
+            } catch (error) {
+                console.error('Error checking payment status:', error);
             }
-        });
+        }
     </script>
 </body>
 </html>
