@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhonePe Payment Test</title>
+    <title>PhonePe UAT Test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,27 +57,33 @@
     </style>
 </head>
 <body>
-    <h2>PhonePe Payment Test</h2>
+    <h2>PhonePe Payment UAT Test</h2>
+
+    <!-- Required fields for PhonePe UAT -->
     <div class="form-group">
         <label for="amount">Amount (₹)</label>
         <input type="number" id="amount" value="10" min="1" step="0.01">
     </div>
     <div class="form-group">
-        <label for="mobileNumber">Mobile Number</label>
-        <input type="tel" id="mobileNumber" placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10">
+        <label for="transactionId">Transaction ID</label>
+        <input type="text" id="transactionId" placeholder="Unique Transaction ID">
     </div>
-    <button id="payButton">Pay with PhonePe</button>
+    <button id="payButton">Initiate Payment</button>
     <div id="paymentStatus"></div>
 
     <script>
         document.getElementById('payButton').addEventListener('click', initiatePayment);
 
-        async function initiatePayment() {
+        function initiatePayment() {
             const amount = parseFloat(document.getElementById('amount').value);
-            const mobileNumber = document.getElementById('mobileNumber').value;
+            const transactionId = document.getElementById('transactionId').value;
 
             if (!amount || amount <= 0) {
                 showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            if (!transactionId) {
+                showStatus('Please provide a Transaction ID', 'error');
                 return;
             }
 
@@ -86,12 +92,9 @@
             statusDiv.className = '';
             statusDiv.style.display = 'block';
 
+            // Simulate redirect to PhonePe UAT
             try {
-                // Simulated transaction details for PhonePe UAT
-                const transactionId = 'TXN_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-                const redirectUrl = `https://uat.phonepe.com?transactionId=${transactionId}&amount=${amount}`;
-                
-                // Simulate redirect to PhonePe
+                const redirectUrl = `https://uat.phonepe.com/process?transactionId=${transactionId}&amount=${amount}`;
                 window.location.href = redirectUrl;
             } catch (error) {
                 showStatus('Error: ' + (error.message || 'Failed to process payment'), 'error');
@@ -104,21 +107,6 @@
             statusDiv.className = type;
             statusDiv.style.display = 'block';
         }
-
-        // Check for return parameters if this page is used as the redirect URL
-        window.addEventListener('load', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-            const txnId = urlParams.get('transactionId');
-
-            if (status && txnId) {
-                if (status === 'SUCCESS') {
-                    showStatus('Payment successful! Transaction ID: ' + txnId, 'success');
-                } else {
-                    showStatus('Payment ' + status.toLowerCase() + '. Transaction ID: ' + txnId, 'error');
-                }
-            }
-        });
     </script>
 </body>
 </html>
