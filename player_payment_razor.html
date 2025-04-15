@@ -429,8 +429,10 @@
     }
     
 
-          
-    function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
+
+   
+// Update the initiateRazorpayPayment function to use your backend
+    async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
         document.getElementById('payment-container').classList.add('hidden');
@@ -439,14 +441,53 @@
         // Get registration data from session storage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
         
-        // Initiate Razorpay payment (without order_id)
+        // Create an order by calling your backend API
+        const orderResponse = await fetch('http://localhost:3000/api/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            amount: amount,
+            receipt: `receipt_${registrationId}`,
+            notes: {
+              competitionId: competitionId,
+              registrationId: registrationId,
+              paymentId: paymentId
+            }
+          })
+        });
+        
+        if (!orderResponse.ok) {
+          const errorData = await orderResponse.json();
+          throw new Error(`Failed to create order: ${errorData.details || 'Unknown error'}`);
+        }
+        
+        const orderData = await orderResponse.json();
+        console.log("Order created:", orderData);
+        
+        if (!orderData.id) {
+          throw new Error("Invalid order response");
+        }
+        
+        // Update payment document with order ID (in real implementation, this would use Firebase)
+        mockDatabase.payments[paymentId] = {
+          ...mockDatabase.payments[paymentId],
+          orderId: orderData.id,
+          initiatedAt: new Date().toISOString()
+        };
+        
+        // Store order ID for reference
+        sessionStorage.setItem('currentOrderId', orderData.id);
+        
+        // Configure Razorpay options
         const options = {
           key: razorpayConfig.key_id,
-          amount: amount * 100,
-          currency: razorpayConfig.currency,
+          amount: orderData.amount, // This amount is already in paise
+          currency: orderData.currency,
           name: "Chess Competition",
           description: `Registration for ${registrationData.competitionTitle}`,
-          // No order_id here
+          order_id: orderData.id,
           prefill: {
             name: registrationData.guardianName,
             email: registrationData.email,
@@ -462,26 +503,15 @@
           },
           handler: function(response) {
             console.log("Payment successful:", response);
-            // Proceed with your success logic
-            document.getElementById('processing-container').classList.add('hidden');
-            document.getElementById('completion-container').classList.remove('hidden');
-            
-            // Populate completion details
-            document.getElementById('completion-competition').textContent = registrationData.competitionTitle;
-            document.getElementById('completion-transaction').textContent = response.razorpay_payment_id || "TEST_PAYMENT";
-            document.getElementById('completion-date').textContent = new Date().toLocaleString();
-            document.getElementById('completion-amount').textContent = `₹${amount}`;
-            
-            // Store transaction details
-            sessionStorage.setItem('transactionDetails', JSON.stringify({
-              competitionName: registrationData.competitionTitle,
-              transactionId: response.razorpay_payment_id || "TEST_PAYMENT",
-              paymentDate: new Date().toISOString(),
-              amount: amount,
-              playerCount: registrationData.playerCount,
-              guardianName: registrationData.guardianName,
-              email: registrationData.email
-            }));
+            // Verify the payment with your backend
+            verifyPaymentWithBackend(
+              response.razorpay_payment_id,
+              response.razorpay_order_id,
+              response.razorpay_signature,
+              competitionId,
+              registrationId,
+              paymentId
+            );
           },
           modal: {
             ondismiss: function() {
@@ -491,7 +521,7 @@
           }
         };
         
-        // Open the Razorpay checkout
+        // Open Razorpay checkout
         const razorpayInstance = new Razorpay(options);
         razorpayInstance.open();
         
@@ -499,34 +529,89 @@
         console.error("Error initiating payment:", error);
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        showError("Failed to initiate payment. Please try again.");
+        showError(error.message || "Failed to initiate payment. Please try again.");
+      }
+    }
+    
+    // Add this new function to verify payment with your backend
+    async function verifyPaymentWithBackend(paymentId, orderId, signature, competitionId, registrationId, localPaymentId) {
+      try {
+        const verifyResponse = await fetch('http://localhost:3000/api/verify-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: orderId,
+            razorpay_signature: signature
+          })
+        });
+        
+        const verifyData = await verifyResponse.json();
+        
+        if (verifyResponse.ok && verifyData.verified) {
+          // Payment is verified, proceed with your success flow
+          console.log("Payment verified successfully");
+          
+          // Update mock database (in real implementation, this would use Firebase)
+          mockDatabase.payments[localPaymentId] = {
+            ...mockDatabase.payments[localPaymentId],
+            status: 'completed',
+            razorpayPaymentId: paymentId,
+            razorpayOrderId: orderId,
+            razorpaySignature: signature,
+            completedAt: new Date().toISOString()
+          };
+          
+          // Update registration status
+          mockDatabase.registrations[registrationId] = {
+            ...mockDatabase.registrations[registrationId],
+            status: 'confirmed',
+            paymentStatus: 'completed',
+            paymentDate: new Date().toISOString()
+          };
+          
+          // Get data needed for the completion screen
+          const registrationDetails = mockDatabase.registrations[registrationId];
+          const competitionDetails = mockDatabase.competitions[competitionId];
+          
+          // Show completion container
+          document.getElementById('processing-container').classList.add('hidden');
+          document.getElementById('completion-container').classList.remove('hidden');
+          document.getElementById('completion-competition').textContent = competitionDetails.title;
+          document.getElementById('completion-transaction').textContent = paymentId;
+          document.getElementById('completion-date').textContent = new Date().toLocaleString();
+          document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
+          
+          // Store transaction details for receipt
+          sessionStorage.setItem('transactionDetails', JSON.stringify({
+            competitionName: competitionDetails.title,
+            transactionId: paymentId,
+            paymentDate: new Date().toISOString(),
+            amount: registrationDetails.paymentAmount,
+            playerCount: registrationDetails.playerCount,
+            guardianName: registrationDetails.guardianName,
+            email: registrationDetails.email
+          }));
+        } else {
+          // Payment verification failed
+          console.error("Payment verification failed:", verifyData);
+          document.getElementById('processing-container').classList.add('hidden');
+          document.getElementById('payment-container').classList.remove('hidden');
+          showError("Payment verification failed. Please try again or contact support.");
+        }
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+        document.getElementById('processing-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.remove('hidden');
+        showError("Error verifying payment. Please try again or contact support.");
       }
     }
     
     // 3. Add this function to simulate server-side order creation
     // In a real implementation, this would be an API call to your backend
-    async function createRazorpayOrder(amount, registrationData) {
-      // Simulate server request delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // For demo purposes
-      console.log("In a real implementation, your server would make a request to Razorpay API to create an order");
-      console.log("This requires server-side code with your Razorpay secret key");
-      
-      // This is just for simulation, in reality this would come from Razorpay
-      return {
-        id: `order_${Date.now()}`,
-        entity: "order",
-        amount: amount * 100,
-        amount_paid: 0,
-        amount_due: amount * 100,
-        currency: "INR",
-        receipt: `rcpt_${Date.now()}`,
-        status: "created",
-        attempts: 0,
-        created_at: Math.floor(Date.now() / 1000)
-      };
-    }
+
 // Remove or comment out these simulation functions if you don't need them
 // function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
 //   // ...
