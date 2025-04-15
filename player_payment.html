@@ -187,7 +187,7 @@
           </div>
           <div class="receipt-row">
             <span class="receipt-label">Registration Fee</span>
-            <span class="receipt-value" id="summary-fee">₹1 per player</span>
+            <span class="receipt-value" id="summary-fee">₹250 per player</span>
           </div>
           <div class="receipt-row total-row">
             <span class="receipt-label">Total Amount</span>
@@ -210,17 +210,11 @@
       <div class="text-sm text-gray-500 mb-6">
         <p>After successful payment, a receipt will be sent to your registered email address.</p>
       </div>
-<!--      
+      
       <button id="back-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">
         Back to Registration
       </button>
--->
-      <button id="back-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg" onclick="window.location.href='phonepe-test.html'">
-        Test PhonePe Payment
-      </button>
     </div>
-
-    
     
     <div id="processing-container" class="card-container hidden text-center py-10">
       <div class="loading-spinner mb-4"></div>
@@ -299,11 +293,11 @@
     
     // PhonePe Configuration (replace with your actual merchant details)
     const phonePeConfig = {
-      merchantId: "TEST-M224EYMONN4C8_25041", // Replace with your PhonePe merchant ID
-      merchantName: "9944888755", // Replace with your merchant name
+      merchantId: "MERCHID", // Replace with your PhonePe merchant ID
+      merchantName: "YourCompetitionOrganization", // Replace with your merchant name
       redirectUrl: window.location.origin + "/payment-callback.html", // Create a callback page
       callbackUrl: window.location.origin + "/api/phonepe-callback", // Server endpoint to handle callback
-      saltKey: "YmMwZjg2NjctZjUwMC00YTk4LWE3MTAtODUxY2E4MGJkOWRl", // Replace with your PhonePe salt key (keep this secure)
+      saltKey: "SALT_KEY", // Replace with your PhonePe salt key (keep this secure)
       saltIndex: "1" // PhonePe salt index
     };
     
@@ -420,11 +414,6 @@
     
 
         // Generate a transaction ID
-   
-  
-
-        // Generate a transaction ID
-
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -433,86 +422,48 @@
         
         // Generate a transaction ID
         const transactionId = `TX_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
-        console.log("Generated transactionId:", transactionId);
         
-        // Prepare the payload
-        const paymentPayload = {
-          amount: Number(amount),
+        // Get user data from sessionStorage
+        const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
+        
+        // Call your Firebase Function to initiate payment
+        const initiatePayment = httpsCallable(functions, 'phonePe/initiate-payment');
+        const response = await initiatePayment({
+          amount: amount,
           transactionId: transactionId,
           competitionId: competitionId,
           registrationId: registrationId,
           paymentId: paymentId,
-          redirectUrl: window.location.origin + "/payment-callback.html",
-          callbackUrl: "https://asia-south1-letsgoto-a630e.cloudfunctions.net/phonepeCallback",
+          callbackUrl: window.location.origin + "/api/phonepe-callback",
+          redirectUrl: window.location.origin + "/payment.html",
           userDetails: {
-            // Add any user details if available from sessionStorage
-            userId: sessionStorage.getItem('userId') || 'guest-user',
-            mobileNumber: JSON.parse(sessionStorage.getItem('registrationData') || '{}').phone
+            userId: auth.currentUser.uid,
+            mobileNumber: registrationData.phone || ""
           }
-        };
+        });
         
-        console.log("Payload for payment:", paymentPayload);
-        
-        // Try using httpsCallable first (recommended approach)
-        try {
-          const initiatePayment = httpsCallable(functions, 'initiatePayment');
-          const response = await initiatePayment(paymentPayload);
+        // Check response from the function
+        if (response.data && response.data.success && 
+            response.data.data && response.data.data.instrumentResponse && 
+            response.data.data.instrumentResponse.redirectInfo) {
           
-          console.log("Payment initiation response:", response);
+          // Store transaction ID in sessionStorage for later use
+          sessionStorage.setItem('currentTransactionId', transactionId);
           
-          if (response.data && response.data.success) {
-            sessionStorage.setItem('currentTransactionId', transactionId);
-            if (response.data.data?.instrumentResponse?.redirectInfo?.url) {
-              window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
-              return;
-            } else {
-              throw new Error("No redirect URL in response");
-            }
-          } else {
-            throw new Error('Payment service error: ' + (response.data?.message || 'Unknown error'));
-          }
-        } catch (callableError) {
-          console.error("httpsCallable failed, trying direct HTTP fallback:", callableError);
-          
-          // Fallback to the HTTP endpoint if httpsCallable has CORS issues
-          const response = await fetch("https://asia-south1-letsgoto-a630e.cloudfunctions.net/initiatePaymentHttp", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(paymentPayload),
-            mode: 'cors', // Explicitly set CORS mode
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-          }
-          
-          const data = await response.json();
-          console.log("HTTP fallback response:", data);
-          
-          if (data.success && data.data?.instrumentResponse?.redirectInfo?.url) {
-            sessionStorage.setItem('currentTransactionId', transactionId);
-            window.location.href = data.data.instrumentResponse.redirectInfo.url;
-            return;
-          } else {
-            throw new Error('Payment service error (HTTP fallback): ' + (data.message || 'Unknown error'));
-          }
+          // Redirect to PhonePe payment page
+          window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
+        } else {
+          throw new Error('Failed to initiate payment');
         }
       } catch (error) {
         console.error("Error initiating payment:", error);
-        console.log("Error details:", JSON.stringify(error, null, 2));
-        
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        
-        showError("Failed to initiate payment. " + (error.message || "Please try again later."));
+        showError("Failed to initiate payment. Please try again.");
       }
     }
-        
 
-        // Update the handlePaymentCallback function
+
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
       try {
         // Hide all containers initially
@@ -529,83 +480,83 @@
           }
         }
         
-        // Try using httpsCallable first
-        try {
-          const checkStatus = httpsCallable(functions, 'checkStatus');
-          const statusResponse = await checkStatus({ transactionId: txnId });
+        // Call Firebase function to check payment status
+        const checkStatus = httpsCallable(functions, 'phonePe/check-status');
+        const statusResponse = await checkStatus({ transactionId: txnId });
+        
+        // Extract payment status from response
+        const paymentStatus = statusResponse.data && statusResponse.data.code;
+        
+        if (paymentStatus === "PAYMENT_SUCCESS") {
+          // Payment successful
           
-          console.log("Status response:", statusResponse.data);
+          // Get registration details
+          const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
+          const registrationData = await getDoc(registrationRef);
+          const registrationDetails = registrationData.data();
           
-          // Extract payment status from response
-          const paymentStatus = statusResponse.data && statusResponse.data.code === "PAYMENT_SUCCESS";
+          // Get competition details
+          const competitionRef = doc(db, 'competitions', competitionId);
+          const competitionData = await getDoc(competitionRef);
+          const competitionDetails = competitionData.data();
           
-          if (paymentStatus || status === "PAYMENT_SUCCESS" || status === "SUCCESS") {
-            // Payment successful - proceed as before
-            // ... (rest of your existing function code)
-            processSuccessfulPayment(txnId, competitionId, registrationId);
-          } else {
-            // Payment failed
-            showError("Payment failed or was cancelled. Please try again.");
-            document.getElementById('payment-container').classList.remove('hidden');
+          // Create receipt data
+          const receiptData = {
+            to: registrationDetails.email,
+            subject: `Registration Confirmation - ${competitionDetails.title}`,
+            guardianName: registrationDetails.guardianName,
+            competitionName: competitionDetails.title,
+            transactionId: txnId,
+            paymentDate: new Date().toISOString(),
+            amount: registrationDetails.paymentAmount,
+            playerCount: registrationDetails.playerCount,
+            players: registrationDetails.players,
+            competitionDate: competitionDetails.date,
+            competitionVenue: competitionDetails.venue
+          };
+          
+          // Send receipt email using Cloud Function
+          try {
+            const sendReceipt = httpsCallable(functions, 'sendReceiptEmail');
+            await sendReceipt(receiptData);
+          } catch (emailError) {
+            console.error("Error sending receipt email:", emailError);
+            // Continue flow even if email fails
           }
-        } catch (callableError) {
-          console.error("httpsCallable status check failed, trying direct status check via URL params:", callableError);
           
-          // If httpsCallable fails but the URL status parameter indicates success, proceed
-          if (status === "PAYMENT_SUCCESS" || status === "SUCCESS") {
-            processSuccessfulPayment(txnId, competitionId, registrationId);
-          } else {
-            showError("Payment status check failed. Please contact support with your transaction ID: " + txnId);
-            document.getElementById('payment-container').classList.remove('hidden');
-          }
+          // Show completion container
+          document.getElementById('completion-container').classList.remove('hidden');
+          document.getElementById('completion-competition').textContent = competitionDetails.title;
+          document.getElementById('completion-transaction').textContent = txnId;
+          document.getElementById('completion-date').textContent = new Date().toLocaleString();
+          document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
+          
+          // Store transaction details in session storage for receipt generation
+          sessionStorage.setItem('transactionDetails', JSON.stringify({
+            competitionName: competitionDetails.title,
+            transactionId: txnId,
+            paymentDate: new Date().toISOString(),
+            amount: registrationDetails.paymentAmount,
+            playerCount: registrationDetails.playerCount,
+            guardianName: registrationDetails.guardianName,
+            email: registrationDetails.email
+          }));
+          
+          // Clear the transaction ID
+          sessionStorage.removeItem('currentTransactionId');
+          
+        } else {
+          // Payment failed
+          showError("Payment failed or was cancelled. Please try again.");
+          document.getElementById('payment-container').classList.remove('hidden');
         }
       } catch (error) {
         console.error("Error handling payment callback:", error);
-        showError("Error processing payment: " + error.message);
+        showError("Error processing payment. Please contact support.");
         document.getElementById('payment-container').classList.remove('hidden');
       }
     }
 
-  // Helper function to process successful payments
-    async function processSuccessfulPayment(txnId, competitionId, registrationId) {
-      try {
-        // Get registration details
-        const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
-        const registrationSnap = await getDoc(registrationRef);
-        const registrationDetails = registrationSnap.data();
-        
-        // Get competition details
-        const competitionRef = doc(db, 'competitions', competitionId);
-        const competitionSnap = await getDoc(competitionRef);
-        const competitionDetails = competitionSnap.data();
-        
-        // The rest of your existing successful payment processing code...
-        // Show completion container
-        document.getElementById('completion-container').classList.remove('hidden');
-        document.getElementById('completion-competition').textContent = competitionDetails.title;
-        document.getElementById('completion-transaction').textContent = txnId;
-        document.getElementById('completion-date').textContent = new Date().toLocaleString();
-        document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
-        
-        // Store transaction details in session storage for receipt generation
-        sessionStorage.setItem('transactionDetails', JSON.stringify({
-          competitionName: competitionDetails.title,
-          transactionId: txnId,
-          paymentDate: new Date().toISOString(),
-          amount: registrationDetails.paymentAmount,
-          playerCount: registrationDetails.playerCount,
-          guardianName: registrationDetails.guardianName,
-          email: registrationDetails.email
-        }));
-        
-        // Clear the transaction ID
-        sessionStorage.removeItem('currentTransactionId');
-      } catch (error) {
-        console.error("Error processing successful payment:", error);
-        showError("Payment was received, but there was an error loading your receipt. Please contact support.");
-      }
-    }
-    
     function showError(message) {
       document.getElementById('error-container').classList.remove('hidden');
       document.getElementById('error-message').textContent = message;
