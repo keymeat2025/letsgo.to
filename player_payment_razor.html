@@ -428,6 +428,7 @@
       });
     }
     
+
     async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -438,11 +439,8 @@
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
         
         // Generate a transaction ID (order ID for Razorpay)
+        // Note: In production, orderId should come from your backend API
         const orderId = `order_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
-        
-        // In a real implementation, you would call your backend to create an order on Razorpay
-        // Here, we're simulating it for testing purposes
-        // Note: In production, orderId must come from Razorpay API via your backend
         
         // Initiate Razorpay payment
         const options = {
@@ -484,7 +482,7 @@
             }
           }
         };
-
+    
         // Update payment document with order ID (in real implementation, this would use Firebase)
         mockDatabase.payments[paymentId] = {
           ...mockDatabase.payments[paymentId],
@@ -495,16 +493,9 @@
         // Store order ID for reference
         sessionStorage.setItem('currentOrderId', orderId);
         
-        // For demo/testing purposes, we'll simulate Razorpay response
-        if (confirm("For testing: Click OK to simulate successful payment, Cancel to simulate failed payment")) {
-          simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount);
-        } else {
-          simulateFailedRazorpayPayment(competitionId, registrationId, paymentId);
-        }
-        
-        // In a real implementation, we would open the Razorpay checkout
-        // const razorpayInstance = new Razorpay(options);
-        // razorpayInstance.open();
+        // Open the Razorpay checkout
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.open();
         
       } catch (error) {
         console.error("Error initiating payment:", error);
@@ -513,6 +504,15 @@
         showError("Failed to initiate payment. Please try again.");
       }
     }
+
+// Remove or comment out these simulation functions if you don't need them
+// function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
+//   // ...
+// }
+
+// function simulateFailedRazorpayPayment(competitionId, registrationId, paymentId) {
+//   // ...
+// }
     
     // Simulate successful payment (for testing)
     function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
