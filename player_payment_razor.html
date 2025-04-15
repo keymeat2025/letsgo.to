@@ -6,6 +6,8 @@
   <title>Payment</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Add this line -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
   <!-- Add Razorpay SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -273,8 +275,8 @@
   <script>
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
-      key_id: "rzp_test_XXXXXXXXXX", // Replace with your Razorpay test key ID
-      key_secret: "XXXXXXXXXXXXXXXXXXXX", // Replace with your Razorpay test key secret (only for backend use)
+      key_id: "rzp_test_EF3W5mVXB1Q3li", // Replace with your Razorpay test key ID
+      key_secret: "doRmOW1zl1URuSAr5INlcxko", // Replace with your Razorpay test key secret (only for backend use)
       currency: "INR"
     };
     
@@ -408,6 +410,7 @@
       document.getElementById('razorpay-btn').addEventListener('click', () => {
         initiateRazorpayPayment(competitionId, registrationId, paymentId, amount);
       });
+
       
       // Back button
       document.getElementById('back-btn').addEventListener('click', () => {
