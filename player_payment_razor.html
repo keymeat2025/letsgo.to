@@ -276,7 +276,7 @@
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
       key_id: "rzp_test_EF3W5mVXB1Q3li", // Replace with your Razorpay test key ID
-      key_secret: "doRmOW1zl1URuSAr5INlcxko", // Replace with your Razorpay test key secret (only for backend use)
+     // Replace with your Razorpay test key secret (only for backend use)
       currency: "INR"
     };
     
@@ -429,6 +429,7 @@
     }
     
 
+        
     async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -438,18 +439,22 @@
         // Get registration data from session storage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
         
-        // Generate a transaction ID (order ID for Razorpay)
-        // Note: In production, orderId should come from your backend API
-        const orderId = `order_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+        // In a real implementation, you would call your server to create an order
+        // For testing purposes, we'll simulate a server response
+        const orderData = await createRazorpayOrder(amount, registrationData);
+        
+        if (!orderData || !orderData.id) {
+          throw new Error("Failed to create order");
+        }
         
         // Initiate Razorpay payment
         const options = {
           key: razorpayConfig.key_id,
-          amount: amount * 100, // Razorpay amount is in paisa (100 paisa = 1 rupee)
+          amount: amount * 100, // Razorpay amount is in paisa
           currency: razorpayConfig.currency,
           name: "Chess Competition",
           description: `Registration for ${registrationData.competitionTitle}`,
-          order_id: orderId, // In production, this should be generated from your server
+          order_id: orderData.id, // Use the order ID from the server
           prefill: {
             name: registrationData.guardianName,
             email: registrationData.email,
@@ -483,15 +488,15 @@
           }
         };
     
-        // Update payment document with order ID (in real implementation, this would use Firebase)
+        // Update payment document with order ID
         mockDatabase.payments[paymentId] = {
           ...mockDatabase.payments[paymentId],
-          orderId: orderId,
+          orderId: orderData.id,
           initiatedAt: new Date().toISOString()
         };
         
         // Store order ID for reference
-        sessionStorage.setItem('currentOrderId', orderId);
+        sessionStorage.setItem('currentOrderId', orderData.id);
         
         // Open the Razorpay checkout
         const razorpayInstance = new Razorpay(options);
@@ -504,7 +509,31 @@
         showError("Failed to initiate payment. Please try again.");
       }
     }
-
+    
+    // 3. Add this function to simulate server-side order creation
+    // In a real implementation, this would be an API call to your backend
+    async function createRazorpayOrder(amount, registrationData) {
+      // Simulate server request delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // For demo purposes
+      console.log("In a real implementation, your server would make a request to Razorpay API to create an order");
+      console.log("This requires server-side code with your Razorpay secret key");
+      
+      // This is just for simulation, in reality this would come from Razorpay
+      return {
+        id: `order_${Date.now()}`,
+        entity: "order",
+        amount: amount * 100,
+        amount_paid: 0,
+        amount_due: amount * 100,
+        currency: "INR",
+        receipt: `rcpt_${Date.now()}`,
+        status: "created",
+        attempts: 0,
+        created_at: Math.floor(Date.now() / 1000)
+      };
+    }
 // Remove or comment out these simulation functions if you don't need them
 // function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
 //   // ...
