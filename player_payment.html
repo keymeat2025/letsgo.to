@@ -398,7 +398,7 @@
       
       // Back button
       document.getElementById('back-btn').addEventListener('click', () => {
-        window.location.href = `player_registration.html?id=${competitionId}`;
+        window.location.href = `registration.html?id=${competitionId}`;
       });
       
       // Home button (on completion page)
@@ -412,8 +412,6 @@
       });
     }
     
-
-        // Generate a transaction ID
     async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -423,38 +421,45 @@
         // Generate a transaction ID
         const transactionId = `TX_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
         
-        // Get user data from sessionStorage
-        const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
-        
-        // Call your Firebase Function to initiate payment
-        const initiatePayment = httpsCallable(functions, 'phonePe/initiate-payment');
-        const response = await initiatePayment({
-          amount: amount,
+        // Update payment document with transaction ID
+        const paymentRef = doc(db, 'payments', paymentId);
+        await updateDoc(paymentRef, {
           transactionId: transactionId,
-          competitionId: competitionId,
-          registrationId: registrationId,
-          paymentId: paymentId,
-          callbackUrl: window.location.origin + "/api/phonepe-callback",
-          redirectUrl: window.location.origin + "/payment.html",
-          userDetails: {
-            userId: auth.currentUser.uid,
-            mobileNumber: registrationData.phone || ""
-          }
+          initiatedAt: new Date().toISOString()
         });
         
-        // Check response from the function
-        if (response.data && response.data.success && 
-            response.data.data && response.data.data.instrumentResponse && 
-            response.data.data.instrumentResponse.redirectInfo) {
-          
-          // Store transaction ID in sessionStorage for later use
-          sessionStorage.setItem('currentTransactionId', transactionId);
-          
-          // Redirect to PhonePe payment page
-          window.location.href = response.data.data.instrumentResponse.redirectInfo.url;
-        } else {
-          throw new Error('Failed to initiate payment');
-        }
+        // Create PhonePe payload
+        const payload = {
+          merchantId: phonePeConfig.merchantId,
+          merchantTransactionId: transactionId,
+          merchantUserId: auth.currentUser.uid,
+          amount: amount * 100, // PhonePe expects amount in paise
+          redirectUrl: `${phonePeConfig.redirectUrl}?competitionId=${competitionId}&registrationId=${registrationId}&paymentId=${paymentId}`,
+          redirectMode: "REDIRECT",
+          callbackUrl: phonePeConfig.callbackUrl,
+          mobileNumber: sessionStorage.getItem('registrationData') ? JSON.parse(sessionStorage.getItem('registrationData')).phone : "",
+          paymentInstrument: {
+            type: "PAY_PAGE"
+          }
+        };
+        
+        // In a production environment, you should create a server endpoint to generate
+        // the PhonePe payment URL with proper signature for security
+        // Here's a simplified client-side implementation
+        
+        // Convert payload to base64
+        const payloadBase64 = btoa(JSON.stringify(payload));
+        
+        // In a real implementation, you would calculate the checksum on the server
+        // This is just a placeholder - in production, use a serverless function or backend API
+        const checksum = "CHECKSUM_PLACEHOLDER";
+        
+        // PhonePe Pay API endpoint
+        const phonePeUrl = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
+        
+        // In production, redirect to the proper PhonePe URL
+        // For demo purposes, we'll simulate a successful payment
+        simulatePaymentResponse(transactionId, competitionId, registrationId, paymentId, amount);
       } catch (error) {
         console.error("Error initiating payment:", error);
         document.getElementById('processing-container').classList.add('hidden');
@@ -462,7 +467,21 @@
         showError("Failed to initiate payment. Please try again.");
       }
     }
-
+    
+    // This function simulates a successful payment - In production, remove this and use the real PhonePe flow
+    function simulatePaymentResponse(transactionId, competitionId, registrationId, paymentId, amount) {
+      // Wait 3 seconds to simulate processing
+      setTimeout(() => {
+        // Simulate a successful payment callback
+        handlePaymentCallback(
+          "SUCCESS", 
+          transactionId, 
+          competitionId, 
+          registrationId, 
+          paymentId
+        );
+      }, 3000);
+    }
 
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
       try {
@@ -471,27 +490,24 @@
         document.getElementById('payment-container').classList.add('hidden');
         document.getElementById('processing-container').classList.add('hidden');
         
-        // If we don't have transaction ID from URL, try to get it from sessionStorage
-        if (!txnId) {
-          txnId = sessionStorage.getItem('currentTransactionId');
-          if (!txnId) {
-            showError("Transaction ID not found. Cannot verify payment.");
-            return;
-          }
-        }
-        
-        // Call Firebase function to check payment status
-        const checkStatus = httpsCallable(functions, 'phonePe/check-status');
-        const statusResponse = await checkStatus({ transactionId: txnId });
-        
-        // Extract payment status from response
-        const paymentStatus = statusResponse.data && statusResponse.data.code;
-        
-        if (paymentStatus === "PAYMENT_SUCCESS") {
-          // Payment successful
+        if (status === "SUCCESS" || status === "success") {
+          // Update payment status in Firestore
+          const paymentRef = doc(db, 'payments', paymentId);
+          await updateDoc(paymentRef, {
+            status: 'completed',
+            transactionId: txnId,
+            completedAt: new Date().toISOString()
+          });
           
-          // Get registration details
+          // Update registration status
           const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
+          await updateDoc(registrationRef, {
+            status: 'confirmed',
+            paymentStatus: 'completed',
+            paymentDate: new Date().toISOString()
+          });
+          
+          // Get registration details to send receipt
           const registrationData = await getDoc(registrationRef);
           const registrationDetails = registrationData.data();
           
@@ -517,8 +533,7 @@
           
           // Send receipt email using Cloud Function
           try {
-            const sendReceipt = httpsCallable(functions, 'sendReceiptEmail');
-            await sendReceipt(receiptData);
+            await sendReceiptEmail(receiptData);
           } catch (emailError) {
             console.error("Error sending receipt email:", emailError);
             // Continue flow even if email fails
@@ -541,13 +556,18 @@
             guardianName: registrationDetails.guardianName,
             email: registrationDetails.email
           }));
-          
-          // Clear the transaction ID
-          sessionStorage.removeItem('currentTransactionId');
-          
         } else {
           // Payment failed
-          showError("Payment failed or was cancelled. Please try again.");
+          // Update payment status
+          const paymentRef = doc(db, 'payments', paymentId);
+          await updateDoc(paymentRef, {
+            status: 'failed',
+            failedReason: status,
+            failedAt: new Date().toISOString()
+          });
+          
+          // Show error
+          showError("Payment failed. Please try again or contact support.");
           document.getElementById('payment-container').classList.remove('hidden');
         }
       } catch (error) {
