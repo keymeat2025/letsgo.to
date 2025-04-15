@@ -100,13 +100,13 @@
       border-radius: 0.5rem;
     }
 
-    .phonepe-btn {
-      background: #5f259f;
+    .payu-btn {
+      background: #f05a28;
       color: white;
     }
 
-    .phonepe-btn:hover {
-      background: #4a1d7a;
+    .payu-btn:hover {
+      background: #d84315;
     }
 
     .receipt-container {
@@ -200,9 +200,11 @@
         <h3 class="font-medium text-lg mb-4">Payment Method</h3>
         
         <div class="flex flex-col gap-4">
-          <button id="phonepe-btn" class="phonepe-btn rounded-lg px-4 py-3 flex items-center justify-center gap-2">
-            <img src="https://www.phonepe.com/webstatic/static/favicon/apple-touch-icon-152x152.png" alt="PhonePe" width="30" height="30">
-            Pay with PhonePe
+          <button id="payu-btn" class="payu-btn rounded-lg px-4 py-3 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Pay with PayU
           </button>
         </div>
       </div>
@@ -264,99 +266,123 @@
         </button>
       </div>
     </div>
+    
+    <!-- Hidden form for PayU submission -->
+    <form id="payu-form" method="post" action="https://test.payu.in/_payment" style="display: none;">
+      <input type="hidden" name="key" id="payu-key" value="" />
+      <input type="hidden" name="txnid" id="payu-txnid" value="" />
+      <input type="hidden" name="amount" id="payu-amount" value="" />
+      <input type="hidden" name="productinfo" id="payu-productinfo" value="" />
+      <input type="hidden" name="firstname" id="payu-firstname" value="" />
+      <input type="hidden" name="email" id="payu-email" value="" />
+      <input type="hidden" name="phone" id="payu-phone" value="" />
+      <input type="hidden" name="surl" id="payu-surl" value="" />
+      <input type="hidden" name="furl" id="payu-furl" value="" />
+      <input type="hidden" name="hash" id="payu-hash" value="" />
+    </form>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
-    
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const functions = getFunctions(app);
-    
-    // PhonePe Configuration (replace with your actual merchant details)
-    const phonePeConfig = {
-      merchantId: "MERCHID", // Replace with your PhonePe merchant ID
-      merchantName: "YourCompetitionOrganization", // Replace with your merchant name
-      redirectUrl: window.location.origin + "/payment-callback.html", // Create a callback page
-      callbackUrl: window.location.origin + "/api/phonepe-callback", // Server endpoint to handle callback
-      saltKey: "SALT_KEY", // Replace with your PhonePe salt key (keep this secure)
-      saltIndex: "1" // PhonePe salt index
+  <script>
+    // PayU Test Credentials (Replace with your test credentials for testing)
+    const payuConfig = {
+      merchantKey: "gtKFFx", // Test merchant key
+      salt: "eCwWELxi", // Test salt
+      baseUrl: "https://test.payu.in/_payment", // Test URL
+      successUrl: window.location.origin + "/payment-success.html",
+      failureUrl: window.location.origin + "/payment-failure.html"
     };
     
-    // Cloud Function to send email
-    const sendReceiptEmail = httpsCallable(functions, 'sendReceiptEmail');
-
-    // Check if user is logged in
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // Not logged in, redirect to login page with return URL
-        const currentUrl = encodeURIComponent(window.location.href);
-        window.location.href = `login.html?redirect=${currentUrl}`;
-      } else {
-        // User is logged in, get the parameters from URL
+    // Mock database for testing (Replace with your actual database implementation later)
+    let mockDatabase = {
+      competitions: {
+        "comp123": {
+          title: "Chess Championship 2025",
+          organizer: "Chess Federation",
+          date: "2025-05-20",
+          venue: "City Sports Complex"
+        }
+      },
+      registrations: {
+        "reg456": {
+          competitionId: "comp123",
+          playerCount: 2,
+          guardianName: "John Doe",
+          email: "john.doe@example.com",
+          phone: "9876543210",
+          paymentAmount: 500,
+          status: "pending",
+          players: ["Player 1", "Player 2"]
+        }
+      },
+      payments: {
+        "pay789": {
+          registrationId: "reg456",
+          competitionId: "comp123",
+          amount: 500,
+          status: "pending"
+        }
+      },
+      users: {
+        "user123": {
+          name: "John Doe",
+          email: "john.doe@example.com",
+          phone: "9876543210"
+        }
+      }
+    };
+    
+    // Mock authentication for testing
+    let currentUser = {
+      uid: "user123",
+      email: "john.doe@example.com",
+      displayName: "John Doe"
+    };
+    
+    // Initialize the payment page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if user is logged in (for testing, we assume yes)
+      if (currentUser) {
+        // Get parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const competitionId = urlParams.get('competition');
-        const registrationId = urlParams.get('registration');
-        const paymentId = urlParams.get('payment');
-        const amount = urlParams.get('amount');
+        const competitionId = urlParams.get('competition') || "comp123"; // Default for testing
+        const registrationId = urlParams.get('registration') || "reg456"; // Default for testing
+        const paymentId = urlParams.get('payment') || "pay789"; // Default for testing
+        const amount = urlParams.get('amount') || 500; // Default for testing
         
-        // Check payment status from URL (after PhonePe callback)
+        // Check payment status from URL (after PayU callback)
         const status = urlParams.get('status');
-        const txnId = urlParams.get('txnId');
+        const txnId = urlParams.get('txnid');
         
         if (status && txnId) {
-          // This means we're returning from PhonePe payment
+          // This means we're returning from PayU payment
           handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId);
-        } else if (competitionId && registrationId && paymentId && amount) {
+        } else if (competitionId && registrationId && paymentId) {
           // Initial payment page load
           fetchPaymentDetails(competitionId, registrationId, paymentId, amount);
         } else {
           showError("Missing payment information. Please return to the registration page.");
         }
+      } else {
+        // Not logged in, redirect to login page (in real implementation)
+        showError("Please log in to continue with payment.");
       }
     });
 
-    async function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
+    function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
       try {
-        // Get competition details
-        const competitionRef = doc(db, 'competitions', competitionId);
-        const competitionSnap = await getDoc(competitionRef);
+        // For testing, we're using the mock database
+        const competitionData = mockDatabase.competitions[competitionId];
+        const registrationData = mockDatabase.registrations[registrationId];
         
-        if (!competitionSnap.exists()) {
+        if (!competitionData) {
           showError("Competition not found.");
           return;
         }
         
-        const competitionData = competitionSnap.data();
-        
-        // Get registration details
-        const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
-        const registrationSnap = await getDoc(registrationRef);
-        
-        if (!registrationSnap.exists()) {
+        if (!registrationData) {
           showError("Registration not found.");
           return;
         }
-        
-        const registrationData = registrationSnap.data();
         
         // Populate payment page
         document.getElementById('competition-title').textContent = competitionData.title;
@@ -391,9 +417,9 @@
     }
     
     function setupEventListeners(competitionId, registrationId, paymentId, amount) {
-      // PhonePe payment button
-      document.getElementById('phonepe-btn').addEventListener('click', () => {
-        initiatePhonePePayment(competitionId, registrationId, paymentId, amount);
+      // PayU payment button
+      document.getElementById('payu-btn').addEventListener('click', () => {
+        initiatePayuPayment(competitionId, registrationId, paymentId, amount);
       });
       
       // Back button
@@ -412,54 +438,54 @@
       });
     }
     
-    async function initiatePhonePePayment(competitionId, registrationId, paymentId, amount) {
+    function initiatePayuPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
         document.getElementById('payment-container').classList.add('hidden');
         document.getElementById('processing-container').classList.remove('hidden');
         
+        // Get registration data from session storage
+        const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
+        
         // Generate a transaction ID
         const transactionId = `TX_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
         
-        // Update payment document with transaction ID
-        const paymentRef = doc(db, 'payments', paymentId);
-        await updateDoc(paymentRef, {
+        // Update payment document with transaction ID (in real implementation, this would use Firebase)
+        mockDatabase.payments[paymentId] = {
+          ...mockDatabase.payments[paymentId],
           transactionId: transactionId,
           initiatedAt: new Date().toISOString()
-        });
-        
-        // Create PhonePe payload
-        const payload = {
-          merchantId: phonePeConfig.merchantId,
-          merchantTransactionId: transactionId,
-          merchantUserId: auth.currentUser.uid,
-          amount: amount * 100, // PhonePe expects amount in paise
-          redirectUrl: `${phonePeConfig.redirectUrl}?competitionId=${competitionId}&registrationId=${registrationId}&paymentId=${paymentId}`,
-          redirectMode: "REDIRECT",
-          callbackUrl: phonePeConfig.callbackUrl,
-          mobileNumber: sessionStorage.getItem('registrationData') ? JSON.parse(sessionStorage.getItem('registrationData')).phone : "",
-          paymentInstrument: {
-            type: "PAY_PAGE"
-          }
         };
         
-        // In a production environment, you should create a server endpoint to generate
-        // the PhonePe payment URL with proper signature for security
-        // Here's a simplified client-side implementation
+        // In a real implementation, the hash would be generated server-side
+        // For testing purposes only, we'll generate it client-side (NEVER do this in production)
+        const hashString = `${payuConfig.merchantKey}|${transactionId}|${amount}|${registrationData.competitionTitle}|${registrationData.guardianName}|${registrationData.email}|||||||||||${payuConfig.salt}`;
+        const hash = generateHash(hashString); // This is just for testing - in production use server-side
         
-        // Convert payload to base64
-        const payloadBase64 = btoa(JSON.stringify(payload));
+        // Populate the hidden form
+        document.getElementById('payu-key').value = payuConfig.merchantKey;
+        document.getElementById('payu-txnid').value = transactionId;
+        document.getElementById('payu-amount').value = amount;
+        document.getElementById('payu-productinfo').value = registrationData.competitionTitle;
+        document.getElementById('payu-firstname').value = registrationData.guardianName;
+        document.getElementById('payu-email').value = registrationData.email;
+        document.getElementById('payu-phone').value = registrationData.phone;
+        document.getElementById('payu-surl').value = `${payuConfig.successUrl}?competitionId=${competitionId}&registrationId=${registrationId}&paymentId=${paymentId}`;
+        document.getElementById('payu-furl').value = `${payuConfig.failureUrl}?competitionId=${competitionId}&registrationId=${registrationId}&paymentId=${paymentId}`;
+        document.getElementById('payu-hash').value = hash;
         
-        // In a real implementation, you would calculate the checksum on the server
-        // This is just a placeholder - in production, use a serverless function or backend API
-        const checksum = "CHECKSUM_PLACEHOLDER";
+        // Store transaction ID for reference
+        sessionStorage.setItem('currentTransactionId', transactionId);
         
-        // PhonePe Pay API endpoint
-        const phonePeUrl = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
+        // For demo/testing purposes, we'll simulate PayU response rather than submitting the form
+        if (confirm("For testing: Click OK to simulate successful payment, Cancel to simulate failed payment")) {
+          simulateSuccessfulPayment(transactionId, competitionId, registrationId, paymentId, amount);
+        } else {
+          simulateFailedPayment(competitionId, registrationId, paymentId);
+        }
         
-        // In production, redirect to the proper PhonePe URL
-        // For demo purposes, we'll simulate a successful payment
-        simulatePaymentResponse(transactionId, competitionId, registrationId, paymentId, amount);
+        // In a real implementation, we would submit the form to PayU
+        // document.getElementById('payu-form').submit();
       } catch (error) {
         console.error("Error initiating payment:", error);
         document.getElementById('processing-container').classList.add('hidden');
@@ -468,19 +494,26 @@
       }
     }
     
-    // This function simulates a successful payment - In production, remove this and use the real PhonePe flow
-    function simulatePaymentResponse(transactionId, competitionId, registrationId, paymentId, amount) {
-      // Wait 3 seconds to simulate processing
+    // Mock function to simulate hash generation (in production this should be done server-side)
+    function generateHash(input) {
+      // This is just a placeholder - in production, use a server-side endpoint to generate the hash
+      return "dummy_hash_for_testing_" + Math.random().toString(36).substring(2, 15);
+    }
+    
+    // Simulate successful payment (for testing)
+    function simulateSuccessfulPayment(transactionId, competitionId, registrationId, paymentId, amount) {
+      // Wait 2 seconds to simulate processing
       setTimeout(() => {
-        // Simulate a successful payment callback
-        handlePaymentCallback(
-          "SUCCESS", 
-          transactionId, 
-          competitionId, 
-          registrationId, 
-          paymentId
-        );
-      }, 3000);
+        handlePaymentCallback("success", transactionId, competitionId, registrationId, paymentId);
+      }, 2000);
+    }
+    
+    // Simulate failed payment (for testing)
+    function simulateFailedPayment(competitionId, registrationId, paymentId) {
+      // Wait 2 seconds to simulate processing
+      setTimeout(() => {
+        handlePaymentCallback("failure", "failed_transaction", competitionId, registrationId, paymentId);
+      }, 2000);
     }
 
     async function handlePaymentCallback(status, txnId, competitionId, registrationId, paymentId) {
@@ -490,34 +523,31 @@
         document.getElementById('payment-container').classList.add('hidden');
         document.getElementById('processing-container').classList.add('hidden');
         
-        if (status === "SUCCESS" || status === "success") {
-          // Update payment status in Firestore
-          const paymentRef = doc(db, 'payments', paymentId);
-          await updateDoc(paymentRef, {
+        if (status === "success") {
+          // Update payment status in mock database (in real implementation, this would use Firebase)
+          mockDatabase.payments[paymentId] = {
+            ...mockDatabase.payments[paymentId],
             status: 'completed',
             transactionId: txnId,
             completedAt: new Date().toISOString()
-          });
+          };
           
           // Update registration status
-          const registrationRef = doc(db, 'competitions', competitionId, 'registrations', registrationId);
-          await updateDoc(registrationRef, {
+          mockDatabase.registrations[registrationId] = {
+            ...mockDatabase.registrations[registrationId],
             status: 'confirmed',
             paymentStatus: 'completed',
             paymentDate: new Date().toISOString()
-          });
+          };
           
-          // Get registration details to send receipt
-          const registrationData = await getDoc(registrationRef);
-          const registrationDetails = registrationData.data();
+          // Get registration details
+          const registrationDetails = mockDatabase.registrations[registrationId];
           
           // Get competition details
-          const competitionRef = doc(db, 'competitions', competitionId);
-          const competitionData = await getDoc(competitionRef);
-          const competitionDetails = competitionData.data();
+          const competitionDetails = mockDatabase.competitions[competitionId];
           
-          // Create receipt data
-          const receiptData = {
+          // In a real implementation, send receipt email via server-side function
+          console.log("Would send email with:", {
             to: registrationDetails.email,
             subject: `Registration Confirmation - ${competitionDetails.title}`,
             guardianName: registrationDetails.guardianName,
@@ -529,15 +559,7 @@
             players: registrationDetails.players,
             competitionDate: competitionDetails.date,
             competitionVenue: competitionDetails.venue
-          };
-          
-          // Send receipt email using Cloud Function
-          try {
-            await sendReceiptEmail(receiptData);
-          } catch (emailError) {
-            console.error("Error sending receipt email:", emailError);
-            // Continue flow even if email fails
-          }
+          });
           
           // Show completion container
           document.getElementById('completion-container').classList.remove('hidden');
@@ -558,13 +580,12 @@
           }));
         } else {
           // Payment failed
-          // Update payment status
-          const paymentRef = doc(db, 'payments', paymentId);
-          await updateDoc(paymentRef, {
+          mockDatabase.payments[paymentId] = {
+            ...mockDatabase.payments[paymentId],
             status: 'failed',
             failedReason: status,
             failedAt: new Date().toISOString()
-          });
+          };
           
           // Show error
           showError("Payment failed. Please try again or contact support.");
