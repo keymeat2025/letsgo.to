@@ -429,8 +429,8 @@
     }
     
 
-        
-    async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
+          
+    function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
         document.getElementById('payment-container').classList.add('hidden');
@@ -439,22 +439,14 @@
         // Get registration data from session storage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
         
-        // In a real implementation, you would call your server to create an order
-        // For testing purposes, we'll simulate a server response
-        const orderData = await createRazorpayOrder(amount, registrationData);
-        
-        if (!orderData || !orderData.id) {
-          throw new Error("Failed to create order");
-        }
-        
-        // Initiate Razorpay payment
+        // Initiate Razorpay payment (without order_id)
         const options = {
           key: razorpayConfig.key_id,
-          amount: amount * 100, // Razorpay amount is in paisa
+          amount: amount * 100,
           currency: razorpayConfig.currency,
           name: "Chess Competition",
           description: `Registration for ${registrationData.competitionTitle}`,
-          order_id: orderData.id, // Use the order ID from the server
+          // No order_id here
           prefill: {
             name: registrationData.guardianName,
             email: registrationData.email,
@@ -469,34 +461,35 @@
             color: "#3b82f6"
           },
           handler: function(response) {
-            // This handler is called when payment is successful
-            verifyRazorpayPayment(
-              response.razorpay_payment_id,
-              response.razorpay_order_id,
-              response.razorpay_signature,
-              competitionId,
-              registrationId,
-              paymentId
-            );
+            console.log("Payment successful:", response);
+            // Proceed with your success logic
+            document.getElementById('processing-container').classList.add('hidden');
+            document.getElementById('completion-container').classList.remove('hidden');
+            
+            // Populate completion details
+            document.getElementById('completion-competition').textContent = registrationData.competitionTitle;
+            document.getElementById('completion-transaction').textContent = response.razorpay_payment_id || "TEST_PAYMENT";
+            document.getElementById('completion-date').textContent = new Date().toLocaleString();
+            document.getElementById('completion-amount').textContent = `₹${amount}`;
+            
+            // Store transaction details
+            sessionStorage.setItem('transactionDetails', JSON.stringify({
+              competitionName: registrationData.competitionTitle,
+              transactionId: response.razorpay_payment_id || "TEST_PAYMENT",
+              paymentDate: new Date().toISOString(),
+              amount: amount,
+              playerCount: registrationData.playerCount,
+              guardianName: registrationData.guardianName,
+              email: registrationData.email
+            }));
           },
           modal: {
             ondismiss: function() {
-              // This is called when user closes the payment modal
               document.getElementById('processing-container').classList.add('hidden');
               document.getElementById('payment-container').classList.remove('hidden');
             }
           }
         };
-    
-        // Update payment document with order ID
-        mockDatabase.payments[paymentId] = {
-          ...mockDatabase.payments[paymentId],
-          orderId: orderData.id,
-          initiatedAt: new Date().toISOString()
-        };
-        
-        // Store order ID for reference
-        sessionStorage.setItem('currentOrderId', orderData.id);
         
         // Open the Razorpay checkout
         const razorpayInstance = new Razorpay(options);
