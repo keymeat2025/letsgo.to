@@ -1,0 +1,104 @@
+# Firebase Functions Deployment Instructions
+
+Follow these steps to deploy your Firebase Cloud Functions for Razorpay integration:
+
+## Prerequisites
+
+1. Install the Firebase CLI if you haven't already:
+```bash
+npm install -g firebase-tools
+```
+
+2. Log in to Firebase:
+```bash
+firebase login
+```
+
+3. Initialize your project (if not already done):
+```bash
+firebase init
+```
+Select "Functions", "Firestore", and "Hosting" when prompted.
+
+## Project Structure
+
+Create the following structure for your project:
+```
+your-project/
+├── functions/
+│   ├── index.js         # Copy the code from the first file
+│   ├── package.json     # Copy the code from the package.json file
+│   └── .env             # Create this file with your Razorpay credentials
+├── firebase.json        # Copy the firebase.json configuration
+├── firestore.rules      # Will be created by firebase init
+└── firestore.indexes.json # Will be created by firebase init
+```
+
+## Setting Environment Variables
+
+For local development, create a `.env` file in your functions directory with your Razorpay credentials:
+```
+RAZORPAY_KEY_ID=rzp_test_EF3W5mVXB1Q3li
+RAZORPAY_KEY_SECRET=doRmOW1zl1URuSAr5INlcxko
+```
+
+For production, set environment variables using Firebase CLI:
+```bash
+firebase functions:config:set razorpay.key_id="rzp_test_EF3W5mVXB1Q3li" razorpay.key_secret="doRmOW1zl1URuSAr5INlcxko"
+```
+
+Then modify the `index.js` file to use these environment variables:
+```javascript
+// Replace these lines in index.js
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || functions.config().razorpay.key_id,
+  key_secret: process.env.RAZORPAY_KEY_SECRET || functions.config().razorpay.key_secret
+});
+```
+
+## Install Dependencies
+
+Navigate to the functions directory and install dependencies:
+```bash
+cd functions
+npm install
+```
+
+## Deploy to Firebase
+
+Deploy your functions to Firebase:
+```bash
+firebase deploy --only functions
+```
+
+Or deploy everything (functions, firestore rules, and hosting):
+```bash
+firebase deploy
+```
+
+## Update Your Frontend
+
+Update your frontend code with the actual Firebase Functions URLs. After deploying, you'll get URLs that look like:
+```
+https://asia-south1-your-project-id.cloudfunctions.net/createOrder
+https://asia-south1-your-project-id.cloudfunctions.net/verifyPayment
+https://asia-south1-your-project-id.cloudfunctions.net/storePayment
+```
+
+Replace `FIREBASE_FUNCTIONS_BASE_URL` in your frontend code with the actual base URL:
+```javascript
+const FIREBASE_FUNCTIONS_BASE_URL = "https://asia-south1-your-project-id.cloudfunctions.net";
+```
+
+## Testing Your Functions
+
+You can test your functions locally before deploying:
+```bash
+firebase emulators:start
+```
+
+## Security Considerations
+
+- Never expose your Razorpay Key Secret in your frontend code
+- Implement proper authentication for your functions
+- Consider adding additional security measures, such as rate limiting
