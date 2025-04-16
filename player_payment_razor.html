@@ -6,11 +6,8 @@
   <title>Payment</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Add this line -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
-  <!-- Add Razorpay SDK -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -129,7 +126,7 @@
     }
 
     .receipt-row:last-child {
-      border-bottom: none;
+      border-bottom: none;  
     }
 
     .receipt-label {
@@ -276,9 +273,11 @@
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
       key_id: "rzp_test_EF3W5mVXB1Q3li", // Replace with your Razorpay test key ID
-     // Replace with your Razorpay test key secret (only for backend use)
       currency: "INR"
     };
+    
+    // Firebase Function URLs - Replace with your actual Firebase Functions URLs
+    const FIREBASE_FUNCTIONS_BASE_URL = "https://asia-south1-your-project-id.cloudfunctions.net";
     
     // Mock database for testing (Replace with your actual database implementation later)
     let mockDatabase = {
@@ -410,7 +409,6 @@
       document.getElementById('razorpay-btn').addEventListener('click', () => {
         initiateRazorpayPayment(competitionId, registrationId, paymentId, amount);
       });
-
       
       // Back button
       document.getElementById('back-btn').addEventListener('click', () => {
@@ -428,10 +426,7 @@
       });
     }
     
-
-
-   
-// Update the initiateRazorpayPayment function to use your backend
+    // Update the initiateRazorpayPayment function to use Firebase Functions
     async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
       try {
         // Show processing screen
@@ -441,14 +436,14 @@
         // Get registration data from session storage
         const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
         
-        // Create an order by calling your backend API
-        const orderResponse = await fetch('http://localhost:3000/api/create-order', {
+        // Create an order by calling your Firebase Function API
+        const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            amount: amount,
+            amount: amount, // Firebase function will convert to paise
             receipt: `receipt_${registrationId}`,
             notes: {
               competitionId: competitionId,
@@ -460,7 +455,7 @@
         
         if (!orderResponse.ok) {
           const errorData = await orderResponse.json();
-          throw new Error(`Failed to create order: ${errorData.details || 'Unknown error'}`);
+          throw new Error(`Failed to create order: ${errorData.details || errorData.error || 'Unknown error'}`);
         }
         
         const orderData = await orderResponse.json();
@@ -483,7 +478,7 @@
         // Configure Razorpay options
         const options = {
           key: razorpayConfig.key_id,
-          amount: orderData.amount, // This amount is already in paise
+          amount: orderData.amount, // This amount is already in paise from backend
           currency: orderData.currency,
           name: "Chess Competition",
           description: `Registration for ${registrationData.competitionTitle}`,
@@ -533,10 +528,10 @@
       }
     }
     
-    // Add this new function to verify payment with your backend
+    // Verify payment with Firebase Functions backend
     async function verifyPaymentWithBackend(paymentId, orderId, signature, competitionId, registrationId, localPaymentId) {
       try {
-        const verifyResponse = await fetch('http://localhost:3000/api/verify-payment', {
+        const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -548,13 +543,37 @@
           })
         });
         
+        if (!verifyResponse.ok) {
+          const errorData = await verifyResponse.json();
+          throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
+        }
+        
         const verifyData = await verifyResponse.json();
         
-        if (verifyResponse.ok && verifyData.verified) {
-          // Payment is verified, proceed with your success flow
-          console.log("Payment verified successfully");
+        if (verifyData.verified) {
+          // Payment is verified, proceed with storing payment details
+          const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              payment_id: paymentId,
+              order_id: orderId,
+              razorpay_signature: signature,
+              amount: mockDatabase.registrations[registrationId].paymentAmount * 100, // Convert to paise
+              user_id: currentUser.uid,
+              competitionId,
+              registrationId
+            })
+          });
           
-          // Update mock database (in real implementation, this would use Firebase)
+          if (!storeResponse.ok) {
+            console.warn("Payment verified but failed to store details:", await storeResponse.json());
+            // Continue anyway since payment was successful
+          }
+          
+          // Update mock database (in real implementation, this would be handled by the storePayment function)
           mockDatabase.payments[localPaymentId] = {
             ...mockDatabase.payments[localPaymentId],
             status: 'completed',
@@ -609,107 +628,26 @@
       }
     }
     
-    // 3. Add this function to simulate server-side order creation
-    // In a real implementation, this would be an API call to your backend
-
-// Remove or comment out these simulation functions if you don't need them
-// function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
-//   // ...
-// }
-
-// function simulateFailedRazorpayPayment(competitionId, registrationId, paymentId) {
-//   // ...
-// }
-    
-    // Simulate successful payment (for testing)
-    function simulateSuccessfulRazorpayPayment(orderId, competitionId, registrationId, paymentId, amount) {
-      // Wait 2 seconds to simulate processing
-      setTimeout(() => {
-        const mockPaymentId = `pay_${Date.now()}`;
-        const mockSignature = `sig_${Math.random().toString(36).substring(2, 15)}`;
-        verifyRazorpayPayment(mockPaymentId, orderId, mockSignature, competitionId, registrationId, paymentId);
-      }, 2000);
-    }
-    
-    // Simulate failed payment (for testing)
-    function simulateFailedRazorpayPayment(competitionId, registrationId, paymentId) {
-      // Wait 2 seconds to simulate processing
-      setTimeout(() => {
-        document.getElementById('processing-container').classList.add('hidden');
-        document.getElementById('payment-container').classList.remove('hidden');
-        showError("Payment was cancelled or failed. Please try again.");
-      }, 2000);
-    }
-
-    async function verifyRazorpayPayment(razorpayPaymentId, razorpayOrderId, razorpaySignature, competitionId, registrationId, paymentId) {
+    function verifyRazorpayPayment(razorpayPaymentId, razorpayOrderId, razorpaySignature, competitionId, registrationId, paymentId) {
       try {
         // Hide all containers initially
         document.getElementById('loading-container').classList.add('hidden');
         document.getElementById('payment-container').classList.add('hidden');
-        document.getElementById('processing-container').classList.add('hidden');
+        document.getElementById('processing-container').classList.remove('hidden');
         
-        // In a real implementation, you would verify the payment signature server-side
-        // Here, we're assuming the payment was successful for testing purposes
-        
-        // Update payment status in mock database (in real implementation, this would use Firebase)
-        mockDatabase.payments[paymentId] = {
-          ...mockDatabase.payments[paymentId],
-          status: 'completed',
-          razorpayPaymentId: razorpayPaymentId,
-          razorpayOrderId: razorpayOrderId,
-          razorpaySignature: razorpaySignature,
-          completedAt: new Date().toISOString()
-        };
-        
-        // Update registration status
-        mockDatabase.registrations[registrationId] = {
-          ...mockDatabase.registrations[registrationId],
-          status: 'confirmed',
-          paymentStatus: 'completed',
-          paymentDate: new Date().toISOString()
-        };
-        
-        // Get registration details
-        const registrationDetails = mockDatabase.registrations[registrationId];
-        
-        // Get competition details
-        const competitionDetails = mockDatabase.competitions[competitionId];
-        
-        // In a real implementation, send receipt email via server-side function
-        console.log("Would send email with:", {
-          to: registrationDetails.email,
-          subject: `Registration Confirmation - ${competitionDetails.title}`,
-          guardianName: registrationDetails.guardianName,
-          competitionName: competitionDetails.title,
-          transactionId: razorpayPaymentId,
-          paymentDate: new Date().toISOString(),
-          amount: registrationDetails.paymentAmount,
-          playerCount: registrationDetails.playerCount,
-          players: registrationDetails.players,
-          competitionDate: competitionDetails.date,
-          competitionVenue: competitionDetails.venue
-        });
-        
-        // Show completion container
-        document.getElementById('completion-container').classList.remove('hidden');
-        document.getElementById('completion-competition').textContent = competitionDetails.title;
-        document.getElementById('completion-transaction').textContent = razorpayPaymentId;
-        document.getElementById('completion-date').textContent = new Date().toLocaleString();
-        document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
-        
-        // Store transaction details in session storage for receipt generation
-        sessionStorage.setItem('transactionDetails', JSON.stringify({
-          competitionName: competitionDetails.title,
-          transactionId: razorpayPaymentId,
-          paymentDate: new Date().toISOString(),
-          amount: registrationDetails.paymentAmount,
-          playerCount: registrationDetails.playerCount,
-          guardianName: registrationDetails.guardianName,
-          email: registrationDetails.email
-        }));
+        // Call the verifyPaymentWithBackend function
+        verifyPaymentWithBackend(
+          razorpayPaymentId,
+          razorpayOrderId,
+          razorpaySignature,
+          competitionId,
+          registrationId,
+          paymentId
+        );
       } catch (error) {
         console.error("Error verifying payment:", error);
         showError("Error processing payment. Please contact support.");
+        document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
       }
     }
