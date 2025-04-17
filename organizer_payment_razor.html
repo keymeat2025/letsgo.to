@@ -591,9 +591,13 @@
     }
     
     // In the verifyPaymentWithBackend function, fix the amount handling:
-    async function verifyPaymentWithBackend(paymentId, orderId, signature) {
     
+    async function verifyPaymentWithBackend(paymentId, orderId, signature) {
       try {
+        // Show processing container
+        document.getElementById('processing-container').classList.remove('hidden');
+        document.getElementById('payment-container').classList.add('hidden');
+        
         const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
           method: 'POST',
           headers: {
@@ -621,16 +625,41 @@
           competitionData.razorpaySignature = signature;
           competitionData.paymentDate = new Date().toISOString();
           
-          // Save back to localStorage
+          // Save to localStorage
           localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
           
-          // Get the returnUrl parameter or default to pricing.html
-          const urlParams = new URLSearchParams(window.location.search);
-          const returnUrl = urlParams.get('returnUrl') || 'pricing.html';
-          
-          // Redirect back with a success parameter
-          window.location.href = `${returnUrl}?paymentStatus=success`;
-          
+          // Now save the competition data to Firebase
+          try {
+            // Import the Firebase functions
+            const saveCompetition = firebase.functions().httpsCallable('saveCompetitionToFirebase');
+            
+            // Call the function with our competition data
+            const result = await saveCompetition(competitionData);
+            
+            if (result.data && result.data.success) {
+              // Show success message and completion container
+              showSuccess(`Competition saved successfully with ID: ${result.data.competitionId}`);
+              
+              // Populate completion container
+              document.getElementById('completion-competition').textContent = competitionData.title || "N/A";
+              document.getElementById('completion-transaction').textContent = paymentId;
+              document.getElementById('completion-date').textContent = new Date().toLocaleString();
+              document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
+              
+              // Show completion container
+              document.getElementById('processing-container').classList.add('hidden');
+              document.getElementById('completion-container').classList.remove('hidden');
+            } else {
+              throw new Error('Failed to save competition data');
+            }
+          } catch (firebaseError) {
+            console.error("Error saving to Firebase:", firebaseError);
+            showError("Payment was successful but we encountered an issue saving your competition. Our team will contact you shortly.");
+            
+            // Even if saving fails, show the completion page
+            document.getElementById('processing-container').classList.add('hidden');
+            document.getElementById('completion-container').classList.remove('hidden');
+          }
         } else {
           // Payment verification failed
           document.getElementById('processing-container').classList.add('hidden');
@@ -644,7 +673,12 @@
         showError("Error verifying payment. Please try again or contact support.");
       }
     }
-
+    
+    // Add this helper function
+    function showSuccess(message) {
+      document.getElementById('success-container').classList.remove('hidden');
+      document.getElementById('success-message').textContent = message;
+    }
     function showError(message) {
       document.getElementById('error-container').classList.remove('hidden');
       document.getElementById('error-message').textContent = message;
