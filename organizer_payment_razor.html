@@ -602,90 +602,89 @@
     }
     
     // In the verifyPaymentWithBackend function, fix the amount handling:
-    
+
+          
     async function verifyPaymentWithBackend(paymentId, orderId, signature) {
-      try {
-        // Show processing container
-        document.getElementById('processing-container').classList.remove('hidden');
-        document.getElementById('payment-container').classList.add('hidden');
+    try {
+      // Show processing container
+      document.getElementById('processing-container').classList.remove('hidden');
+      document.getElementById('payment-container').classList.add('hidden');
+      
+      const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: orderId,
+          razorpay_signature: signature
+        })
+      });
+      
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.json();
+        throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
+      }
+      
+      const verifyData = await verifyResponse.json();
+      
+      if (verifyData.verified) {
+        // Update competitionData with payment details
+        competitionData.paymentStatus = 'completed';
+        competitionData.razorpayPaymentId = paymentId;
+        competitionData.razorpayOrderId = orderId;
+        competitionData.razorpaySignature = signature;
+        competitionData.paymentDate = new Date().toISOString();
         
-        const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            razorpay_payment_id: paymentId,
-            razorpay_order_id: orderId,
-            razorpay_signature: signature
-          })
-        });
+        // Save to localStorage
+        localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
         
-        if (!verifyResponse.ok) {
-          const errorData = await verifyResponse.json();
-          throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
-        }
-        
-        const verifyData = await verifyResponse.json();
-        
-        if (verifyData.verified) {
-          // Update competitionData with payment details
-          competitionData.paymentStatus = 'completed';
-          competitionData.razorpayPaymentId = paymentId;
-          competitionData.razorpayOrderId = orderId;
-          competitionData.razorpaySignature = signature;
-          competitionData.paymentDate = new Date().toISOString();
+        // Now save the competition data to Firebase
+        try {
+          // Use the modular Firebase SDK that's already initialized
+          const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
           
-          // Save to localStorage
-          localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+          // Call the function with our competition data
+          const result = await saveCompetition(competitionData);
           
-          // Now save the competition data to Firebase
-          try {
-            // Import the Firebase functions
-            //const saveCompetition = firebase.functions().httpsCallable('saveCompetitionToFirebase');
-           // const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
-            const saveCompetition = firebase.functions('asia-south1').httpsCallable('saveCompetitionToFirebase');
+          if (result.data && result.data.success) {
+            // Show success message and completion container
+            showSuccess(`Competition saved successfully with ID: ${result.data.competitionId}`);
             
-            // Call the function with our competition data
-            const result = await saveCompetition(competitionData);
+            // Populate completion container
+            document.getElementById('completion-competition').textContent = competitionData.title || "N/A";
+            document.getElementById('completion-transaction').textContent = paymentId;
+            document.getElementById('completion-date').textContent = new Date().toLocaleString();
+            document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
             
-            if (result.data && result.data.success) {
-              // Show success message and completion container
-              showSuccess(`Competition saved successfully with ID: ${result.data.competitionId}`);
-              
-              // Populate completion container
-              document.getElementById('completion-competition').textContent = competitionData.title || "N/A";
-              document.getElementById('completion-transaction').textContent = paymentId;
-              document.getElementById('completion-date').textContent = new Date().toLocaleString();
-              document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
-              
-              // Show completion container
-              document.getElementById('processing-container').classList.add('hidden');
-              document.getElementById('completion-container').classList.remove('hidden');
-            } else {
-              throw new Error('Failed to save competition data');
-            }
-          } catch (firebaseError) {
-            console.error("Error saving to Firebase:", firebaseError);
-            showError("Payment was successful but we encountered an issue saving your competition. Our team will contact you shortly.");
-            
-            // Even if saving fails, show the completion page
+            // Show completion container
             document.getElementById('processing-container').classList.add('hidden');
             document.getElementById('completion-container').classList.remove('hidden');
+          } else {
+            throw new Error('Failed to save competition data');
           }
-        } else {
-          // Payment verification failed
+        } catch (firebaseError) {
+          console.error("Error saving to Firebase:", firebaseError);
+          showError("Payment was successful but we encountered an issue saving your competition. Our team will contact you shortly.");
+          
+          // Even if saving fails, show the completion page
           document.getElementById('processing-container').classList.add('hidden');
-          document.getElementById('payment-container').classList.remove('hidden');
-          showError("Payment verification failed. Please try again or contact support.");
+          document.getElementById('completion-container').classList.remove('hidden');
         }
-      } catch (error) {
-        console.error("Error verifying payment:", error);
+      } else {
+        // Payment verification failed
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        showError("Error verifying payment. Please try again or contact support.");
+        showError("Payment verification failed. Please try again or contact support.");
       }
+    } catch (error) {
+      console.error("Error verifying payment:", error);
+      document.getElementById('processing-container').classList.add('hidden');
+      document.getElementById('payment-container').classList.remove('hidden');
+      showError("Error verifying payment. Please try again or contact support.");
     }
+  }
     
     // Add this helper function
     function showSuccess(message) {
