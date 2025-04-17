@@ -643,7 +643,8 @@
           try {
             // Import the Firebase functions
             //const saveCompetition = firebase.functions().httpsCallable('saveCompetitionToFirebase');
-            const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
+           // const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
+            const saveCompetition = firebase.functions('asia-south1').httpsCallable('saveCompetitionToFirebase');
             
             // Call the function with our competition data
             const result = await saveCompetition(competitionData);
