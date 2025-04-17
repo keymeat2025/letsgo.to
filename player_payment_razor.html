@@ -331,11 +331,12 @@
       // Check if user is logged in (for testing, we assume yes)
       if (currentUser) {
         // Get parameters from URL
+  
         const urlParams = new URLSearchParams(window.location.search);
-        const competitionId = urlParams.get('competition') || "comp123"; // Default for testing
-        const registrationId = urlParams.get('registration') || "reg456"; // Default for testing
-        const paymentId = urlParams.get('payment') || "pay789"; // Default for testing
-        const amount = urlParams.get('amount') || 500; // Default for testing
+        const competitionId = urlParams.get('competition') || ""; 
+        const registrationId = urlParams.get('registration') || "";
+        const paymentId = urlParams.get('payment') || "";
+        const amount = urlParams.get('amount') || 0;
         
         // Check payment status from URL (after Razorpay callback)
         const paymentId_razorpay = urlParams.get('razorpay_payment_id');
@@ -357,25 +358,27 @@
       }
     });
 
+
     function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
       try {
-        // For testing, we're using the mock database
-        const competitionData = mockDatabase.competitions[competitionId];
-        const registrationData = mockDatabase.registrations[registrationId];
+        // Get the stored registration data
+        const registrationData = JSON.parse(localStorage.getItem('registrationData') || '{}');
+        const competitionData = JSON.parse(localStorage.getItem('competitionData') || '{}');
         
-        if (!competitionData) {
-          showError("Competition not found.");
+        if (!competitionData.title) {
+          showError("Competition details not found. Please return to the registration page.");
           return;
         }
         
-        if (!registrationData) {
-          showError("Registration not found.");
+        if (!registrationData.playerCount) {
+          showError("Registration details not found. Please return to the registration page.");
           return;
         }
         
-        // Populate payment page
+        // Populate payment page with actual data
         document.getElementById('competition-title').textContent = competitionData.title;
-        document.getElementById('competition-organizer').textContent = `by ${competitionData.organizer}`;
+        document.getElementById('competition-organizer').textContent = competitionData.organizer ? 
+          `by ${competitionData.organizer}` : '';
         document.getElementById('summary-competition').textContent = competitionData.title;
         document.getElementById('summary-players').textContent = registrationData.playerCount;
         document.getElementById('summary-total').textContent = `₹${amount}`;
@@ -404,6 +407,7 @@
         showError("Failed to load payment details. Please try again later.");
       }
     }
+
     
     function setupEventListeners(competitionId, registrationId, paymentId, amount) {
       // Razorpay payment button
@@ -530,6 +534,7 @@
     }
     
     // Verify payment with Firebase Functions backend
+ 
     async function verifyPaymentWithBackend(paymentId, orderId, signature, competitionId, registrationId, localPaymentId) {
       try {
         const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
@@ -552,6 +557,11 @@
         const verifyData = await verifyResponse.json();
         
         if (verifyData.verified) {
+          // Get the stored data
+          const registrationData = JSON.parse(sessionStorage.getItem('registrationData') || '{}');
+          const competitionData = JSON.parse(localStorage.getItem('competitionData') || '{}');
+          const paymentAmount = registrationData.amount || 0;
+          
           // Payment is verified, proceed with storing payment details
           const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
             method: 'POST',
@@ -562,7 +572,7 @@
               payment_id: paymentId,
               order_id: orderId,
               razorpay_signature: signature,
-              amount: mockDatabase.registrations[registrationId].paymentAmount * 100, // Convert to paise
+              amount: paymentAmount * 100, // Convert to paise
               user_id: currentUser.uid,
               competitionId,
               registrationId
@@ -574,45 +584,33 @@
             // Continue anyway since payment was successful
           }
           
-          // Update mock database (in real implementation, this would be handled by the storePayment function)
-          mockDatabase.payments[localPaymentId] = {
-            ...mockDatabase.payments[localPaymentId],
-            status: 'completed',
-            razorpayPaymentId: paymentId,
-            razorpayOrderId: orderId,
-            razorpaySignature: signature,
-            completedAt: new Date().toISOString()
-          };
-          
-          // Update registration status
-          mockDatabase.registrations[registrationId] = {
-            ...mockDatabase.registrations[registrationId],
+          // Update local storage to reflect completed payment
+          const updatedRegData = {
+            ...registrationData,
             status: 'confirmed',
             paymentStatus: 'completed',
-            paymentDate: new Date().toISOString()
+            paymentDate: new Date().toISOString(),
+            transactionId: paymentId
           };
-          
-          // Get data needed for the completion screen
-          const registrationDetails = mockDatabase.registrations[registrationId];
-          const competitionDetails = mockDatabase.competitions[competitionId];
+          localStorage.setItem('registrationData', JSON.stringify(updatedRegData));
           
           // Show completion container
           document.getElementById('processing-container').classList.add('hidden');
           document.getElementById('completion-container').classList.remove('hidden');
-          document.getElementById('completion-competition').textContent = competitionDetails.title;
+          document.getElementById('completion-competition').textContent = competitionData.title;
           document.getElementById('completion-transaction').textContent = paymentId;
           document.getElementById('completion-date').textContent = new Date().toLocaleString();
-          document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
+          document.getElementById('completion-amount').textContent = `₹${paymentAmount}`;
           
           // Store transaction details for receipt
           sessionStorage.setItem('transactionDetails', JSON.stringify({
-            competitionName: competitionDetails.title,
+            competitionName: competitionData.title,
             transactionId: paymentId,
             paymentDate: new Date().toISOString(),
-            amount: registrationDetails.paymentAmount,
-            playerCount: registrationDetails.playerCount,
-            guardianName: registrationDetails.guardianName,
-            email: registrationDetails.email
+            amount: paymentAmount,
+            playerCount: registrationData.playerCount,
+            guardianName: registrationData.guardianName,
+            email: registrationData.email
           }));
         } else {
           // Payment verification failed
@@ -658,6 +656,7 @@
       document.getElementById('error-message').textContent = message;
     }
     
+ 
     function generateReceipt() {
       const transactionDetails = JSON.parse(sessionStorage.getItem('transactionDetails'));
       if (!transactionDetails) {
@@ -665,7 +664,7 @@
         return;
       }
       
-      // Create a printable receipt
+      // Create a printable receipt with actual data
       const receiptWindow = window.open('', '_blank');
       receiptWindow.document.write(`
         <!DOCTYPE html>
