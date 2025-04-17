@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,7 +113,9 @@
           </div>
           <ul class="feature-list text-sm text-gray-700">
             <li>One Competition listing/month</li>
+            <li>INR 499 per competition registration </li>
             <li>Allowed up 250 participants registration per competition</li>
+            <li>limited Email notifications</li>
             <li>8% transaction fee on every participant registration</li>
             <li>Standard support (email only)</li>
           </ul>
@@ -132,8 +135,10 @@
             <p class="text-gray-600 mt-1">Enhanced visibility</p>
           </div>
           <ul class="feature-list text-sm text-gray-700">
-            <li>One Competition listing/month</li>
+            <li>3 Competition listing/month</li>
+            <li>INR 899 per competition registration </li>
             <li>Allowed unlimited participants registration per competition</li>
+            <li>limited Email notifications</li>
             <li>5% transaction fee on every participant registration</li>
             <li>Enhanced support (Through Phone & email)</li>    
             </ul>
@@ -215,91 +220,6 @@
     </div>
   </div>
 
-  // Add right after your existing script tag opening
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firestore.js";
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Function to store data in Firebase
-    window.storeCompetitionData = async function() {
-      try {
-        const competitionData = JSON.parse(localStorage.getItem('competitionFormData'));
-        
-        if (!competitionData || !competitionData.paymentStatus || competitionData.paymentStatus !== 'completed') {
-          console.error("No valid payment data found");
-          return;
-        }
-
-        // Add competition document to Firestore
-        const competitionRef = await addDoc(collection(db, "competitions"), {
-          title: competitionData.title,
-          category: competitionData.category,
-          description: competitionData.description,
-          startDate: competitionData.startDate,
-          endDate: competitionData.endDate,
-          contact: competitionData.contact,
-          email: competitionData.email,
-          phone: competitionData.phone,
-          package: competitionData.package,
-          status: "pendingReview",
-          createdAt: new Date().toISOString()
-        });
-
-        console.log("Competition stored with ID: ", competitionRef.id);
-
-        // Add payment document to Firestore
-        const paymentRef = await addDoc(collection(db, "payments"), {
-          competitionId: competitionRef.id,
-          razorpayPaymentId: competitionData.razorpayPaymentId,
-          razorpayOrderId: competitionData.razorpayOrderId,
-          razorpaySignature: competitionData.razorpaySignature,
-          amount: competitionData.paymentAmount,
-          package: competitionData.package,
-          status: "completed",
-          timestamp: competitionData.paymentDate || new Date().toISOString()
-        });
-
-        console.log("Payment stored with ID: ", paymentRef.id);
-        
-        // Update competitionData with the Firestore document ID
-        competitionData.id = competitionRef.id;
-        competitionData.status = "pendingReview";
-        localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
-        
-        // Show success screen
-        showSuccessScreen();
-      } catch (error) {
-        console.error("Error storing data in Firebase: ", error);
-        alert("There was an error storing your data. Please contact support.");
-      }
-    };
-
-    // Check for payment return on page load
-    window.checkPaymentReturn = function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('paymentStatus') === 'success') {
-        // Store the data in Firebase
-        window.storeCompetitionData();
-      }
-    };
-  </script>
   <script>
     let selectedPackage = 'featured';
     let competitionData = {};
@@ -312,8 +232,7 @@
     let discountApplied = false;
     let discountPercent = 0;
 
-
-     window.onload = function() {
+    window.onload = function() {
   // Try to retrieve the competition data from localStorage
       const storedData = localStorage.getItem('competitionFormData');
       if (storedData) {
@@ -325,22 +244,14 @@
       } else {
         // Redirect back to the form if no data exists
         window.location.href = 'index.html';
-        return;
       }
       
-      // Check if returning from a payment
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('paymentStatus') === 'success') {
-        // Store the data in Firebase and show success
-        window.storeCompetitionData();
-      } else {
-        // Select featured package by default
-        selectPackage('featured');
-        
-        // Make sure the UI reflects the selected package
-        document.getElementById('featured-selector').style.backgroundColor = '#3b82f6';
-        document.querySelector('.pricing-card[data-package="featured"]').classList.add('selected');
-      }
+      // Select featured package by default
+      selectPackage('featured');
+      
+      // Make sure the UI reflects the selected package
+      document.getElementById('featured-selector').style.backgroundColor = '#3b82f6';
+      document.querySelector('.pricing-card[data-package="featured"]').classList.add('selected');
     };
 
     function selectPackage(packageName) {
@@ -423,8 +334,6 @@
 
     function proceedToPayment() {
   // Calculate final price
-
-      // Calculate final price
       let finalPrice = currentPrice;
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
@@ -436,15 +345,11 @@
       competitionData.paymentComplete = false;
       competitionData.status = 'pendingPayment';
       
-      if (discountApplied) {
-        competitionData.discountPercent = discountPercent;
-      }
-      
       // Store the updated data
       localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
       
-      // Redirect to the Razorpay payment page with returnUrl parameter
-      window.location.href = `organizer_payment_razor.html?amount=${finalPrice}&returnUrl=${encodeURIComponent('pricing.html')}`;
+      // Redirect directly to the Razorpay payment page
+      window.location.href = `organizer_payment_razor.html?amount=${finalPrice}`;
     }
 
     // Function to show success screen after payment
