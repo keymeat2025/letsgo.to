@@ -426,7 +426,12 @@
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
-        rules: document.getElementById('rules').value
+        rules: document.getElementById('rules').value,
+        // Add these fields for better mapping in payment and Firebase
+        contact: document.getElementById('contactName').value, // For payment page compatibility
+        phone: document.getElementById('contactPhone').value,  // For payment page compatibility
+        formCompleted: true,
+        formCompletedAt: new Date().toISOString()
       };
     
       // Save to local storage
