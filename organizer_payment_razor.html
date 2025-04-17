@@ -574,6 +574,7 @@
     
     // In the verifyPaymentWithBackend function, fix the amount handling:
     async function verifyPaymentWithBackend(paymentId, orderId, signature) {
+    
       try {
         const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
           method: 'POST',
@@ -595,55 +596,25 @@
         const verifyData = await verifyResponse.json();
         
         if (verifyData.verified) {
-          // Payment is verified, proceed with storing payment details
-          // Calculate amount in paise
-          const amountInPaise = Math.round(competitionData.paymentAmount);
-          // const amountInPaise = Math.round(competitionData.paymentAmount * 100);
-          
-          const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              payment_id: paymentId,
-              order_id: orderId,
-              razorpay_signature: signature,
-              amount: amountInPaise, // Amount in paise
-              amount_rupees: competitionData.paymentAmount, // Store the amount in rupees for clarity
-              competition_title: competitionData.title,
-              competition_id: competitionData.id || 'new_competition',
-              package: competitionData.package,
-              contact: competitionData.contact || "Not provided",
-              email: competitionData.email || "Not provided",
-              phone: competitionData.phone || "Not provided"
-            })
-          });
-          
-          if (!storeResponse.ok) {
-            console.warn("Payment verified but failed to store details:", await storeResponse.json());
-            // Continue anyway since payment was successful
-          }
-          
           // Update competitionData with payment details
           competitionData.paymentStatus = 'completed';
           competitionData.razorpayPaymentId = paymentId;
+          competitionData.razorpayOrderId = orderId;
+          competitionData.razorpaySignature = signature;
           competitionData.paymentDate = new Date().toISOString();
           
           // Save back to localStorage
           localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
           
-          // Show completion container
-          document.getElementById('processing-container').classList.add('hidden');
-          document.getElementById('completion-container').classList.remove('hidden');
-          document.getElementById('completion-competition').textContent = competitionData.title;
-          document.getElementById('completion-transaction').textContent = paymentId;
-          document.getElementById('completion-date').textContent = new Date().toLocaleString();
-          document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
+          // Get the returnUrl parameter or default to pricing.html
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnUrl = urlParams.get('returnUrl') || 'pricing.html';
+          
+          // Redirect back with a success parameter
+          window.location.href = `${returnUrl}?paymentStatus=success`;
           
         } else {
           // Payment verification failed
-          console.error("Payment verification failed:", verifyData);
           document.getElementById('processing-container').classList.add('hidden');
           document.getElementById('payment-container').classList.remove('hidden');
           showError("Payment verification failed. Please try again or contact support.");
