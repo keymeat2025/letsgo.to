@@ -272,64 +272,35 @@
   <script>
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
-      key_id: "rzp_test_EF3W5mVXB1Q3li", // Replace with your Razorpay test key ID
+      key_id: "", // Replace with your Razorpay test key ID
       currency: "INR"
     };
-    
+
+    // Fetch Razorpay key from backend during initialization
+    async function initializeRazorpayConfig() {
+      try {
+        const configResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/getRazorpayConfig`);
+        if (configResponse.ok) {
+          const config = await configResponse.json();
+          razorpayConfig.key_id = config.key_id;
+        }
+      } catch (error) {
+        console.error("Error fetching Razorpay config:", error);
+      }
+    }
     // Firebase Function URLs - Replace with your actual Firebase Functions URLs
   
     const FIREBASE_FUNCTIONS_BASE_URL = "https://asia-south1-letsgoto-a630e.cloudfunctions.net";
     
     // Mock database for testing (Replace with your actual database implementation later)
-    let mockDatabase = {
-      competitions: {
-        "comp123": {
-          title: "Chess Championship 2025",
-          organizer: "Chess Federation",
-          date: "2025-05-20",
-          venue: "City Sports Complex"
-        }
-      },
-      registrations: {
-        "reg456": {
-          competitionId: "comp123",
-          playerCount: 2,
-          guardianName: "John Doe",
-          email: "john.doe@example.com",
-          phone: "9876543210",
-          paymentAmount: 500,
-          status: "pending",
-          players: ["Player 1", "Player 2"]
-        }
-      },
-      payments: {
-        "pay789": {
-          registrationId: "reg456",
-          competitionId: "comp123",
-          amount: 500,
-          status: "pending"
-        }
-      },
-      users: {
-        "user123": {
-          name: "John Doe",
-          email: "john.doe@example.com",
-          phone: "9876543210"
-        }
-      }
-    };
     
     // Mock authentication for testing
-    let currentUser = {
-      uid: "user123",
-      email: "john.doe@example.com",
-      displayName: "John Doe"
-    };
-    
+  
     // Initialize the payment page
     document.addEventListener('DOMContentLoaded', () => {
-      // Check if user is logged in (for testing, we assume yes)
-      if (currentUser) {
+      // Check if user is logged in using Firebase Auth
+      firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
         // Get parameters from URL
   
         const urlParams = new URLSearchParams(window.location.search);
@@ -354,26 +325,31 @@
         }
       } else {
         // Not logged in, redirect to login page (in real implementation)
-        showError("Please log in to continue with payment.");
+          window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.href);
       }
+        
     });
 
 
-    function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
-      try {
         // Get the stored registration data
-        const registrationData = JSON.parse(localStorage.getItem('registrationData') || '{}');
-        const competitionData = JSON.parse(localStorage.getItem('competitionData') || '{}');
+        // Change this function to fetch from Firebase instead of localStorage
+    async function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
+      try {
+        document.getElementById('loading-container').classList.remove('hidden');
         
-        if (!competitionData.title) {
-          showError("Competition details not found. Please return to the registration page.");
-          return;
+        // Fetch competition data from Firebase
+        const competitionResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/getCompetitionDetails?id=${competitionId}`);
+        if (!competitionResponse.ok) {
+          throw new Error("Failed to fetch competition details");
         }
+        const competitionData = await competitionResponse.json();
         
-        if (!registrationData.playerCount) {
-          showError("Registration details not found. Please return to the registration page.");
-          return;
+        // Fetch registration data from Firebase
+        const registrationResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/getRegistrationDetails?id=${registrationId}`);
+        if (!registrationResponse.ok) {
+          throw new Error("Failed to fetch registration details");
         }
+        const registrationData = await registrationResponse.json();
         
         // Populate payment page with actual data
         document.getElementById('competition-title').textContent = competitionData.title;
@@ -383,7 +359,7 @@
         document.getElementById('summary-players').textContent = registrationData.playerCount;
         document.getElementById('summary-total').textContent = `₹${amount}`;
         
-        // Store registration data in session for later use
+        // Store necessary data in session storage
         sessionStorage.setItem('registrationData', JSON.stringify({
           competitionId,
           registrationId,
