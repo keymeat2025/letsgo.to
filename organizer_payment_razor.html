@@ -367,6 +367,13 @@
           discountPercent = competitionData.discountPercent;
           finalAmount = packagePrice * (1 - discountPercent/100);
         }
+
+        // Log the contact details to verify they exist
+        console.log("Contact details:", {
+          contact: competitionData.contact,
+          phone: competitionData.phone,
+          email: competitionData.email
+        });
         
         // Populate payment page
         document.getElementById('competition-title').textContent = competitionData.title || "Competition Listing";
@@ -424,6 +431,7 @@
       });
     }
     
+   
     async function initiateRazorpayPayment() {
       try {
         // Show processing screen
@@ -434,6 +442,9 @@
         const paymentId = 'pay_' + Math.random().toString(36).substr(2, 9);
         competitionData.paymentId = paymentId;
         
+        // Calculate amount in paise for Razorpay
+        const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+        
         // Create an order by calling your Firebase Function API
         const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
           method: 'POST',
@@ -441,7 +452,7 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            amount: competitionData.paymentAmount * 100, // Convert to paise for Razorpay
+            amount: amountInPaise, // Amount in paise
             receipt: `receipt_${paymentId}`,
             notes: {
               competitionId: competitionData.id || 'new_competition',
@@ -470,8 +481,8 @@
         // Configure Razorpay options
         const options = {
           key: razorpayConfig.key_id,
-          amount: orderData.amount, // This amount is already in paise from backend
-          currency: orderData.currency,
+          amount: orderData.amount, // Already in paise from the backend
+          currency: orderData.currency || "INR",
           name: "Competition Listing",
           description: `Listing for ${competitionData.title}`,
           order_id: orderData.id,
@@ -504,6 +515,13 @@
           }
         };
         
+        // Log the data being sent to Razorpay for debugging
+        console.log("Razorpay options:", {
+          amount: options.amount,
+          amountInRupees: options.amount / 100,
+          prefill: options.prefill
+        });
+        
         // Open Razorpay checkout
         const razorpayInstance = new Razorpay(options);
         razorpayInstance.open();
@@ -516,7 +534,44 @@
       }
     }
     
-    // Verify payment with Firebase Functions backend
+    // Modify the loadCompetitionData function to better handle localStorage data
+    function loadCompetitionData() {
+      try {
+        // Retrieve competition data from local storage (set by pricing.html)
+        const storedData = localStorage.getItem('competitionFormData');
+        
+        if (storedData) {
+          competitionData = JSON.parse(storedData);
+          
+          // Check if we have all required information
+          if (competitionData.title && competitionData.package) {
+            console.log("Competition data loaded:", competitionData);
+            populatePaymentDetails();
+          } else {
+            showError("Missing competition details. Please return to the form.");
+          }
+        } else {
+          // No data in localStorage, check URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const competitionId = urlParams.get('competition');
+          
+          if (competitionId) {
+            // Fetch competition data from server using competitionId
+            fetchCompetitionDataFromServer(competitionId);
+          } else {
+            showError("No competition information found. Please start over.");
+            // Hide loading, show error
+            document.getElementById('loading-container').classList.add('hidden');
+          }
+        }
+      } catch (error) {
+        console.error("Error loading competition data:", error);
+        showError("Failed to load competition details. Please try again.");
+        document.getElementById('loading-container').classList.add('hidden');
+      }
+    }
+    
+    // In the verifyPaymentWithBackend function, fix the amount handling:
     async function verifyPaymentWithBackend(paymentId, orderId, signature) {
       try {
         const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
@@ -540,6 +595,9 @@
         
         if (verifyData.verified) {
           // Payment is verified, proceed with storing payment details
+          // Calculate amount in paise
+          const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+          
           const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
             method: 'POST',
             headers: {
@@ -549,13 +607,14 @@
               payment_id: paymentId,
               order_id: orderId,
               razorpay_signature: signature,
-              amount: competitionData.paymentAmount * 100, // Convert to paise
+              amount: amountInPaise, // Amount in paise
+              amount_rupees: competitionData.paymentAmount, // Store the amount in rupees for clarity
               competition_title: competitionData.title,
               competition_id: competitionData.id || 'new_competition',
               package: competitionData.package,
-              contact: competitionData.contact,
-              email: competitionData.email,
-              phone: competitionData.phone
+              contact: competitionData.contact || "Not provided",
+              email: competitionData.email || "Not provided",
+              phone: competitionData.phone || "Not provided"
             })
           });
           
