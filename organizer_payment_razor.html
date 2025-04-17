@@ -346,6 +346,8 @@
       document.getElementById('loading-container').classList.add('hidden');
     }
     
+
+     // Make sure the contact details are properly accessed and displayed
     function populatePaymentDetails() {
       try {
         // Determine package price
@@ -367,7 +369,7 @@
           discountPercent = competitionData.discountPercent;
           finalAmount = packagePrice * (1 - discountPercent/100);
         }
-
+        
         // Log the contact details to verify they exist
         console.log("Contact details:", {
           contact: competitionData.contact,
@@ -377,9 +379,9 @@
         
         // Populate payment page
         document.getElementById('competition-title').textContent = competitionData.title || "Competition Listing";
-        document.getElementById('competition-organizer').textContent = `by ${competitionData.contact || "Organizer"}`;
+        document.getElementById('competition-organizer').textContent = competitionData.contact ? `by ${competitionData.contact}` : "by Organizer";
         
-        // Summary details
+        // Summary details - make sure to directly access properties
         document.getElementById('summary-competition').textContent = competitionData.title || "N/A";
         document.getElementById('summary-category').textContent = competitionData.category || "N/A";
         document.getElementById('summary-contact').textContent = competitionData.contact || "N/A"; 
@@ -408,7 +410,6 @@
         document.getElementById('loading-container').classList.add('hidden');
       }
     }
-    
     function setupEventListeners() {
       // Razorpay payment button
       document.getElementById('razorpay-btn').addEventListener('click', () => {
