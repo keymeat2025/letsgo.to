@@ -452,7 +452,7 @@
       }
       
       // Redirect to payment page with necessary parameters
-      window.location.href = `payment.html?competition=${competitionData.id || "comp123"}&registration=${competitionData.registrationId || "reg456"}&payment=${competitionData.paymentId || "pay789"}&amount=${finalPrice}`;
+      window.location.href = `organizer_payment_razor.html?competition=${competitionData.id || "comp123"}&registration=${competitionData.registrationId || "reg456"}&payment=${competitionData.paymentId || "pay789"}&amount=${finalPrice}`;
     
       
       // In a real application, the data would be saved to the database and go into an admin review queue
