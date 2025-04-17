@@ -163,13 +163,6 @@
             <li>5% transaction fee on every participant registration</li>
             <li>Enhanced support (Through Phone & email)</li>    
             <li>Organizer Dashboard</li>
-            <!--
-            <li>Everything in Featured</li>
-            <li>30 days in "Premium" section</li>
-            <li>Homepage banner placement</li>
-            <li>Email newsletter promotion</li>
-            <li>Dedicated social media post</li>
-            <li>Premium analytics dashboard</li> -->
           </ul>
           <div class="mt-6 text-center">
             <div class="inline-block w-4 h-4 border-2 border-gray-300 rounded-full" id="premium-selector"></div>
@@ -192,62 +185,6 @@
             <button onclick="goBackToForm()" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">Back</button>
             <button onclick="proceedToPayment()" class="payment-btn">Proceed to Payment</button>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="paymentContainer" class="pricing-container hidden">
-    <div class="pricing-header">
-      <h2 class="text-3xl font-bold">Payment Information</h2>
-      <p class="mt-2 text-blue-100">Complete your transaction securely</p>
-    </div>
-    <div class="pricing-content">
-      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 class="font-bold text-gray-700">Order Summary</h3>
-        <p id="orderTitle" class="text-lg"></p>
-        <p id="orderPackage" class="text-sm text-gray-600 mt-1"></p>
-        <p class="text-lg font-bold mt-2">Total: <span id="orderTotal"></span></p>
-      </div>
-
-      <div class="bg-white rounded-lg p-6 border border-gray-200">
-        <div class="mb-4">
-          <label class="block text-gray-700 font-semibold mb-2">Card Information</label>
-          <input type="text" placeholder="Card Number" class="w-full p-3 border-2 border-gray-200 rounded-lg mb-2">
-          <div class="grid grid-cols-2 gap-4">
-            <input type="text" placeholder="MM/YY" class="p-3 border-2 border-gray-200 rounded-lg">
-            <input type="text" placeholder="CVC" class="p-3 border-2 border-gray-200 rounded-lg">
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-gray-700 font-semibold mb-2">Cardholder Name</label>
-          <input type="text" placeholder="Name on card" class="w-full p-3 border-2 border-gray-200 rounded-lg">
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-gray-700 font-semibold mb-2">Billing Address</label>
-          <input type="text" placeholder="Address" class="w-full p-3 border-2 border-gray-200 rounded-lg mb-2">
-          <div class="grid grid-cols-2 gap-4 mb-2">
-            <input type="text" placeholder="City" class="p-3 border-2 border-gray-200 rounded-lg">
-            <input type="text" placeholder="State" class="p-3 border-2 border-gray-200 rounded-lg">
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <input type="text" placeholder="Zip Code" class="p-3 border-2 border-gray-200 rounded-lg">
-            <select class="p-3 border-2 border-gray-200 rounded-lg">
-              <option value="">Select Country</option>
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
-              <option value="UK">United Kingdom</option>
-              <option value="AU">Australia</option>
-              <!-- Add more countries as needed -->
-            </select>
-          </div>
-        </div>
-
-        <div class="flex justify-between items-center mt-6">
-          <button onclick="goBackToPricing()" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">Back</button>
-          <button onclick="processPayment()" class="payment-btn">Complete Payment</button>
         </div>
       </div>
     </div>
@@ -295,9 +232,8 @@
     let discountPercent = 0;
 
     // When the page loads
-
     window.onload = function() {
-  // Try to retrieve the competition data from localStorage
+      // Try to retrieve the competition data from localStorage
       const storedData = localStorage.getItem('competitionFormData');
       if (storedData) {
         competitionData = JSON.parse(storedData);
@@ -317,12 +253,16 @@
       document.getElementById('featured-selector').style.backgroundColor = '#3b82f6';
       document.querySelector('.pricing-card[data-package="featured"]').classList.add('selected');
 
+      // Check if returning from Razorpay with success
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment_status') === 'success') {
+        showSuccessScreen();
+      }
     };
 
     function selectPackage(packageName) {
       // First, remove selected class from all packages
-
-       if (packageName === 'premium') {
+      if (packageName === 'premium') {
         return; // Exit function early
       }
   
@@ -353,8 +293,7 @@
     }
 
     function updateTotalPrice() {
-   
-  // Calculate with discount if applicable
+      // Calculate with discount if applicable
       let finalPrice = currentPrice;
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
@@ -397,42 +336,8 @@
     function goBackToForm() {
       window.location.href = 'index.html';
     }
-
-
       
     function proceedToPayment() {
-  // Hide pricing container
-      document.getElementById('pricingContainer').classList.add('hidden');
-      
-      // Update order summary
-      document.getElementById('orderTitle').textContent = competitionData.title || "Your Competition";
-      document.getElementById('orderPackage').textContent = 
-        `${selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)} Package`;
-      
-      // Calculate final price
-      let finalPrice = currentPrice;
-      if (discountApplied) {
-        finalPrice = currentPrice * (1 - discountPercent / 100);
-      }
-    
-      // Set the order total correctly
-      document.getElementById('orderTotal').textContent = `INR ${finalPrice.toFixed(2)}`;
-      
-      // Show payment container
-      document.getElementById('paymentContainer').classList.remove('hidden');
-    }
-
-    function goBackToPricing() {
-      // Hide payment container
-      document.getElementById('paymentContainer').classList.add('hidden');
-      
-      // Show pricing container
-      document.getElementById('pricingContainer').classList.remove('hidden');
-    }
-
-
-      // Save the package information with the competition data
-    function processPayment() {
       // Calculate final price
       let finalPrice = currentPrice;
       if (discountApplied) {
@@ -453,11 +358,25 @@
       const registrationId = competitionData.registrationId || `reg_${Date.now()}`;
       const paymentId = competitionData.paymentId || `pay_${Date.now()}`;
       
-      // Redirect to the Razorpay payment page with necessary parameters
+      // Redirect directly to the Razorpay payment page
       window.location.href = `organizer_payment_razor.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${finalPrice}`;
-    } 
-      // In a real application, the data would be saved to the database and go into an admin review queue
-    
+    }
+
+    // Function to show success screen after payment
+    function showSuccessScreen() {
+      // Hide pricing container
+      document.getElementById('pricingContainer').classList.add('hidden');
+      
+      // Show success container
+      document.getElementById('successContainer').classList.remove('hidden');
+      
+      // Update competition data to reflect completed payment
+      if (competitionData) {
+        competitionData.paymentComplete = true;
+        competitionData.status = 'pendingReview';
+        localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+      }
+    }
 
     function goToDashboard() {
       // Redirect to a dashboard page
