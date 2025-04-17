@@ -288,7 +288,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js"></script>
   
-  <script>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
+    
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
@@ -301,8 +305,15 @@
     };
   
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const functions = getFunctions(app);
+    
+    // Make firebase accessible globally
+    window.firebaseApp = app;
+    window.firebaseFunctions = functions;
+    window.httpsCallable = httpsCallable;
   </script>
+  
   <script>
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
@@ -462,8 +473,8 @@
         competitionData.paymentId = paymentId;
         
         // Calculate amount in paise for Razorpay
-        const amountInPaise = Math.round(competitionData.paymentAmount);
-        //const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+        //const amountInPaise = Math.round(competitionData.paymentAmount);
+        const amountInPaise = Math.round(competitionData.paymentAmount * 100);
         // Create an order by calling your Firebase Function API
         const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
           method: 'POST',
@@ -631,7 +642,8 @@
           // Now save the competition data to Firebase
           try {
             // Import the Firebase functions
-            const saveCompetition = firebase.functions().httpsCallable('saveCompetitionToFirebase');
+            //const saveCompetition = firebase.functions().httpsCallable('saveCompetitionToFirebase');
+            const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
             
             // Call the function with our competition data
             const result = await saveCompetition(competitionData);
