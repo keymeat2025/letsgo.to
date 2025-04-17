@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .payment-container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header-container {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-container h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: -1px;
+    }
+
+    .card-container {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      margin: -2rem -2rem 2rem -2rem;
+      padding: 1.5rem;
+    }
+
+    .payment-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .payment-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: #3b82f6;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-container {
+      background-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+    }
+
+    .success-container {
+      background-color: #dcfce7;
+      border-left: 4px solid #22c55e;
+      color: #15803d;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+    }
+
+    .razorpay-btn {
+      background: #072654;
+      color: white;
+    }
+
+    .razorpay-btn:hover {
+      background: #0a3d82;
+    }
+
+    .receipt-container {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .receipt-row:last-child {
+      border-bottom: none;  
+    }
+
+    .receipt-label {
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .receipt-value {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .total-row {
+      font-weight: 700;
+      color: #0f172a;
+      border-top: 2px solid #e2e8f0;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <div class="header-container">
+      <h1>Payment</h1>
+      <p class="text-lg mt-2">Complete your registration</p>
+    </div>
+
+    <div id="loading-container" class="card-container text-center py-10">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-gray-600">Loading payment details...</p>
+    </div>
+    
+    <div id="error-container" class="error-container hidden">
+      <p id="error-message"></p>
+    </div>
+    
+    <div id="success-container" class="success-container hidden">
+      <p id="success-message"></p>
+    </div>
+    
+    <div id="payment-container" class="card-container hidden">
+      <div class="card-header">
+        <h2 class="text-xl font-bold" id="competition-title">Competition Registration</h2>
+        <p class="text-sm opacity-80" id="competition-organizer"></p>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="font-medium text-lg mb-4">Payment Summary</h3>
+        
+        <div class="receipt-container">
+          <div class="receipt-row">
+            <span class="receipt-label">Competition</span>
+            <span class="receipt-value" id="summary-competition"></span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Number of Players</span>
+            <span class="receipt-value" id="summary-players"></span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Registration Fee</span>
+            <span class="receipt-value" id="summary-fee">₹250 per player</span>
+          </div>
+          <div class="receipt-row total-row">
+            <span class="receipt-label">Total Amount</span>
+            <span class="receipt-value" id="summary-total"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="font-medium text-lg mb-4">Payment Method</h3>
+        
+        <div class="flex flex-col gap-4">
+          <button id="razorpay-btn" class="razorpay-btn rounded-lg px-4 py-3 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Pay with Razorpay
+          </button>
+        </div>
+      </div>
+      
+      <div class="text-sm text-gray-500 mb-6">
+        <p>After successful payment, a receipt will be sent to your registered email address.</p>
+      </div>
+      
+      <button id="back-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">
+        Back to Registration
+      </button>
+    </div>
+    
+    <div id="processing-container" class="card-container hidden text-center py-10">
+      <div class="loading-spinner mb-4"></div>
+      <h3 class="text-xl font-bold mb-2">Processing Payment</h3>
+      <p class="text-gray-600">Please do not close this window...</p>
+    </div>
+    
+    <div id="completion-container" class="card-container hidden">
+      <div class="card-header">
+        <h2 class="text-xl font-bold">Payment Successful</h2>
+        <p class="text-sm opacity-80">Your registration is complete</p>
+      </div>
+      
+      <div class="success-container my-6" id="completion-message">
+        <p>Your payment was successful and your registration is confirmed. A receipt has been sent to your email.</p>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="font-medium text-lg mb-4">Payment Details</h3>
+        
+        <div class="receipt-container">
+          <div class="receipt-row">
+            <span class="receipt-label">Competition</span>
+            <span class="receipt-value" id="completion-competition"></span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Transaction ID</span>
+            <span class="receipt-value" id="completion-transaction"></span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Payment Date</span>
+            <span class="receipt-value" id="completion-date"></span>
+          </div>
+          <div class="receipt-row total-row">
+            <span class="receipt-label">Amount Paid</span>
+            <span class="receipt-value" id="completion-amount"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-4">
+        <button id="home-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex-1">
+          Return to Home
+        </button>
+        <button id="download-receipt-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex-1">
+          Download Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Razorpay Test Credentials (Replace with your actual credentials)
+    const razorpayConfig = {
+      key_id: "rzp_test_EF3W5mVXB1Q3li", // Replace with your Razorpay test key ID
+      currency: "INR"
+    };
+    
+    // Firebase Function URLs - Replace with your actual Firebase Functions URLs
+  
+    const FIREBASE_FUNCTIONS_BASE_URL = "https://asia-south1-letsgoto-a630e.cloudfunctions.net";
+    
+    // Mock database for testing (Replace with your actual database implementation later)
+    let mockDatabase = {
+      competitions: {
+        "comp123": {
+          title: "Chess Championship 2025",
+          organizer: "Chess Federation",
+          date: "2025-05-20",
+          venue: "City Sports Complex"
+        }
+      },
+      registrations: {
+        "reg456": {
+          competitionId: "comp123",
+          playerCount: 2,
+          guardianName: "John Doe",
+          email: "john.doe@example.com",
+          phone: "9876543210",
+          paymentAmount: 500,
+          status: "pending",
+          players: ["Player 1", "Player 2"]
+        }
+      },
+      payments: {
+        "pay789": {
+          registrationId: "reg456",
+          competitionId: "comp123",
+          amount: 500,
+          status: "pending"
+        }
+      },
+      users: {
+        "user123": {
+          name: "John Doe",
+          email: "john.doe@example.com",
+          phone: "9876543210"
+        }
+      }
+    };
+    
+    // Mock authentication for testing
+    let currentUser = {
+      uid: "user123",
+      email: "john.doe@example.com",
+      displayName: "John Doe"
+    };
+    
+    // Initialize the payment page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if user is logged in (for testing, we assume yes)
+      if (currentUser) {
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const competitionId = urlParams.get('competition') || "comp123"; // Default for testing
+        const registrationId = urlParams.get('registration') || "reg456"; // Default for testing
+        const paymentId = urlParams.get('payment') || "pay789"; // Default for testing
+        const amount = urlParams.get('amount') || 500; // Default for testing
+        
+        // Check payment status from URL (after Razorpay callback)
+        const paymentId_razorpay = urlParams.get('razorpay_payment_id');
+        const orderId = urlParams.get('razorpay_order_id');
+        const signature = urlParams.get('razorpay_signature');
+        
+        if (paymentId_razorpay && orderId && signature) {
+          // This means we're returning from Razorpay payment verification
+          verifyRazorpayPayment(paymentId_razorpay, orderId, signature, competitionId, registrationId, paymentId);
+        } else if (competitionId && registrationId && paymentId) {
+          // Initial payment page load
+          fetchPaymentDetails(competitionId, registrationId, paymentId, amount);
+        } else {
+          showError("Missing payment information. Please return to the registration page.");
+        }
+      } else {
+        // Not logged in, redirect to login page (in real implementation)
+        showError("Please log in to continue with payment.");
+      }
+    });
+
+    function fetchPaymentDetails(competitionId, registrationId, paymentId, amount) {
+      try {
+        // For testing, we're using the mock database
+        const competitionData = mockDatabase.competitions[competitionId];
+        const registrationData = mockDatabase.registrations[registrationId];
+        
+        if (!competitionData) {
+          showError("Competition not found.");
+          return;
+        }
+        
+        if (!registrationData) {
+          showError("Registration not found.");
+          return;
+        }
+        
+        // Populate payment page
+        document.getElementById('competition-title').textContent = competitionData.title;
+        document.getElementById('competition-organizer').textContent = `by ${competitionData.organizer}`;
+        document.getElementById('summary-competition').textContent = competitionData.title;
+        document.getElementById('summary-players').textContent = registrationData.playerCount;
+        document.getElementById('summary-total').textContent = `₹${amount}`;
+        
+        // Store registration data in session for later use
+        sessionStorage.setItem('registrationData', JSON.stringify({
+          competitionId,
+          registrationId,
+          paymentId,
+          amount,
+          competitionTitle: competitionData.title,
+          playerCount: registrationData.playerCount,
+          email: registrationData.email,
+          guardianName: registrationData.guardianName,
+          phone: registrationData.phone
+        }));
+        
+        // Hide loading, show payment form
+        document.getElementById('loading-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.remove('hidden');
+        
+        // Set up event listeners
+        setupEventListeners(competitionId, registrationId, paymentId, amount);
+      } catch (error) {
+        console.error("Error fetching payment details:", error);
+        showError("Failed to load payment details. Please try again later.");
+      }
+    }
+    
+    function setupEventListeners(competitionId, registrationId, paymentId, amount) {
+      // Razorpay payment button
+      document.getElementById('razorpay-btn').addEventListener('click', () => {
+        initiateRazorpayPayment(competitionId, registrationId, paymentId, amount);
+      });
+      
+      // Back button
+      document.getElementById('back-btn').addEventListener('click', () => {
+        window.location.href = `registration.html?id=${competitionId}`;
+      });
+      
+      // Home button (on completion page)
+      document.getElementById('home-btn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+      
+      // Download receipt button
+      document.getElementById('download-receipt-btn').addEventListener('click', () => {
+        generateReceipt();
+      });
+    }
+    
+    // Update the initiateRazorpayPayment function to use Firebase Functions
+    async function initiateRazorpayPayment(competitionId, registrationId, paymentId, amount) {
+      try {
+        // Show processing screen
+        document.getElementById('payment-container').classList.add('hidden');
+        document.getElementById('processing-container').classList.remove('hidden');
+        
+        // Get registration data from session storage
+        const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
+        
+        // Create an order by calling your Firebase Function API
+        const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            amount: amount, // Firebase function will convert to paise
+            receipt: `receipt_${registrationId}`,
+            notes: {
+              competitionId: competitionId,
+              registrationId: registrationId,
+              paymentId: paymentId
+            }
+          })
+        });
+        
+        if (!orderResponse.ok) {
+          const errorData = await orderResponse.json();
+          throw new Error(`Failed to create order: ${errorData.details || errorData.error || 'Unknown error'}`);
+        }
+        
+        const orderData = await orderResponse.json();
+        console.log("Order created:", orderData);
+        
+        if (!orderData.id) {
+          throw new Error("Invalid order response");
+        }
+        
+        // Update payment document with order ID (in real implementation, this would use Firebase)
+        mockDatabase.payments[paymentId] = {
+          ...mockDatabase.payments[paymentId],
+          orderId: orderData.id,
+          initiatedAt: new Date().toISOString()
+        };
+        
+        // Store order ID for reference
+        sessionStorage.setItem('currentOrderId', orderData.id);
+        
+        // Configure Razorpay options
+        const options = {
+          key: razorpayConfig.key_id,
+          amount: orderData.amount, // This amount is already in paise from backend
+          currency: orderData.currency,
+          name: "Chess Competition",
+          description: `Registration for ${registrationData.competitionTitle}`,
+          order_id: orderData.id,
+          prefill: {
+            name: registrationData.guardianName,
+            email: registrationData.email,
+            contact: registrationData.phone
+          },
+          notes: {
+            competitionId: competitionId,
+            registrationId: registrationId,
+            paymentId: paymentId
+          },
+          theme: {
+            color: "#3b82f6"
+          },
+          handler: function(response) {
+            console.log("Payment successful:", response);
+            // Verify the payment with your backend
+            verifyPaymentWithBackend(
+              response.razorpay_payment_id,
+              response.razorpay_order_id,
+              response.razorpay_signature,
+              competitionId,
+              registrationId,
+              paymentId
+            );
+          },
+          modal: {
+            ondismiss: function() {
+              document.getElementById('processing-container').classList.add('hidden');
+              document.getElementById('payment-container').classList.remove('hidden');
+            }
+          }
+        };
+        
+        // Open Razorpay checkout
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.open();
+        
+      } catch (error) {
+        console.error("Error initiating payment:", error);
+        document.getElementById('processing-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.remove('hidden');
+        showError(error.message || "Failed to initiate payment. Please try again.");
+      }
+    }
+    
+    // Verify payment with Firebase Functions backend
+    async function verifyPaymentWithBackend(paymentId, orderId, signature, competitionId, registrationId, localPaymentId) {
+      try {
+        const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: orderId,
+            razorpay_signature: signature
+          })
+        });
+        
+        if (!verifyResponse.ok) {
+          const errorData = await verifyResponse.json();
+          throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
+        }
+        
+        const verifyData = await verifyResponse.json();
+        
+        if (verifyData.verified) {
+          // Payment is verified, proceed with storing payment details
+          const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              payment_id: paymentId,
+              order_id: orderId,
+              razorpay_signature: signature,
+              amount: mockDatabase.registrations[registrationId].paymentAmount * 100, // Convert to paise
+              user_id: currentUser.uid,
+              competitionId,
+              registrationId
+            })
+          });
+          
+          if (!storeResponse.ok) {
+            console.warn("Payment verified but failed to store details:", await storeResponse.json());
+            // Continue anyway since payment was successful
+          }
+          
+          // Update mock database (in real implementation, this would be handled by the storePayment function)
+          mockDatabase.payments[localPaymentId] = {
+            ...mockDatabase.payments[localPaymentId],
+            status: 'completed',
+            razorpayPaymentId: paymentId,
+            razorpayOrderId: orderId,
+            razorpaySignature: signature,
+            completedAt: new Date().toISOString()
+          };
+          
+          // Update registration status
+          mockDatabase.registrations[registrationId] = {
+            ...mockDatabase.registrations[registrationId],
+            status: 'confirmed',
+            paymentStatus: 'completed',
+            paymentDate: new Date().toISOString()
+          };
+          
+          // Get data needed for the completion screen
+          const registrationDetails = mockDatabase.registrations[registrationId];
+          const competitionDetails = mockDatabase.competitions[competitionId];
+          
+          // Show completion container
+          document.getElementById('processing-container').classList.add('hidden');
+          document.getElementById('completion-container').classList.remove('hidden');
+          document.getElementById('completion-competition').textContent = competitionDetails.title;
+          document.getElementById('completion-transaction').textContent = paymentId;
+          document.getElementById('completion-date').textContent = new Date().toLocaleString();
+          document.getElementById('completion-amount').textContent = `₹${registrationDetails.paymentAmount}`;
+          
+          // Store transaction details for receipt
+          sessionStorage.setItem('transactionDetails', JSON.stringify({
+            competitionName: competitionDetails.title,
+            transactionId: paymentId,
+            paymentDate: new Date().toISOString(),
+            amount: registrationDetails.paymentAmount,
+            playerCount: registrationDetails.playerCount,
+            guardianName: registrationDetails.guardianName,
+            email: registrationDetails.email
+          }));
+        } else {
+          // Payment verification failed
+          console.error("Payment verification failed:", verifyData);
+          document.getElementById('processing-container').classList.add('hidden');
+          document.getElementById('payment-container').classList.remove('hidden');
+          showError("Payment verification failed. Please try again or contact support.");
+        }
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+        document.getElementById('processing-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.remove('hidden');
+        showError("Error verifying payment. Please try again or contact support.");
+      }
+    }
+    
+    function verifyRazorpayPayment(razorpayPaymentId, razorpayOrderId, razorpaySignature, competitionId, registrationId, paymentId) {
+      try {
+        // Hide all containers initially
+        document.getElementById('loading-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.add('hidden');
+        document.getElementById('processing-container').classList.remove('hidden');
+        
+        // Call the verifyPaymentWithBackend function
+        verifyPaymentWithBackend(
+          razorpayPaymentId,
+          razorpayOrderId,
+          razorpaySignature,
+          competitionId,
+          registrationId,
+          paymentId
+        );
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+        showError("Error processing payment. Please contact support.");
+        document.getElementById('processing-container').classList.add('hidden');
+        document.getElementById('payment-container').classList.remove('hidden');
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('error-container').classList.remove('hidden');
+      document.getElementById('error-message').textContent = message;
+    }
+    
+    function generateReceipt() {
+      const transactionDetails = JSON.parse(sessionStorage.getItem('transactionDetails'));
+      if (!transactionDetails) {
+        showError("Receipt details not found.");
+        return;
+      }
+      
+      // Create a printable receipt
+      const receiptWindow = window.open('', '_blank');
+      receiptWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Payment Receipt</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 20px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            .receipt {
+              border: 1px solid #ccc;
+              padding: 20px;
+              border-radius: 5px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+              padding-bottom: 10px;
+              border-bottom: 2px solid #3b82f6;
+            }
+            .receipt-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 10px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .total {
+              font-weight: bold;
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 2px solid #eee;
+            }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+            }
+            @media print {
+              .no-print {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="receipt">
+            <div class="header">
+              <h1>Payment Receipt</h1>
+              <p>Competition Registration</p>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Competition:</span>
+              <span>${transactionDetails.competitionName}</span>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Guardian/Parent:</span>
+              <span>${transactionDetails.guardianName}</span>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Email:</span>
+              <span>${transactionDetails.email}</span>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Number of Players:</span>
+              <span>${transactionDetails.playerCount}</span>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Transaction ID:</span>
+              <span>${transactionDetails.transactionId}</span>
+            </div>
+            
+            <div class="receipt-row">
+              <span>Date:</span>
+              <span>${new Date(transactionDetails.paymentDate).toLocaleString()}</span>
+            </div>
+            
+            <div class="receipt-row total">
+              <span>Amount Paid:</span>
+              <span>₹${transactionDetails.amount}</span>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for your registration. We look forward to seeing you at the competition!</p>
+            <p>For any inquiries, please contact us at support@yourcompetition.com</p>
+          </div>
+          
+          <div class="no-print" style="text-align: center; margin-top: 30px;">
+            <button onclick="window.print()">Print Receipt</button>
+          </div>
+        </body>
+        </html>
+      `);
+      receiptWindow.document.close();
+    }
+  </script>
+</body>
+</html>
