@@ -445,6 +445,15 @@
       
       // Store the updated data - in a real app, this would be sent to the server
       localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+      // Calculate final price
+      let finalPrice = currentPrice;
+      if (discountApplied) {
+        finalPrice = currentPrice * (1 - discountPercent / 100);
+      }
+      
+      // Redirect to payment page with necessary parameters
+      window.location.href = `payment.html?competition=${competitionData.id || "comp123"}&registration=${competitionData.registrationId || "reg456"}&payment=${competitionData.paymentId || "pay789"}&amount=${finalPrice}`;
+    
       
       // In a real application, the data would be saved to the database and go into an admin review queue
     }
