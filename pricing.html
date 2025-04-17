@@ -231,9 +231,8 @@
     let discountApplied = false;
     let discountPercent = 0;
 
-    // When the page loads
     window.onload = function() {
-      // Try to retrieve the competition data from localStorage
+  // Try to retrieve the competition data from localStorage
       const storedData = localStorage.getItem('competitionFormData');
       if (storedData) {
         competitionData = JSON.parse(storedData);
@@ -246,18 +245,12 @@
         window.location.href = 'index.html';
       }
       
-      // Select featured package by default (match the initial selectedPackage value)
+      // Select featured package by default
       selectPackage('featured');
       
       // Make sure the UI reflects the selected package
       document.getElementById('featured-selector').style.backgroundColor = '#3b82f6';
       document.querySelector('.pricing-card[data-package="featured"]').classList.add('selected');
-
-      // Check if returning from Razorpay with success
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('payment_status') === 'success') {
-        showSuccessScreen();
-      }
     };
 
     function selectPackage(packageName) {
@@ -337,8 +330,9 @@
       window.location.href = 'index.html';
     }
       
+
     function proceedToPayment() {
-      // Calculate final price
+  // Calculate final price
       let finalPrice = currentPrice;
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
@@ -353,13 +347,8 @@
       // Store the updated data
       localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
       
-      // Generate IDs if they don't exist
-      const competitionId = competitionData.id || `comp_${Date.now()}`;
-      const registrationId = competitionData.registrationId || `reg_${Date.now()}`;
-      const paymentId = competitionData.paymentId || `pay_${Date.now()}`;
-      
       // Redirect directly to the Razorpay payment page
-      window.location.href = `organizer_payment_razor.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${finalPrice}`;
+      window.location.href = `organizer_payment_razor.html?amount=${finalPrice}`;
     }
 
     // Function to show success screen after payment
