@@ -430,33 +430,34 @@
       document.getElementById('pricingContainer').classList.remove('hidden');
     }
 
-    function processPayment() {
-      // In a real application, this would process the payment
-      // and handle API calls to payment gateway
-      
-      // For demonstration, we'll just show a success message
-      document.getElementById('paymentContainer').classList.add('hidden');
-      document.getElementById('successContainer').classList.remove('hidden');
-      
+
       // Save the package information with the competition data
-      competitionData.package = selectedPackage;
-      competitionData.paymentComplete = true;
-      competitionData.status = 'pendingReview';
-      
-      // Store the updated data - in a real app, this would be sent to the server
-      localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+    function processPayment() {
       // Calculate final price
       let finalPrice = currentPrice;
       if (discountApplied) {
         finalPrice = currentPrice * (1 - discountPercent / 100);
       }
       
-      // Redirect to payment page with necessary parameters
-      window.location.href = `organizer_payment_razor.html?competition=${competitionData.id || "comp123"}&registration=${competitionData.registrationId || "reg456"}&payment=${competitionData.paymentId || "pay789"}&amount=${finalPrice}`;
-    
+      // Save the package information with the competition data
+      competitionData.package = selectedPackage;
+      competitionData.paymentAmount = finalPrice;
+      competitionData.paymentComplete = false;
+      competitionData.status = 'pendingPayment';
       
+      // Store the updated data
+      localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+      
+      // Generate IDs if they don't exist
+      const competitionId = competitionData.id || `comp_${Date.now()}`;
+      const registrationId = competitionData.registrationId || `reg_${Date.now()}`;
+      const paymentId = competitionData.paymentId || `pay_${Date.now()}`;
+      
+      // Redirect to the Razorpay payment page with necessary parameters
+      window.location.href = `organizer_payment_razor.html?competition=${competitionId}&registration=${registrationId}&payment=${paymentId}&amount=${finalPrice}`;
+    } 
       // In a real application, the data would be saved to the database and go into an admin review queue
-    }
+    
 
     function goToDashboard() {
       // Redirect to a dashboard page
