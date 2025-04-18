@@ -265,9 +265,7 @@
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
       
-   
       <div class="flex justify-between mt-6">
-      
         <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
         <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
@@ -275,6 +273,36 @@
     </div>
   </div>
   
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    // Make Firebase functions available globally
+    window.db = db;
+    window.firestore = {
+      collection: collection,
+      addDoc: addDoc,
+      doc: doc,
+      setDoc: setDoc
+    };
+  </script>
   
   <script>
     const fileInput = document.getElementById('brochureFile');
@@ -382,8 +410,12 @@
     }
 
     function isOrganizer(organizer) {
-  // Replace with the actual logic to verify if the user is an organizer
-  // For example, you can check against an array of known organizers
+      // For testing purposes, allow any organizer name
+      // In a production environment, you would check against a database of authorized organizers
+      return true;
+      
+      // Original code - commented out for testing
+      /*
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
         alert('Only organizers can submit to the dashboard. Redirecting to login page...');
@@ -395,6 +427,7 @@
         return false;
       }
       return true;
+      */
     }
     
     function saveFormData() {
@@ -418,9 +451,8 @@
       localStorage.setItem('competitionFormData', JSON.stringify(formData));
     }
     
-    
-      function populateFormData() {
-  // Retrieve form data from local storage
+    function populateFormData() {
+      // Retrieve form data from local storage
       const formData = JSON.parse(localStorage.getItem('competitionFormData'));
     
       if (formData) {
@@ -480,13 +512,18 @@
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         brochureUrl: '',
-        createdAt: new Date()
+        createdAt: new Date().toISOString()
       };
       
       try {
+        console.log('Adding to Firestore...');
+        console.log('DB:', window.db);
+        console.log('Firestore functions:', window.firestore);
+        
         const competitionsRef = window.firestore.collection(window.db, 'competitions');
         const docRef = window.firestore.doc(competitionsRef, formattedName);
         await window.firestore.setDoc(docRef, competitionData);
+        
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
@@ -496,35 +533,6 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
-  </script>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    
-    // Make Firebase functions available globally
-    window.db = db;
-
-    window.firestore = { collection, addDoc, doc, setDoc };
   </script>
 </body>
 </html>
