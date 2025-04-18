@@ -445,6 +445,7 @@
     // Call the function to populate form data when the page loads
     window.onload = populateFormData;
     
+ 
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
@@ -452,9 +453,8 @@
       }
     
       const organizer = document.getElementById('organizer').value;
-    
+      
       if (!isOrganizer(organizer)) {
-        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
         return;
       }
     
@@ -480,13 +480,13 @@
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         brochureUrl: '',
-        createdAt: new Date()
+        createdAt: new Date().toISOString()  // Changed to ISO string for Firestore compatibility
       };
       
       try {
-        const competitionsRef = window.firestore.collection(window.db, 'competitions');
-        const docRef = window.firestore.doc(competitionsRef, formattedName);
-        await window.firestore.setDoc(docRef, competitionData);
+        // The problem is here - the way you're accessing Firestore methods
+        const docRef = doc(window.db, 'competitions', formattedName);
+        await window.setDoc(docRef, competitionData);
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
@@ -523,8 +523,11 @@
     
     // Make Firebase functions available globally
     window.db = db;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.collection = collection;
 
-    window.firestore = { collection, addDoc, doc, setDoc };
+   // window.firestore = { collection, addDoc, doc, setDoc };
   </script>
 </body>
 </html>
