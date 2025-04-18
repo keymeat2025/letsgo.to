@@ -284,36 +284,7 @@
       </div>
     </div>
   </div>
-<!-- Add these scripts to your payment.html before your existing scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js"></script>
-  
-  
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
-    
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const functions = getFunctions(app);
-    
-    // Make firebase accessible globally
-    window.firebaseApp = app;
-    window.firebaseFunctions = functions;
-    window.httpsCallable = httpsCallable;
-  </script>
-  
+
   <script>
     // Razorpay Test Credentials (Replace with your actual credentials)
     const razorpayConfig = {
@@ -381,9 +352,8 @@
       try {
         // Determine package price
         const packagePrices = {
-          'basic': 4.99,
-          //'basic': 499.00,
-          'featured': 8.99,
+          'basic': 4.00,
+          'featured': 8.00,
           'premium': 1499.00
         };
         
@@ -474,9 +444,8 @@
         competitionData.paymentId = paymentId;
         
         // Calculate amount in paise for Razorpay
-        //const amountInPaise = Math.round(competitionData.paymentAmount);
-        //const amountInPaise = Math.round(competitionData.paymentAmount * 100);
-        const amountInPaise = Math.round(competitionData.paymentAmount);
+        const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+        
         // Create an order by calling your Firebase Function API
         const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
           method: 'POST',
@@ -604,96 +573,88 @@
     }
     
     // In the verifyPaymentWithBackend function, fix the amount handling:
-
-          
     async function verifyPaymentWithBackend(paymentId, orderId, signature) {
-    try {
-      // Show processing container
-      document.getElementById('processing-container').classList.remove('hidden');
-      document.getElementById('payment-container').classList.add('hidden');
-      
-      const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          razorpay_payment_id: paymentId,
-          razorpay_order_id: orderId,
-          razorpay_signature: signature
-        })
-      });
-      
-      if (!verifyResponse.ok) {
-        const errorData = await verifyResponse.json();
-        throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
-      }
-      
-      const verifyData = await verifyResponse.json();
-      
-      if (verifyData.verified) {
-        // Update competitionData with payment details
-        competitionData.paymentStatus = 'completed';
-        competitionData.razorpayPaymentId = paymentId;
-        competitionData.razorpayOrderId = orderId;
-        competitionData.razorpaySignature = signature;
-        competitionData.paymentDate = new Date().toISOString();
+      try {
+        const verifyResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/verifyPayment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: orderId,
+            razorpay_signature: signature
+          })
+        });
         
-        // Save to localStorage
-        localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+        if (!verifyResponse.ok) {
+          const errorData = await verifyResponse.json();
+          throw new Error(`Payment verification failed: ${errorData.details || errorData.error || 'Unknown error'}`);
+        }
         
-        // Now save the competition data to Firebase
-        try {
-          // Use the modular Firebase SDK that's already initialized
-          //const saveCompetition = httpsCallable(window.firebaseFunctions, 'saveCompetitionToFirebase');
-          const saveCompetition = firebase.functions('asia-south1').httpsCallable('saveCompetitionToFirebase');
+        const verifyData = await verifyResponse.json();
+        
+        if (verifyData.verified) {
+          // Payment is verified, proceed with storing payment details
+          // Calculate amount in paise
+          const amountInPaise = Math.round(competitionData.paymentAmount * 100);
           
-          // Call the function with our competition data
-          const result = await saveCompetition(competitionData);
+          const storeResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/storePayment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              payment_id: paymentId,
+              order_id: orderId,
+              razorpay_signature: signature,
+              amount: amountInPaise, // Amount in paise
+              amount_rupees: competitionData.paymentAmount, // Store the amount in rupees for clarity
+              competition_title: competitionData.title,
+              competition_id: competitionData.id || 'new_competition',
+              package: competitionData.package,
+              contact: competitionData.contact || "Not provided",
+              email: competitionData.email || "Not provided",
+              phone: competitionData.phone || "Not provided"
+            })
+          });
           
-          if (result.data && result.data.success) {
-            // Show success message and completion container
-            showSuccess(`Competition saved successfully with ID: ${result.data.competitionId}`);
-            
-            // Populate completion container
-            document.getElementById('completion-competition').textContent = competitionData.title || "N/A";
-            document.getElementById('completion-transaction').textContent = paymentId;
-            document.getElementById('completion-date').textContent = new Date().toLocaleString();
-            document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
-            
-            // Show completion container
-            document.getElementById('processing-container').classList.add('hidden');
-            document.getElementById('completion-container').classList.remove('hidden');
-          } else {
-            throw new Error('Failed to save competition data');
+          if (!storeResponse.ok) {
+            console.warn("Payment verified but failed to store details:", await storeResponse.json());
+            // Continue anyway since payment was successful
           }
-        } catch (firebaseError) {
-          console.error("Error saving to Firebase:", firebaseError);
-          showError("Payment was successful but we encountered an issue saving your competition. Our team will contact you shortly.");
           
-          // Even if saving fails, show the completion page
+          // Update competitionData with payment details
+          competitionData.paymentStatus = 'completed';
+          competitionData.razorpayPaymentId = paymentId;
+          competitionData.paymentDate = new Date().toISOString();
+          
+          // Save back to localStorage
+          localStorage.setItem('competitionFormData', JSON.stringify(competitionData));
+          
+          // Show completion container
           document.getElementById('processing-container').classList.add('hidden');
           document.getElementById('completion-container').classList.remove('hidden');
+          document.getElementById('completion-competition').textContent = competitionData.title;
+          document.getElementById('completion-transaction').textContent = paymentId;
+          document.getElementById('completion-date').textContent = new Date().toLocaleString();
+          document.getElementById('completion-amount').textContent = `₹${competitionData.paymentAmount.toFixed(2)}`;
+          
+        } else {
+          // Payment verification failed
+          console.error("Payment verification failed:", verifyData);
+          document.getElementById('processing-container').classList.add('hidden');
+          document.getElementById('payment-container').classList.remove('hidden');
+          showError("Payment verification failed. Please try again or contact support.");
         }
-      } else {
-        // Payment verification failed
+      } catch (error) {
+        console.error("Error verifying payment:", error);
         document.getElementById('processing-container').classList.add('hidden');
         document.getElementById('payment-container').classList.remove('hidden');
-        showError("Payment verification failed. Please try again or contact support.");
+        showError("Error verifying payment. Please try again or contact support.");
       }
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      document.getElementById('processing-container').classList.add('hidden');
-      document.getElementById('payment-container').classList.remove('hidden');
-      showError("Error verifying payment. Please try again or contact support.");
     }
-  }
-    
-    // Add this helper function
-    function showSuccess(message) {
-      document.getElementById('success-container').classList.remove('hidden');
-      document.getElementById('success-message').textContent = message;
-    }
+
     function showError(message) {
       document.getElementById('error-container').classList.remove('hidden');
       document.getElementById('error-message').textContent = message;
