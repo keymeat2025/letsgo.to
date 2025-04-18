@@ -242,7 +242,9 @@
           <strong class="text-gray-600">Registration Deadline:</strong> 
           <span id="previewRegistrationDeadline"></span>
         </div>
+       
       </div>
+      
       
       <div>
         <strong class="text-gray-600">Venue:</strong> 
@@ -316,16 +318,16 @@
     }
   
     function showPreview() {
+
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-  
+    
       document.getElementById('previewTitle').textContent = document.getElementById('title').value;
       document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
       document.getElementById('previewCategory').textContent = document.getElementById('category').value;
       document.getElementById('previewPrizeDetails').textContent = document.getElementById('prizeDetails').value;
-      document.getElementById('previewRegistrationAmount').textContent = document.getElementById('registrationAmount').value;
       document.getElementById('previewRules').textContent = document.getElementById('rules').value;
       
       const startDate = new Date(document.getElementById('startDateTime').value);
@@ -349,13 +351,13 @@
       } else {
         previewVenueLink.textContent = '';
       }
-  
+    
       const currentDate = new Date();
       const timeDiff = regDeadline.getTime() - currentDate.getTime();
       const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
       
       document.getElementById('daysLeft').textContent = `${daysLeft} Days Left to Register!`;
-  
+    
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
       const editButtonText = addedToDashboard ? 
@@ -413,7 +415,7 @@
         startDateTime: document.getElementById('startDateTime').value,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-        registrationAmount: document.getElementById('registrationAmount').value
+        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
@@ -458,6 +460,11 @@
         alert('Please fill all required fields.');
         return;
       }
+           // Save form data to localStorage before redirecting
+      saveFormData();
+      
+      // Redirect to the pricing page
+      window.location.href = 'pricing.html';
     
       const organizer = document.getElementById('organizer').value;
     
