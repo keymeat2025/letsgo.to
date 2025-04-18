@@ -420,20 +420,11 @@
         alert('Form cancelled successfully. You can now create a new competition.');
       }
     }
-    
+   
     function isOrganizer(organizer) {
-      // Replace with the actual logic to verify if the user is an organizer
+  // Replace with the actual logic to verify if the user is an organizer
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
-      if (!knownOrganizers.includes(organizer)) {
-        alert('Only organizers can submit to the dashboard. Redirecting to login page...');
-        
-        // Save form data to local storage
-        saveFormData();
-        
-        window.location.href = 'login.html'; // Replace with the actual login page URL
-        return false;
-      }
-      return true;
+      return knownOrganizers.includes(organizer);
     }
     
     function saveFormData() {
@@ -485,24 +476,34 @@
     // Call the function to populate form data when the page loads
     window.onload = populateFormData;
     
+ 
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-      // Save form data to localStorage before redirecting
+      
+      const organizer = document.getElementById('organizer').value;
+      
+      // Save form data regardless of login state
       saveFormData();
       
-      // Redirect to the pricing page
-      window.location.href = 'pricing.html';
-    
-      const organizer = document.getElementById('organizer').value;
-    
-      if (!isOrganizer(organizer)) {
-        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
+      // Check if user is logged in first
+      if (!isLoggedIn()) {
+        alert('You need to log in before submitting to the dashboard. Redirecting to login page...');
+        window.location.href = 'login.html';
         return;
       }
-    
+      
+      // Check if the logged-in user is an organizer
+      if (!isOrganizer(organizer)) {
+        alert('Only authorized organizers can submit to the dashboard. Please contact support.');
+        return;
+      }
+      
+      // If we're here, user is logged in AND is an organizer
+      // Proceed with submission
+      
       const title = document.getElementById('title').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
@@ -537,6 +538,9 @@
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
         addedToDashboard = true;
+        
+        // Only redirect to pricing after successful submission
+        window.location.href = 'pricing.html';
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
