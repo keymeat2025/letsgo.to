@@ -474,7 +474,8 @@
         
         // Calculate amount in paise for Razorpay
         //const amountInPaise = Math.round(competitionData.paymentAmount);
-        const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+        //const amountInPaise = Math.round(competitionData.paymentAmount * 100);
+        const amountInPaise = Math.round(competitionData.paymentAmount);
         // Create an order by calling your Firebase Function API
         const orderResponse = await fetch(`${FIREBASE_FUNCTIONS_BASE_URL}/createOrder`, {
           method: 'POST',
