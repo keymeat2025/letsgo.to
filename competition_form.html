@@ -322,7 +322,6 @@
     }
   
     function showPreview() {
-
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
@@ -395,20 +394,58 @@
       alert('Proceeding to payment...');
     }
 
-   
-    function isOrganizer(organizer) {
-      // Replace with the actual logic to verify if the user is an organizer
-      const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
-      if (!knownOrganizers.includes(organizer)) {
-        alert('Only organizers can submit to the dashboard. Redirecting to login page...');
-        
-        // Save form data to local storage
+    // Updated isOrganizer function to check Firebase authentication and Firestore
+    async function isOrganizer(organizerName) {
+      // First check if user is logged in
+      const user = window.auth.currentUser;
+      
+      if (!user) {
+        alert('You must be logged in as an organizer to submit to the dashboard. Redirecting to login page...');
         saveFormData();
-        
-        window.location.href = 'login.html'; // Replace with the actual login page URL
+        window.location.href = 'login.html';
         return false;
       }
-      return true;
+      
+      try {
+        // Get the organizers collection
+        const organizersRef = window.firestore.collection(window.db, 'organizers');
+        
+        // Query for documents where email matches current user's email
+        const q = window.firestore.query(
+          organizersRef, 
+          window.firestore.where('email', '==', user.email),
+          window.firestore.where('isApproved', '==', true)
+        );
+        
+        const querySnapshot = await window.firestore.getDocs(q);
+        
+        if (querySnapshot.empty) {
+          alert('Your account is not registered as an approved organizer. Redirecting to registration page...');
+          saveFormData();
+          window.location.href = 'organizer-registration.html';
+          return false;
+        }
+        
+        // Check if the organization name matches what was entered in the form
+        let organizationMatches = false;
+        querySnapshot.forEach((doc) => {
+          const organizerData = doc.data();
+          if (organizerData.organizationName === organizerName) {
+            organizationMatches = true;
+          }
+        });
+        
+        if (!organizationMatches) {
+          alert('The organization name entered does not match your registered organization. Please enter your registered organization name.');
+          return false;
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('Error checking organizer status:', error);
+        alert('An error occurred while verifying your organizer status. Please try again.');
+        return false;
+      }
     }
     
     function saveFormData() {
@@ -433,9 +470,8 @@
       localStorage.setItem('competitionFormData', JSON.stringify(formData));
     }
     
-    
-      function populateFormData() {
-  // Retrieve form data from local storage
+    function populateFormData() {
+      // Retrieve form data from local storage
       const formData = JSON.parse(localStorage.getItem('competitionFormData'));
     
       if (formData) {
@@ -459,26 +495,68 @@
     }
     
     // Call the function to populate form data when the page loads
-    window.onload = populateFormData;
+    window.onload = function() {
+      populateFormData();
+      checkAuthState();
+    };
+    
+    // Add function to check authentication state
+    function checkAuthState() {
+      window.auth.onAuthStateChanged(function(user) {
+        if (user) {
+          console.log('User is signed in:', user.email);
+          // You could pre-populate the organizer field if desired
+          fetchOrganizerInfo(user.email);
+        } else {
+          console.log('No user is signed in');
+        }
+      });
+    }
+    
+    // Add function to fetch organizer info
+    async function fetchOrganizerInfo(email) {
+      try {
+        const organizersRef = window.firestore.collection(window.db, 'organizers');
+        const q = window.firestore.query(
+          organizersRef,
+          window.firestore.where('email', '==', email)
+        );
+        
+        const querySnapshot = await window.firestore.getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          querySnapshot.forEach((doc) => {
+            const organizerData = doc.data();
+            // Pre-populate organizer field with the organization name
+            document.getElementById('organizer').value = organizerData.organizationName;
+            // Optionally disable the field to prevent changes
+            // document.getElementById('organizer').disabled = true;
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching organizer info:', error);
+      }
+    }
     
     async function addToDashboard() {
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-           // Save form data to localStorage before redirecting
-      saveFormData();
       
-      // Redirect to the pricing page
-      window.location.href = 'pricing.html';
-    
       const organizer = document.getElementById('organizer').value;
-    
-      if (!isOrganizer(organizer)) {
-        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
+      
+      // Validate if user is a registered organizer
+      const isValidOrganizer = await isOrganizer(organizer);
+      
+      if (!isValidOrganizer) {
+        // The isOrganizer function will handle redirects if needed
         return;
       }
-    
+      
+      // Save form data to localStorage before attempting to add to dashboard
+      saveFormData();
+      
       const title = document.getElementById('title').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
@@ -487,6 +565,16 @@
                             String(startDate.getMonth() + 1).padStart(2, '0') + 
                             String(startDate.getDate()).padStart(2, '0');
       const formattedName = `${category}-${title}-${formattedDate}`;
+      
+      // Get current user ID for association with the competition
+      const userId = window.auth.currentUser ? window.auth.currentUser.uid : null;
+      
+      if (!userId) {
+        alert('Authentication error. Please log in again.');
+        window.location.href = 'login.html';
+        return;
+      }
+      
       const competitionData = {
         title: title,
         organizer: organizer,
@@ -496,13 +584,15 @@
         startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-         registrationAmount: document.getElementById('registrationAmount').value,
+        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         brochureUrl: '',
-        createdAt: new Date()
+        createdAt: new Date(),
+        createdBy: userId,
+        status: 'pending' // Add a status field for admin approval if needed
       };
       
       try {
@@ -513,6 +603,9 @@
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
         addedToDashboard = true;
+        
+        // Redirect to pricing page if needed
+        window.location.href = 'pricing.html';
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
@@ -523,10 +616,9 @@
   <!-- Firebase SDK -->
   <script type="module">
     // Import the functions you need from the SDKs you need
-    
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -542,11 +634,20 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     
     // Make Firebase functions available globally
     window.db = db;
-
-    window.firestore = { collection, addDoc, doc, setDoc };
+    window.auth = auth;
+    window.firestore = { 
+      collection, 
+      addDoc, 
+      doc, 
+      setDoc, 
+      query, 
+      where, 
+      getDocs 
+    };
   </script>
 </body>
 </html>
