@@ -277,11 +277,11 @@
       </div>
       
    
+    
       <div class="flex justify-between mt-6">
-      
         <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
-        <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
-        <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
+        <button onclick="proceedToPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
+        <button id="dashboardButton" onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition hidden">Add to Dashboard</button>
       </div>
     </div>
   </div>
@@ -294,6 +294,7 @@
     const formContainer = document.getElementById('formContainer');
     let editAttemptsRemaining = 3;
     let addedToDashboard = false;
+    let paymentConfirmed = false;
   
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -321,8 +322,8 @@
       return valid;
     }
   
+  
     function showPreview() {
-
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
@@ -337,12 +338,11 @@
       const startDate = new Date(document.getElementById('startDateTime').value);
       const endDate = new Date(document.getElementById('endDateTime').value);
       const regDeadline = new Date(document.getElementById('registrationDeadline').value);
-
+    
       const regamount = document.getElementById('registrationAmount').value;
       document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
       document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
       document.getElementById('previewRegistrationDeadline').textContent = regDeadline.toLocaleString();
- 
       document.getElementById('previewRegistrationAmount').textContent = regamount.toLocaleString();
       document.getElementById('previewVenue').textContent = document.getElementById('venue').value;
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
@@ -366,6 +366,14 @@
     
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
+      
+      // Check URL parameters for payment confirmation
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('paymentStatus') === 'success') {
+        paymentConfirmed = true;
+        document.getElementById('dashboardButton').classList.remove('hidden');
+      }
+      
       const editButtonText = addedToDashboard ? 
         'Edit (Unavailable)' : 
         `Edit (${editAttemptsRemaining} attempts left)`;
@@ -373,7 +381,17 @@
       document.getElementById('editButton').textContent = editButtonText;
       document.getElementById('editButton').style.display = addedToDashboard ? 'none' : 'block';
     }
-  
+
+
+      function proceedToPayment() {
+        // Save form data before redirecting
+        saveFormData();
+        
+        // Redirect to pricing page
+        window.location.href = 'pricing.html';
+      }
+
+      
     function editForm() {
       if (addedToDashboard) {
         alert('You can no longer edit this submission. Please contact us for assistance.');
@@ -392,7 +410,8 @@
     }
   
     function confirmPayment() {
-      alert('Proceeding to payment...');
+      //alert('Proceeding to payment...');
+      proceedToPayment();
     }
 
    
@@ -464,26 +483,38 @@
     }
     
     // Call the function to populate form data when the page loads
-    window.onload = populateFormData;
+    
+    
+    //window.onload = populateFormData;
+    
+    function checkPaymentStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('paymentStatus') === 'success') {
+        paymentConfirmed = true;
+        // Only show the dashboard button if there's a successful payment
+        // This will be visible when form data is loaded and preview is shown
+      }
+      
+      // Populate form data after checking payment status
+      populateFormData();
+    }
+
+    window.onload = checkPaymentStatus;
     
     async function addToDashboard() {
+      // Don't allow adding to dashboard without payment confirmation
+      if (!paymentConfirmed) {
+        alert('Please complete payment before adding to dashboard.');
+        proceedToPayment();
+        return;
+      }
+      
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-           // Save form data to localStorage before redirecting
-      saveFormData();
       
-      // Redirect to the pricing page
-      window.location.href = 'pricing.html';
-    
       const organizer = document.getElementById('organizer').value;
-    
-      if (!isOrganizer(organizer)) {
-        // The user will be redirected by the `isOrganizer` function, so no need to proceed further
-        return;
-      }
-    
       const title = document.getElementById('title').value;
       const category = document.getElementById('category').value;
       const startDateTime = document.getElementById('startDateTime').value;
@@ -501,13 +532,14 @@
         startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-         registrationAmount: document.getElementById('registrationAmount').value,
+        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         brochureUrl: '',
-        createdAt: new Date()
+        createdAt: new Date(),
+        paymentConfirmed: true
       };
       
       try {
@@ -517,12 +549,14 @@
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
+        document.getElementById('dashboardButton').style.display = 'none';
         addedToDashboard = true;
       } catch (error) {
         console.error('Error adding document: ', error);
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+    
   </script>
 
   <!-- Firebase SDK -->
