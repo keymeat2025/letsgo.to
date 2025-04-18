@@ -149,11 +149,6 @@
           <label class="input-label" for="registrationDeadline">Registration Deadline</label>
           <input type="datetime-local" name="registrationDeadline" id="registrationDeadline" class="input-field" required>
         </div>
-        <!-- Add this block inside the form-content div, for example after the "Category" input group -->
-      <div class="input-group">
-        <label class="input-label" for="registrationAmount">Registration Amount</label>
-        <input type="number" name="registrationAmount" id="registrationAmount" class="input-field" placeholder="Enter registration amount" required>
-      </div>
         <div class="input-group">
           <label class="input-label" for="venue">Venue</label>
           <input type="text" name="venue" id="venue" class="input-field" placeholder="Location of the competition" required>
@@ -242,13 +237,7 @@
           <strong class="text-gray-600">Registration Deadline:</strong> 
           <span id="previewRegistrationDeadline"></span>
         </div>
-         <div>
-          <strong class="text-gray-600">Registration Amount:</strong> 
-
-          <span id="previewRegistrationAmount"></span>
-        </div>
       </div>
-      
       
       <div>
         <strong class="text-gray-600">Venue:</strong> 
@@ -306,7 +295,7 @@
     });
   
     function validateForm() {
-      const requiredFields = ['title', 'organizer', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'registrationDeadline', 'registrationAmount','venue', 'contactName', 'contactPhone', 'rules'];
+      const requiredFields = ['title', 'organizer', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'registrationDeadline', 'venue', 'contactName', 'contactPhone', 'rules'];
       let valid = true;
       
       for (const fieldId of requiredFields) {
@@ -322,12 +311,11 @@
     }
   
     function showPreview() {
-
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-    
+  
       document.getElementById('previewTitle').textContent = document.getElementById('title').value;
       document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
       document.getElementById('previewCategory').textContent = document.getElementById('category').value;
@@ -337,13 +325,11 @@
       const startDate = new Date(document.getElementById('startDateTime').value);
       const endDate = new Date(document.getElementById('endDateTime').value);
       const regDeadline = new Date(document.getElementById('registrationDeadline').value);
-
-      const regamount = document.getElementById('registrationAmount').value;
+      
       document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
       document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
       document.getElementById('previewRegistrationDeadline').textContent = regDeadline.toLocaleString();
- 
-      document.getElementById('previewRegistrationAmount').textContent = regamount.toLocaleString();
+      
       document.getElementById('previewVenue').textContent = document.getElementById('venue').value;
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
       document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
@@ -357,13 +343,13 @@
       } else {
         previewVenueLink.textContent = '';
       }
-    
+  
       const currentDate = new Date();
       const timeDiff = regDeadline.getTime() - currentDate.getTime();
       const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
       
       document.getElementById('daysLeft').textContent = `${daysLeft} Days Left to Register!`;
-    
+  
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
       const editButtonText = addedToDashboard ? 
@@ -395,16 +381,16 @@
       alert('Proceeding to payment...');
     }
 
-   
     function isOrganizer(organizer) {
-      // Replace with the actual logic to verify if the user is an organizer
+  // Replace with the actual logic to verify if the user is an organizer
+  // For example, you can check against an array of known organizers
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
         alert('Only organizers can submit to the dashboard. Redirecting to login page...');
         
         // Save form data to local storage
         saveFormData();
-        
+    
         window.location.href = 'login.html'; // Replace with the actual login page URL
         return false;
       }
@@ -421,7 +407,6 @@
         startDateTime: document.getElementById('startDateTime').value,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
@@ -446,7 +431,6 @@
         document.getElementById('startDateTime').value = formData.startDateTime;
         document.getElementById('endDateTime').value = formData.endDateTime;
         document.getElementById('registrationDeadline').value = formData.registrationDeadline;
-        document.getElementById('registrationAmount').value = formData.registrationAmount;
         document.getElementById('venue').value = formData.venue;
         document.getElementById('venueGmapsLink').value = formData.venueGmapsLink;
         document.getElementById('contactName').value = formData.contactName;
@@ -466,11 +450,6 @@
         alert('Please fill all required fields.');
         return;
       }
-           // Save form data to localStorage before redirecting
-      saveFormData();
-      
-      // Redirect to the pricing page
-      window.location.href = 'pricing.html';
     
       const organizer = document.getElementById('organizer').value;
     
@@ -496,7 +475,6 @@
         startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
-         registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
