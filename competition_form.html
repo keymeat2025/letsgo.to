@@ -149,6 +149,11 @@
           <label class="input-label" for="registrationDeadline">Registration Deadline</label>
           <input type="datetime-local" name="registrationDeadline" id="registrationDeadline" class="input-field" required>
         </div>
+        <!-- Add this block inside the form-content div, for example after the "Category" input group -->
+      <div class="input-group">
+        <label class="input-label" for="registrationAmount">Registration Amount</label>
+        <input type="number" name="registrationAmount" id="registrationAmount" class="input-field" placeholder="Enter registration amount" required>
+      </div>
         <div class="input-group">
           <label class="input-label" for="venue">Venue</label>
           <input type="text" name="venue" id="venue" class="input-field" placeholder="Location of the competition" required>
@@ -237,7 +242,13 @@
           <strong class="text-gray-600">Registration Deadline:</strong> 
           <span id="previewRegistrationDeadline"></span>
         </div>
+         <div>
+          <strong class="text-gray-600">Registration Amount:</strong> 
+
+          <span id="previewRegistrationAmount"></span>
+        </div>
       </div>
+      
       
       <div>
         <strong class="text-gray-600">Venue:</strong> 
@@ -265,7 +276,9 @@
         <a href="#" id="brochureDownload" download class="text-blue-600 hover:underline">Download Brochure</a>
       </div>
       
+   
       <div class="flex justify-between mt-6">
+      
         <button id="editButton" onclick="editForm()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Edit (3 attempts left)</button>
         <button onclick="confirmPayment()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Confirm & Pay</button>
         <button onclick="addToDashboard()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Add to Dashboard</button>
@@ -273,36 +286,6 @@
     </div>
   </div>
   
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
-      authDomain: "letsgoto-a630e.firebaseapp.com",
-      projectId: "letsgoto-a630e",
-      storageBucket: "letsgoto-a630e.firebasestorage.app",
-      messagingSenderId: "194513214154",
-      appId: "1:194513214154:web:7825241b22095d7c43f233",
-      measurementId: "G-N8CN6LM82S"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    
-    // Make Firebase functions available globally
-    window.db = db;
-    window.firestore = {
-      collection: collection,
-      addDoc: addDoc,
-      doc: doc,
-      setDoc: setDoc
-    };
-  </script>
   
   <script>
     const fileInput = document.getElementById('brochureFile');
@@ -323,7 +306,7 @@
     });
   
     function validateForm() {
-      const requiredFields = ['title', 'organizer', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'registrationDeadline', 'venue', 'contactName', 'contactPhone', 'rules'];
+      const requiredFields = ['title', 'organizer', 'category', 'prizeDetails', 'startDateTime', 'endDateTime', 'registrationDeadline', 'registrationAmount','venue', 'contactName', 'contactPhone', 'rules'];
       let valid = true;
       
       for (const fieldId of requiredFields) {
@@ -339,11 +322,12 @@
     }
   
     function showPreview() {
+
       if (!validateForm()) {
         alert('Please fill all required fields.');
         return;
       }
-  
+    
       document.getElementById('previewTitle').textContent = document.getElementById('title').value;
       document.getElementById('previewOrganizer').textContent = document.getElementById('organizer').value;
       document.getElementById('previewCategory').textContent = document.getElementById('category').value;
@@ -353,11 +337,13 @@
       const startDate = new Date(document.getElementById('startDateTime').value);
       const endDate = new Date(document.getElementById('endDateTime').value);
       const regDeadline = new Date(document.getElementById('registrationDeadline').value);
-      
+
+      const regamount = document.getElementById('registrationAmount').value;
       document.getElementById('previewStartDate').textContent = startDate.toLocaleString();
       document.getElementById('previewEndDate').textContent = endDate.toLocaleString();
       document.getElementById('previewRegistrationDeadline').textContent = regDeadline.toLocaleString();
-      
+ 
+      document.getElementById('previewRegistrationAmount').textContent = regamount.toLocaleString();
       document.getElementById('previewVenue').textContent = document.getElementById('venue').value;
       document.getElementById('previewContactName').textContent = document.getElementById('contactName').value;
       document.getElementById('previewContactPhone').textContent = document.getElementById('contactPhone').value;
@@ -371,13 +357,13 @@
       } else {
         previewVenueLink.textContent = '';
       }
-  
+    
       const currentDate = new Date();
       const timeDiff = regDeadline.getTime() - currentDate.getTime();
       const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
       
       document.getElementById('daysLeft').textContent = `${daysLeft} Days Left to Register!`;
-  
+    
       previewDiv.classList.remove('hidden');
       formContainer.classList.add('hidden');
       const editButtonText = addedToDashboard ? 
@@ -409,25 +395,20 @@
       alert('Proceeding to payment...');
     }
 
+   
     function isOrganizer(organizer) {
-      // For testing purposes, allow any organizer name
-      // In a production environment, you would check against a database of authorized organizers
-      return true;
-      
-      // Original code - commented out for testing
-      /*
+      // Replace with the actual logic to verify if the user is an organizer
       const knownOrganizers = ["Organizer1", "Organizer2", "Organizer3"];
       if (!knownOrganizers.includes(organizer)) {
         alert('Only organizers can submit to the dashboard. Redirecting to login page...');
         
         // Save form data to local storage
         saveFormData();
-    
+        
         window.location.href = 'login.html'; // Replace with the actual login page URL
         return false;
       }
       return true;
-      */
     }
     
     function saveFormData() {
@@ -440,6 +421,7 @@
         startDateTime: document.getElementById('startDateTime').value,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
+        registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
@@ -451,8 +433,9 @@
       localStorage.setItem('competitionFormData', JSON.stringify(formData));
     }
     
-    function populateFormData() {
-      // Retrieve form data from local storage
+    
+      function populateFormData() {
+  // Retrieve form data from local storage
       const formData = JSON.parse(localStorage.getItem('competitionFormData'));
     
       if (formData) {
@@ -463,6 +446,7 @@
         document.getElementById('startDateTime').value = formData.startDateTime;
         document.getElementById('endDateTime').value = formData.endDateTime;
         document.getElementById('registrationDeadline').value = formData.registrationDeadline;
+        document.getElementById('registrationAmount').value = formData.registrationAmount;
         document.getElementById('venue').value = formData.venue;
         document.getElementById('venueGmapsLink').value = formData.venueGmapsLink;
         document.getElementById('contactName').value = formData.contactName;
@@ -482,6 +466,11 @@
         alert('Please fill all required fields.');
         return;
       }
+           // Save form data to localStorage before redirecting
+      saveFormData();
+      
+      // Redirect to the pricing page
+      window.location.href = 'pricing.html';
     
       const organizer = document.getElementById('organizer').value;
     
@@ -507,23 +496,19 @@
         startDateTime: startDateTime,
         endDateTime: document.getElementById('endDateTime').value,
         registrationDeadline: document.getElementById('registrationDeadline').value,
+         registrationAmount: document.getElementById('registrationAmount').value,
         venue: document.getElementById('venue').value,
         venueGmapsLink: document.getElementById('venueGmapsLink').value,
         contactName: document.getElementById('contactName').value,
         contactPhone: document.getElementById('contactPhone').value,
         brochureUrl: '',
-        createdAt: new Date().toISOString()
+        createdAt: new Date()
       };
       
       try {
-        console.log('Adding to Firestore...');
-        console.log('DB:', window.db);
-        console.log('Firestore functions:', window.firestore);
-        
         const competitionsRef = window.firestore.collection(window.db, 'competitions');
         const docRef = window.firestore.doc(competitionsRef, formattedName);
         await window.firestore.setDoc(docRef, competitionData);
-        
         console.log('Document written with ID: ', formattedName);
         alert('Competition added to dashboard successfully! You can no longer edit this submission. Please contact us for assistance.');
         document.getElementById('editButton').style.display = 'none';
@@ -533,6 +518,35 @@
         alert('Failed to add to dashboard. Error: ' + error.message);
       }
     }
+  </script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlYM8lU1844ushiA7A3FtQPEtreQjJ30I",
+      authDomain: "letsgoto-a630e.firebaseapp.com",
+      projectId: "letsgoto-a630e",
+      storageBucket: "letsgoto-a630e.firebasestorage.app",
+      messagingSenderId: "194513214154",
+      appId: "1:194513214154:web:7825241b22095d7c43f233",
+      measurementId: "G-N8CN6LM82S"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    // Make Firebase functions available globally
+    window.db = db;
+
+    window.firestore = { collection, addDoc, doc, setDoc };
   </script>
 </body>
 </html>
